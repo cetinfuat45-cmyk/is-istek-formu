@@ -770,15 +770,25 @@
 
         // --- YENİ İŞ İSTEĞİ & FİLTRELEME MANTIĞI ---
         function populateMachineFilter() {
-            if (!window.makinelerList) return;
+            console.log("Makineler Yükleniyor...", window.makinelerList);
+            if (!window.makinelerList || !Array.isArray(window.makinelerList) || window.makinelerList.length === 0) {
+                console.warn("Makine listesi boş veya hatalı!");
+                return;
+            }
             
             const modalSelect = document.getElementById('new-makine');
-            if (modalSelect && modalSelect.options.length <= 1) { // populate only if empty
+            if (modalSelect) {
                 let mHtml = '<option value="">Makine Seçin...</option>';
-                window.makinelerList.sort().forEach(m => {
-                    mHtml += `<option value="${m}">${m}</option>`;
+                const sortedMaks = [...window.makinelerList].sort();
+                let count = 0;
+                sortedMaks.forEach(m => {
+                    if (m && m.trim() !== "") {
+                        mHtml += `<option value="${m.trim()}">${m.trim()}</option>`;
+                        count++;
+                    }
                 });
                 modalSelect.innerHTML = mHtml;
+                console.log(count + " adet makine listeye eklendi.");
             }
         }
 
