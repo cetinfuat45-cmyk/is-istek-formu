@@ -7,571 +7,193 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2092/2092063.png">
-    <title>Bakım HUB Dashboard</title>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Hata:', err));
-        });
-      }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Inter:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;700;900&family=Open+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <title>İş İstek Formu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
         :root {
             --bg-dark: #020617;
             --bg-grid: #0f172a;
-            --header-black: #000000;
             --text-main: #f8fafc;
             --text-dim: #94a3b8;
-            --mekanik: #00ffff;
-            --elektrik: #ffff00;
-            --planli: #ffa500;
             --is: #22d3ee;
-            --isg: #ff0000;
-            --diger: #fffafa;
-            --desc-color: #4ade80;
-            --card-fs-base: 14px;
-            --row-fs-base: 10px;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: var(--font-family, 'Roboto'), -apple-system, BlinkMacSystemFont, sans-serif;
-            cursor: default;
+            font-family: 'Roboto', sans-serif;
         }
 
         body {
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-size: 11px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-        }
-
-        body[data-thickness="thin"] *:not(.material-icons) { font-weight: 300 !important; }
-        body[data-thickness="normal"] { /* default */ }
-        body[data-thickness="thick"] *:not(.material-icons) { font-weight: 900 !important; }
-
-        /* Top Bar - Enhanced */
-        .top-bar {
-            height: 38px;
-            background: var(--header-black);
             display: flex;
+            justify-content: center;
             align-items: center;
-            padding: 0 15px;
-            gap: 15px;
-            border-bottom: 1px solid #1e293b;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* --- Login / Auth Modal --- */
-        .auth-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(2,6,23, 0.95); z-index: 99999;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
-        }
-        .auth-box {
-            background: #0f172a; border: 1px solid var(--c-planli);
-            padding: 30px; border-radius: 12px; text-align: center; width: 320px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-        }
-        .auth-input {
-            background: rgba(255,255,255,0.05); border: 2px solid var(--text-dim);
-            color: #fff; font-size: 28px; text-align: center; padding: 12px; 
-            width: 100%; margin: 20px 0; border-radius: 6px; font-weight:800; letter-spacing:8px;
-            outline: none; transition: border 0.3s;
-        }
-        .auth-input:focus { border-color: var(--c-planli); }
-        .auth-btn {
-            background: var(--c-planli); color: #fff; font-size: 16px; font-weight:800;
-            padding: 12px; width: 100%; border: none; border-radius: 6px; cursor: pointer;
-        }
-        .auth-btn:hover { opacity: 0.9; }
-        .theme-opt {
-            display: flex; align-items: center; gap: 10px; padding: 10px; margin-bottom: 5px;
-            background: rgba(255,255,255,0.05); border: 2px solid transparent; 
-            border-radius: 6px; cursor: pointer; transition: all 0.2s;
-            color: #fff; font-weight: 700;
-        }
-        .theme-opt:hover { background: rgba(255,255,255,0.1); }
-        .theme-opt.active { border-color: var(--mekanik); background: rgba(56,189,248,0.1); }
-
-        .op-card {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px;
-        }
-        .op-foto {
-            width: 50px; height: 50px; border-radius: 50%; background: #222; object-fit: cover; border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        .stat-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-        }
-
-        .stat-btn span:last-child {
+        .form-container {
+            width: 100%;
+            max-width: 500px;
             background: var(--bg-grid);
-            padding: 1px 8px;
-            border-radius: 4px;
-            color: var(--text-main);
-            font-size: 14px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            padding: 30px;
+            border-radius: 16px;
+            border: 2px solid var(--is);
+            box-shadow: 0 10px 40px rgba(34, 211, 238, 0.2);
         }
 
-        .stat-btn .material-icons {
-            font-size: 16px;
-        }
-
-        .fs-toggle {
-            margin-left: auto;
-            color: var(--text-dim);
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .fs-toggle:hover {
-            color: var(--text-main);
-        }
-
-        .section-header {
-            padding: 5px 10px;
-            font-size: 9px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: var(--isg);
-            border-bottom: 1px solid #ef4444;
-            margin-top: 5px;
-            letter-spacing: 0.5px;
-        }
-
-        .grid-view {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(min(17.5em, 100%), 1fr));
-            gap: 10px;
-            padding: 10px;
-            background: var(--bg-dark);
-            font-size: var(--card-fs-base);
-            align-items: start;
-        }
-
-        .card {
-            background: var(--card-bg, var(--c));
-            border: 1px solid rgba(0,0,0, 0.3);
-            border-top: 4px solid var(--card-border, #000);
-            padding: 8px;
-            border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .card .c-title {
-            font-size: 0.65em;
-            font-weight: 800;
-            color: var(--c);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-transform: uppercase;
-        }
-
-        .card .c-name {
-            font-size: 1em;
-            font-weight: 800;
-            margin: 4px 0;
-            color: var(--text-main);
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-
-        .card .c-sub {
-            font-size: 0.7em;
-            color: var(--text-main);
-            margin-bottom: 4px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 2px 6px;
-            border-radius: 3px;
-            display: inline-block;
-            font-weight: 700;
-        }
-
-        .card .c-desc {
-            font-size: 0.8em;
-            color: var(--desc-color);
-            line-height: 1.3;
-            overflow: hidden;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
-        .card .c-foot {
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 4px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8em;
-            color: var(--text-main);
-            font-weight: 800;
-        }
-
-        .list-view {
-            padding: 5px 10px;
-        }
-
-        .list-row {
-            display: grid;
-            grid-template-columns: 11em 10em 12em 13em 1fr 11em;
-            gap: 8px;
-            padding: 1px 6px;
-            border-bottom: 1px solid var(--row-border, rgba(0,0,0,0.3));
-            background: var(--row-bg, var(--c));
-            align-items: center;
-            border-radius: 2px;
-            margin-bottom: 1px;
-            font-size: var(--row-fs-base);
-        }
-
-        .list-row:hover {
-            background: var(--row-bg-hover, var(--c));
-            filter: brightness(0.9);
-        }
-
-        .r-type {
-            font-weight: 800;
-            font-size: 0.8em;
+        .header {
             text-align: center;
-            color: var(--row-color-primary, #000);
-            padding: 1px 0;
+            margin-bottom: 25px;
         }
 
-        .r-val {
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-            color: var(--text-dim);
-            font-size: 1em;
-        }
-
-        .group-sep {
-            background: var(--c);
-            border-left: 4px solid #000;
-            padding: 6px 10px;
-            font-size: 1em;
+        .header h1 {
+            font-size: 24px;
             font-weight: 900;
-            color: var(--row-color-primary, #000);
-            margin-top: 12px;
-            margin-bottom: 5px;
+            color: var(--is);
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-dim);
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            border-radius: 4px;
         }
 
-        .c-mekanik { --c: var(--mekanik); --c-rgb: 0, 255, 255; }
-        .c-elektrik { --c: var(--elektrik); --c-rgb: 255, 255, 0; }
-        .c-planli { --c: var(--planli); --c-rgb: 255, 165, 0; }
-        .c-is { --c: var(--is); --c-rgb: 34, 211, 238; }
-        .c-isg { --c: var(--isg); --c-rgb: 255, 0, 0; --row-color-primary: #ffffff; --card-color-primary: #ffffff; --card-color-text: #ffffff; --card-color-muted: #f8fafc; --desc-override: #ffffff; }
-        .c-other { --c: var(--diger); --c-rgb: 255, 250, 250; }
-
-        /* New Record Alert Window - Enlarged */
-        #alert-overlay {
-            position: fixed; top: 50%; left: 50%; 
-            transform: translate(-50%, -50%);
-            width: 650px; padding: 40px;
-            background: var(--bg-dark);
-            z-index: 9999; display: none; align-items: center; justify-content: center;
-            flex-direction: column; text-align: center;
-            border: 5px solid var(--isg); border-radius: 15px;
-            box-shadow: 0 0 80px rgba(239, 68, 68, 0.6);
-            animation: pulse-alert 1s infinite;
+        input, select, textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid #334155;
+            padding: 12px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            font-size: 16px;
+            font-weight: 600;
+            transition: border-color 0.3s;
         }
-        @keyframes pulse-alert {
-            0% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.03); }
-            100% { transform: translate(-50%, -50%) scale(1); }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--is);
         }
-        #alert-overlay h1 { font-size: 36px; color: var(--text-main); margin-bottom: 20px; font-weight: 800; border-bottom: 2px solid var(--isg); padding-bottom: 10px; width: 100%; }
-        #alert-details { width: 100%; text-align: left; background: var(--bg-grid); padding: 20px; border-radius: 10px; margin-bottom: 25px; border-left: 5px solid var(--isg); }
-        #alert-details .d-label { font-size: 14px; color: var(--text-dim); margin-bottom: 5px; font-weight: 800; text-transform: uppercase; }
-        #alert-details .d-val { font-size: 24px; color: var(--text-main); font-weight: 800; margin-bottom: 15px; }
-        #alert-details .d-desc { font-size: 18px; color: var(--desc-color); font-weight: 700; line-height: 1.4; }
-        
-        #alert-overlay .timer { font-size: 16px; color: #94a3b8; margin-bottom: 25px; }
 
-        /* Mobile / Android Responsive Fixes */
-        @media screen and (max-width: 768px) {
-            #alert-overlay { width: 90%; padding: 20px; }
-            #alert-overlay h1 { font-size: 24px; }
-            #alert-details .d-val { font-size: 18px; }
-            #alert-details .d-desc { font-size: 14px; }
-            .top-bar {
-                height: auto;
-                flex-wrap: wrap;
-                padding: 5px;
-                gap: 8px;
-            }
-            .stat-btn { font-size: 9px; }
-            .stat-btn span:last-child { font-size: 11px; padding: 1px 5px; }
-            
-            .grid-view {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-            .card {
-                height: auto;
-                min-height: 140px;
-            }
-            .card .c-name { font-size: 14px; }
-            .card .c-desc { -webkit-line-clamp: 4; font-size: 11px; }
+        .submit-btn {
+            width: 100%;
+            background: var(--is);
+            color: #000;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.2s, opacity 0.2s;
+        }
 
-            .list-view {
-                overflow-x: auto;
-                padding: 5px 0;
-            }
-            .list-row {
-                min-width: 700px; /* Forces scroll on mobile instead of crushing */
-                padding: 5px 10px;
-            }
-            .group-sep { font-size: 10px; }
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+
+        .photo-area {
+            border: 2px dashed #334155;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #foto-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+            border: 2px solid var(--is);
+        }
+
+        #last-sync {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            color: var(--text-dim);
         }
     </style>
 </head>
+
 <body>
+    <div id="last-sync">Bağlanıyor...</div>
 
-    <div id="alert-overlay">
-        <span class="material-icons" style="font-size: 48px; color: var(--isg); margin-bottom: 10px;">warning</span>
-        <h1>YENİ ARIZA KAYDI!</h1>
-        <div id="alert-details">
-            <div class="d-label">Makine / Bölüm</div>
-            <div class="d-val" id="alert-machine">-</div>
-            <div class="d-label">Arıza Açıklaması</div>
-            <div class="d-desc" id="alert-desc">-</div>
-            <div style="margin-top:15px; font-size:14px; color:var(--text-main)">
-                <span style="color:var(--text-dim)">BİLDİREN:</span> <span id="alert-person">-</span>
-            </div>
-        </div>
-        <div class="timer">Bu uyarı <span id="alert-timer">30</span> saniye içinde kapanacaktır.</div>
-        <button class="close-btn" onclick="closeAlert()">KAPAT</button>
-    </div>
-
-    <div class="top-bar" style="justify-content: space-between; padding: 10px 20px;">
-        <div style="color:var(--is); font-size:24px; font-weight:900;">İŞ İSTEK FORMU</div>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:var(--text-main); cursor:pointer;" onclick="installPWA()">
-                <span class="material-icons">download</span> UYGULAMAYI YÜKLE
-            </div>
-            <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800;">SON: --:--:--</div>
-            <div class="fs-toggle" onclick="openSettingsModal()" title="Ayarlar">
-                <span class="material-icons">settings</span>
-            </div>
-            <div class="fs-toggle" id="fs-btn">
-                <span class="material-icons">fullscreen</span>
-            </div>
-        </div>
-    </div>
-
-    <div id="form-page" style="padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%;">
-        
-        <!-- Ana Form Kutusu -->
-        <div class="auth-box" style="width: 100%; max-width: 600px; border: 2px solid var(--is); box-shadow: 0 10px 40px rgba(34, 211, 238, 0.2); background: var(--bg-dark); border-radius: 12px; position: relative; padding: 30px;">
-            
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">İsteği Açan Kişi</div>
-                <input type="text" id="new-acan" placeholder="Adınız Soyadınız" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Makine / Bölüm</div>
-                <select id="new-makine" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="">Makine Seçin...</option>
-                </select>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Vardiya</div>
-                <select id="new-vardiya" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="1.VARDİYA 00:00 // 08:00">1.VARDİYA 00:00 // 08:00</option>
-                    <option value="2.VARDİYA 08:00 // 16:00" selected>2.VARDİYA 08:00 // 16:00</option>
-                    <option value="3.VARDİYA 16:00 // 00:00">3.VARDİYA 16:00 // 00:00</option>
-                </select>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">İş Türü</div>
-                <select id="new-tur" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="MEKANİK ARIZA">MEKANİK ARIZA</option>
-                    <option value="ELEKTRİK ARIZA">ELEKTRİK ARIZA</option>
-                    <option value="İSG GÜVENLİĞİ !!!">İSG GÜVENLİĞİ !!!</option>
-                    <option value="PLANLI BAKIM KODU">PLANLI BAKIM KODU</option>
-                    <option value="TEKRAR EDEN ARIZA !!!">TEKRAR EDEN ARIZA !!!</option>
-                    <option value="DİĞER">DİĞER</option>
-                </select>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Açıklama</div>
-                <textarea id="new-aciklama" rows="3" placeholder="Arıza veya istek detayını yazın..." style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700; resize: vertical;"></textarea>
-            </div>
-
-            <!-- FOTOĞRAF YÜKLEME ALANI -->
-            <div style="text-align: left; margin-bottom: 25px; border: 2px dashed var(--text-dim); padding: 15px; border-radius: 6px; background: rgba(0,0,0,0.1);">
-                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 10px; display:flex; align-items:center; gap:5px;">
-                    <span class="material-icons">photo_camera</span> FOTOĞRAF EKLE (İsteğe Bağlı)
-                </div>
-                <input type="file" id="new-foto" accept="image/*" style="display:none;" onchange="previewImage(event)">
-                <label for="new-foto" style="display:inline-block; background: var(--bg-grid); color: var(--text-main); padding: 8px 15px; border-radius: 4px; cursor: pointer; border: 1px solid var(--text-dim); font-weight:bold; font-size: 14px;">Resim Seç veya Çek</label>
-                <div id="foto-preview-container" style="margin-top: 10px; display: none; position: relative;">
-                    <img id="foto-preview" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid var(--is);">
-                    <div onclick="removePhoto()" style="position: absolute; top: -10px; right: -10px; background: red; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 14px;">X</div>
-                </div>
-            </div>
-
-            <button id="submit-req-btn" class="auth-btn" onclick="submitNewRequest()" style="background:var(--is); width: 100%; font-size: 18px; padding: 15px;">KAYDI GÖNDER</button>
+    <div class="form-container">
+        <div class="header">
+            <h1>İŞ İSTEK FORMU</h1>
         </div>
 
-        <!-- SON EKLENENLER LİSTESİ -->
-        <div style="width: 100%; max-width: 800px; margin-top: 40px;">
-            <div class="section-header" style="color:var(--text-main); text-align:center;">SON EKLENEN KAYITLAR</div>
-            <div id="list-view" class="list-view" style="padding-bottom: 50px;"></div>
+        <div class="input-group">
+            <label>İsteği Açan Kişi</label>
+            <input type="text" id="new-acan" placeholder="Adınız Soyadınız">
         </div>
 
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="auth-overlay" style="background: rgba(0,0,0,0.4); backdrop-filter: none;">
-        <div class="auth-box" style="box-shadow: 0 10px 40px rgba(0,0,0,0.4); border: 2px solid var(--mekanik);">
-            <span class="material-icons" style="color:var(--mekanik); font-size:48px;">settings</span>
-            <div style="color:var(--mekanik); font-size:20px; font-weight:900; margin-top:10px;">AYARLAR</div>
-            <div style="color:var(--text-dim); font-size:12px; margin-top:5px; margin-bottom: 20px;">Görünüm ayarlarını düzenleyin</div>
-            
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Arka Plan Teması</div>
-                <div id="theme-options" style="display: flex; flex-direction: column;">
-                    <div class="theme-opt" data-theme="dark" onclick="previewTheme('dark')">
-                        <div style="width:16px; height:16px; border-radius:50%; background:#020617; border:1px solid #94a3b8;"></div>
-                        <span>Koyu Tema</span>
-                    </div>
-                    <div class="theme-opt" data-theme="blue" onclick="previewTheme('blue')">
-                        <div style="width:16px; height:16px; border-radius:50%; background:#082f49; border:1px solid #94a3b8;"></div>
-                        <span>Lacivert Tema</span>
-                    </div>
-                    <div class="theme-opt" data-theme="gray" onclick="previewTheme('gray')">
-                        <div style="width:16px; height:16px; border-radius:50%; background:#1e293b; border:1px solid #94a3b8;"></div>
-                        <span>Gri Tema</span>
-                    </div>
-                    <div class="theme-opt" data-theme="white" onclick="previewTheme('white')">
-                        <div style="width:16px; height:16px; border-radius:50%; background:#f1f5f9; border:1px solid #94a3b8;"></div>
-                        <span>Beyaz Tema</span>
-                    </div>
-                </div>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Karakteri (Font)</div>
-                <select id="font-family-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="Roboto" style="color: #000;">Roboto (Varsayılan)</option>
-                    <option value="Inter" style="color: #000;">Inter</option>
-                    <option value="Montserrat" style="color: #000;">Montserrat</option>
-                    <option value="Open Sans" style="color: #000;">Open Sans</option>
-                </select>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Yazı Kalınlığı</div>
-                <select id="font-weight-select" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="normal" style="color: #000;">Standart (Varsayılan)</option>
-                    <option value="thin" style="color: #000;">İnce Yazı</option>
-                    <option value="thick" style="color: #000;">Ekstra Kalın Yazı</option>
-                </select>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Kart Yazı Boyutu</div>
-                <input type="range" id="card-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('card-fs-val').innerText = this.value + 'px'">
-                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="card-fs-val">14px</div>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 15px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Satır Yazı Boyutu</div>
-                <input type="range" id="row-fs-slider" min="4" max="32" step="0.5" style="width:100%" oninput="document.getElementById('row-fs-val').innerText = this.value + 'px'">
-                <div style="color:var(--text-dim); font-size:10px; text-align:right;" id="row-fs-val">10px</div>
-            </div>
-
-            <div style="text-align: left; margin-bottom: 20px;">
-                <div style="color:#fff; font-size:12px; font-weight:800; margin-bottom: 5px;">Sayfa Ölçeği (Zoom)</div>
-                <select id="scale-select-modal" style="width: 100%; background: rgba(255,255,255,0.05); color: #fff; border: 2px solid var(--text-dim); padding: 8px; border-radius: 6px; outline: none; font-weight:700;">
-                    <option value="0.30" style="color: #000;">30%</option>
-                    <option value="0.50" style="color: #000;">50%</option>
-                    <option value="0.75" style="color: #000;">75%</option>
-                    <option value="1" style="color: #000;">100%</option>
-                    <option value="1.25" style="color: #000;">125%</option>
-                    <option value="1.5" style="color: #000;">150%</option>
-                    <option value="2" style="color: #000;">200%</option>
-                </select>
-            </div>
-
-            <button class="auth-btn" onclick="saveSettings()" style="background:var(--mekanik);">KAYDET</button>
-            <div style="margin-top:15px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeSettingsModal()">İptal Et</div>
+        <div class="input-group">
+            <label>Makine / Bölüm</label>
+            <select id="new-makine">
+                <option value="">Yükleniyor...</option>
+            </select>
         </div>
+
+        <div class="input-group">
+            <label>Vardiya</label>
+            <select id="new-vardiya">
+                <option value="1.VARDİYA 00:00 // 08:00">1.VARDİYA 00:00 // 08:00</option>
+                <option value="2.VARDİYA 08:00 // 16:00" selected>2.VARDİYA 08:00 // 16:00</option>
+                <option value="3.VARDİYA 16:00 // 00:00">3.VARDİYA 16:00 // 00:00</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>İş Türü</label>
+            <select id="new-tur">
+                <option value="MEKANİK ARIZA">MEKANİK ARIZA</option>
+                <option value="ELEKTRİK ARIZA">ELEKTRİK ARIZA</option>
+                <option value="İSG GÜVENLİĞİ !!!">İSG GÜVENLİĞİ !!!</option>
+                <option value="PLANLI BAKIM KODU">PLANLI BAKIM KODU</option>
+                <option value="TEKRAR EDEN ARIZA !!!">TEKRAR EDEN ARIZA !!!</option>
+                <option value="DİĞER">DİĞER</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>Açıklama</label>
+            <textarea id="new-aciklama" rows="3" placeholder="Detayları buraya yazın..."></textarea>
+        </div>
+
+        <div class="photo-area">
+            <label style="margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                <span class="material-icons">photo_camera</span> Fotoğraf Ekle
+            </label>
+            <input type="file" id="new-foto" accept="image/*" style="display:none;" onchange="previewImage(event)">
+            <button onclick="document.getElementById('new-foto').click()" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Resim Seç</button>
+            <img id="foto-preview">
+        </div>
+
+        <button id="submit-btn" class="submit-btn" onclick="submitRequest()">KAYDI GÖNDER</button>
     </div>
 
     <script>
         const API_URL = 'https://script.google.com/macros/s/AKfycbzv1FO2PE-sQY5wI5D46BLW0-WxRbb9LKb-Im-kHtDdTKGf_ZiGpUBV6Drthyfp-RFN/exec';
-
-        function getTypeInfo(tur) {
-            tur = tur.toUpperCase();
-            if (tur.includes("MEKANİK")) return { c: "c-mekanik", label: "MEKANİK ARIZA", icon: "settings" };
-            if (tur.includes("ELEKTRİK")) return { c: "c-elektrik", label: "ELEKTRİK ARIZA", icon: "bolt" };
-            if (tur.includes("PLANLI")) return { c: "c-planli", label: "PLANLI BAKIM KODU", icon: "event_note" };
-            if (tur.includes("YAPILAN")) return { c: "c-is", label: "YAPILAN İŞ HAKKINDA", icon: "task_alt" };
-            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) return { c: "c-isg", label: "İSG GÜVENLİĞİ", icon: "gpp_maybe" };
-            return { c: "c-other", label: tur, icon: "info" };
-        }
-
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const btn = document.getElementById('install-btn');
-            if (btn) btn.style.display = 'flex';
-        });
-
-        function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    const btn = document.getElementById('install-btn');
-                    if(btn) btn.style.display = 'none';
-                }
-                deferredPrompt = null;
-            });
-        }
-
-        function shortenName(name) {
-            if (!name || name === "-") return "-";
-            let p = name.trim().split(' ');
-            if (p.length < 2) return name;
-            return p[0][0].toUpperCase() + "." + p[p.length - 1];
-        }
-
-        // --- FOTOĞRAF SIKIŞTIRMA MANTIĞI ---
-        let currentCompressedImageBase64 = null;
+        let currentImageBase64 = "";
 
         function previewImage(event) {
             const file = event.target.files[0];
@@ -582,224 +204,50 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Maksimum boyutlar
-                    const MAX_WIDTH = 1200;
-                    const MAX_HEIGHT = 1200;
                     let width = img.width;
                     let height = img.height;
-                    
+                    const max = 1000;
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
+                        if (width > max) { height *= max / width; width = max; }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                        if (height > max) { width *= max / height; height = max; }
                     }
-                    
                     canvas.width = width;
                     canvas.height = height;
+                    const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
+                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
                     
-                    // Sıkıştır
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% kalite
-                    
-                    document.getElementById('foto-preview').src = compressedDataUrl;
-                    document.getElementById('foto-preview-container').style.display = 'inline-block';
-                    
-                    // Base64 kısmını ayır
-                    currentCompressedImageBase64 = compressedDataUrl.split(',')[1];
+                    const preview = document.getElementById('foto-preview');
+                    preview.src = currentImageBase64;
+                    preview.style.display = 'block';
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function removePhoto() {
-            document.getElementById('new-foto').value = "";
-            document.getElementById('foto-preview-container').style.display = 'none';
-            document.getElementById('foto-preview').src = "";
-            currentCompressedImageBase64 = null;
-        }
-
-        function parseDateComponents(str) {
-            if (!str) return null;
-            // Gün, Ay, Yıl bul (Ayraç ne olursa olsun)
-            const parts = str.split(' ')[0].split(/[\.\/]/);
-            if (parts.length < 3) return null;
-            return {
-                d: parseInt(parts[0], 10),
-                m: parseInt(parts[1], 10),
-                y: parseInt(parts[2], 10)
-            };
-        }
-
-        function isToday(comp1, comp2) {
-            if (!comp1 || !comp2) return false;
-            return comp1.d === comp2.d && comp1.m === comp2.m && comp1.y === comp2.y;
-        }
-
-        function processData(rawData, skipAlerts = false) {
-            let rows = Array.isArray(rawData) ? rawData : (rawData.value || rawData.data || Object.values(rawData)[0] || []);
-            if (!rows || rows.length < 2) return;
-            
-            try {
-                const list = document.getElementById('list-view');
-                if(!list) return;
-
-                let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
-                
-                const finalSeen = new Set();
-                
-                // Sadece son 50 kaydı alalım, çok yormasın (tersten dönebiliriz)
-                const dataRows = [...rows].reverse().slice(0, 50);
-
-                dataRows.forEach(row => {
-                    if (!row) return;
-                    const rawDate = row.tarih || "";
-                    if (rawDate === "") return;
-
-                    const datePart = rawDate.split(' ')[0] || "";
-                    const timePart = rawDate.split(' ')[1] || "";
-                    
-                    const acan = shortenName(row.acan || "-");
-                    const machine = row.makine ? row.makine.trim() : "-";
-                    const vardiya = row.vardiya ? row.vardiya.trim() : "";
-                    const tur = (row.tur || "DİĞER").toUpperCase();
-                    const desc = row.aciklama ? row.aciklama.trim() : "-";
-                    const foto = (row.foto || "").trim();
-                    
-                    // Not: Bu ekranda filtre kullanılmıyor, ancak ileride eklenirse diye hazır kod:
-                    // const filterMachine = document.getElementById('machine-filter') ? document.getElementById('machine-filter').value : 'ALL';
-                    // if (filterMachine !== 'ALL' && machine !== filterMachine) return;
-
-                    const key = datePart + "_" + machine + "_" + desc;
-                    if (finalSeen.has(key)) return;
-                    finalSeen.add(key);
-
-                    const info = getTypeInfo(tur);
-
-                    const rowHtml = `
-                        <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
-                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
-                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
-                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
-                            <div class="r-type ${info.c}">${info.label}</div>
-                            <div class="r-val" style="color:var(--desc-override, #00FF00); font-weight:800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${desc}</div>
-                            <div class="r-val" style="text-align:right; font-weight:900; font-size:1em;">
-                                ${foto !== "" && foto.toLowerCase() !== "fotograf yok" && foto.toLowerCase() !== "fotoğraf yok" ? `<a href="${foto}" target="_blank" style="color:#22d3ee; text-decoration:underline;">Fotoğrafı Gör</a>` : '<span style="color:var(--text-dim);font-size:0.8em;">Foto Yok</span>'}
-                            </div>
-                        </div>`;
-                        
-                    if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
-                    else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
-                    else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
-                    else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
-                    else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
-                    else groups.other.push(rowHtml);
-                });
-
-                const renderGroup = (label, rowsGroup, colorClass) => {
-                    if (rowsGroup.length === 0) return "";
-                    return `<div class="group-sep ${colorClass}">${label} (${rowsGroup.length})</div>` + rowsGroup.join('');
-                };
-
-                let listHtml = "";
-                listHtml += renderGroup("İSG & GÜVENLİK", groups.isg, "c-isg");
-                listHtml += renderGroup("MEKANİK ARIZA", groups.mekanik, "c-mekanik");
-                listHtml += renderGroup("ELEKTRİK ARIZA", groups.elektrik, "c-elektrik");
-                listHtml += renderGroup("PLANLI BAKIM KODU", groups.planli, "c-planli");
-                listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "c-is");
-                listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "c-other");
-
-                list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px; text-align:center;">Henüz eklenen kayıt bulunmuyor.</div>';
-            } catch (e) {
-                console.error("Veri işleme hatası:", e);
-            }
-        }
-
         function fetchData() {
-            const url = API_URL + '?_t=' + new Date().getTime();
-            
-            fetch(url)
-                .then(response => {
-                    if (!response.ok) throw new Error("Ağ hatası: " + response.status);
-                    return response.text();
-                })
-                .then(text => {
-                    if (text.startsWith('<')) {
-                        throw new Error("Google Giriş Ekranı geldi! Makro yetkisi 'Herkes (Anyone)' olarak ayarlanmamış.");
+            fetch(API_URL + '?_t=' + Date.now())
+                .then(r => r.json())
+                .then(data => {
+                    if (data.makineler) {
+                        const select = document.getElementById('new-makine');
+                        let html = '<option value="">Makine Seçin...</option>';
+                        data.makineler.sort().forEach(m => {
+                            if (m) html += `<option value="${m}">${m}</option>`;
+                        });
+                        select.innerHTML = html;
+                        document.getElementById('last-sync').innerText = "Veri Güncel: " + new Date().toLocaleTimeString();
                     }
-                    const data = JSON.parse(text);
-                    console.log("Sunucudan gelen veri:", data);
-                    
-                    if (data.arizalar) {
-                        window.opData = data.kullanicilar || [];
-                        window.allRequests = data.arizalar;
-                        window.makinelerList = data.makineler || [];
-                        populateMachineFilter();
-                        processData(data.arizalar);
-                    } else if (Array.isArray(data)) {
-                        processData(data);
-                    } else if (data.value && Array.isArray(data.value)) {
-                        processData(data.value);
-                    }
-
-                    const now = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    const syncEl = document.getElementById('last-sync');
-                    if (syncEl) syncEl.innerText = "SON: " + now;
                 })
                 .catch(err => {
-                    console.error("Veri Güncelleme Hatası:", err);
-                    const syncEl = document.getElementById('last-sync');
-                    if (syncEl) syncEl.innerText = "BAĞLANTI HATASI";
-                    
-                    const grid = document.getElementById('grid-view');
-                    if (grid && grid.innerHTML === '') {
-                        grid.innerHTML = `<div style="color:var(--isg); padding:20px; font-weight:bold; font-size:16px; border: 2px solid var(--isg); border-radius: 8px; margin: 10px; background: rgba(239, 68, 68, 0.1);">
-                            ⚠️ VERİ BAĞLANTISI BAŞARISIZ OLDU!<br><br>
-                            Hata Detayı: ${err.message}
-                        </div>`;
-                    }
+                    console.error(err);
+                    document.getElementById('last-sync').innerText = "Bağlantı Hatası!";
                 });
         }
 
-        // --- YENİ İŞ İSTEĞİ & FİLTRELEME MANTIĞI ---
-        function populateMachineFilter() {
-            console.log("Makineler Yükleniyor...", window.makinelerList);
-            if (!window.makinelerList || !Array.isArray(window.makinelerList) || window.makinelerList.length === 0) {
-                console.warn("Makine listesi boş veya hatalı!");
-                return;
-            }
-            
-            const modalSelect = document.getElementById('new-makine');
-            if (modalSelect) {
-                let mHtml = '<option value="">Makine Seçin...</option>';
-                const sortedMaks = [...window.makinelerList].sort();
-                let count = 0;
-                sortedMaks.forEach(m => {
-                    if (m && m.trim() !== "") {
-                        mHtml += `<option value="${m.trim()}">${m.trim()}</option>`;
-                        count++;
-                    }
-                });
-                modalSelect.innerHTML = mHtml;
-                console.log(count + " adet makine listeye eklendi.");
-            }
-        }
-
-        function applyMachineFilter() {
-            if (window.allRequests) {
-                processData(window.allRequests, true); // true = skipAlerts
-            }
-        }
-
-        function submitNewRequest() {
+        function submitRequest() {
             const acan = document.getElementById('new-acan').value.trim();
             const makine = document.getElementById('new-makine').value;
             const vardiya = document.getElementById('new-vardiya').value;
@@ -807,262 +255,37 @@
             const aciklama = document.getElementById('new-aciklama').value.trim();
 
             if (!acan || !makine || !aciklama) {
-                alert("Lütfen Açan Kişi, Makine ve Açıklama alanlarını doldurun!");
+                alert("Lütfen Adınızı, Makineyi ve Açıklamayı doldurun!");
                 return;
             }
 
-            const btn = document.getElementById('submit-req-btn');
-            btn.innerText = "KAYDEDİLİYOR LÜTFEN BEKLEYİN...";
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = "GÖNDERİLİYOR...";
             btn.disabled = true;
-            btn.style.opacity = "0.5";
 
-            const payload = { 
-                acan, 
-                makine, 
-                vardiya, 
-                tur, 
-                aciklama,
-                imgData: currentCompressedImageBase64 || ""
-            };
+            const payload = { acan, makine, vardiya, tur, aciklama, imgData: currentImageBase64 };
 
             fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success") {
-                    alert("İş isteğiniz başarıyla gönderildi!");
-                    
-                    // Formu temizle
-                    document.getElementById('new-acan').value = "";
-                    document.getElementById('new-makine').value = "";
-                    document.getElementById('new-aciklama').value = "";
-                    removePhoto();
-                    
-                    fetchData(); // Listeyi yenile
+            .then(r => r.json())
+            .then(res => {
+                if (res.status === "success") {
+                    alert("Başarıyla kaydedildi!");
+                    location.reload();
                 } else {
-                    alert("Hata: " + data.message);
+                    alert("Hata: " + res.message);
                 }
             })
-            .catch(err => {
-                alert("Kayıt sırasında hata oluştu: " + err.message);
-            })
+            .catch(err => alert("Hata oluştu: " + err.message))
             .finally(() => {
                 btn.innerText = "KAYDI GÖNDER";
                 btn.disabled = false;
-                btn.style.opacity = "1";
             });
         }
 
-        // --- FULLSCREEN LOGIC ---
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        const fsBtn = document.getElementById('fs-btn');
-        if (fsBtn) fsBtn.onclick = toggleFullScreen;
-
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
-        }
-
-        document.getElementById('fs-btn').onclick = toggleFullScreen;
-
-        function applyScale(val) {
-            document.body.style.zoom = val;
-            localStorage.setItem('hub-scale', val);
-        }
-
-        let originalTheme = 'dark';
-
-        function openSettingsModal() {
-            originalTheme = localStorage.getItem('hub-theme') || 'dark';
-            document.getElementById('settings-modal').style.display = 'flex';
-            document.getElementById('scale-select-modal').value = localStorage.getItem('hub-scale') || '0.75';
-            document.getElementById('font-family-select').value = localStorage.getItem('hub-font') || 'Roboto';
-            document.getElementById('font-weight-select').value = localStorage.getItem('hub-weight') || 'normal';
-            
-            const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
-            const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
-            document.getElementById('card-fs-slider').value = savedCardFs;
-            document.getElementById('card-fs-val').innerText = savedCardFs + 'px';
-            document.getElementById('row-fs-slider').value = savedRowFs;
-            document.getElementById('row-fs-val').innerText = savedRowFs + 'px';
-
-            updateThemeUI(originalTheme);
-        }
-
-        function previewTheme(themeType) {
-            changeThemeVariables(themeType);
-            updateThemeUI(themeType);
-        }
-
-        function updateThemeUI(activeTheme) {
-            document.querySelectorAll('.theme-opt').forEach(el => {
-                if (el.getAttribute('data-theme') === activeTheme) {
-                    el.classList.add('active');
-                } else {
-                    el.classList.remove('active');
-                }
-            });
-        }
-        
-        function closeSettingsModal() {
-            document.getElementById('settings-modal').style.display = 'none';
-            // Revert preview if not saved
-            changeThemeVariables(originalTheme);
-        }
-
-        function saveSettings() {
-            const activeOpt = document.querySelector('.theme-opt.active');
-            const selectedTheme = activeOpt ? activeOpt.getAttribute('data-theme') : originalTheme;
-            const selectedScale = document.getElementById('scale-select-modal').value;
-            const selectedFont = document.getElementById('font-family-select').value;
-            const selectedWeight = document.getElementById('font-weight-select').value;
-            
-            const cardFs = document.getElementById('card-fs-slider').value;
-            const rowFs = document.getElementById('row-fs-slider').value;
-            
-            originalTheme = selectedTheme;
-            localStorage.setItem('hub-theme', selectedTheme);
-            localStorage.setItem('hub-font', selectedFont);
-            localStorage.setItem('hub-weight', selectedWeight);
-            localStorage.setItem('hub-card-fs', cardFs);
-            localStorage.setItem('hub-row-fs', rowFs);
-            
-            applyScale(selectedScale);
-            applyFont(selectedFont, selectedWeight);
-            applyFontSize(cardFs, rowFs);
-            closeSettingsModal();
-        }
-
-        function applyFont(family, weight) {
-            document.documentElement.style.setProperty('--font-family', `'${family}'`);
-            document.body.setAttribute('data-thickness', weight);
-        }
-
-        function applyFontSize(cardFs, rowFs) {
-            document.documentElement.style.setProperty('--card-fs-base', cardFs + 'px');
-            document.documentElement.style.setProperty('--row-fs-base', rowFs + 'px');
-        }
-
-        function changeThemeVariables(themeType) {
-            const root = document.documentElement;
-            root.style.setProperty('--text-main', '#f8fafc');
-            root.style.setProperty('--text-dim', '#94a3b8');
-            
-            // Restore default bright colors for dark backgrounds
-            root.style.setProperty('--mekanik', '#00ffff');
-            root.style.setProperty('--elektrik', '#ffff00');
-            root.style.setProperty('--planli', '#ffa500');
-            root.style.setProperty('--is', '#22d3ee');
-            root.style.setProperty('--isg', '#ff0000');
-            root.style.setProperty('--diger', '#fffafa');
-            root.style.setProperty('--desc-color', '#4ade80');
-            
-            root.style.removeProperty('--card-bg');
-            root.style.removeProperty('--card-color-primary');
-            root.style.removeProperty('--card-color-text');
-            root.style.removeProperty('--card-color-muted');
-            root.style.removeProperty('--card-color-desc');
-            root.style.removeProperty('--card-border');
-            root.style.removeProperty('--row-bg');
-            root.style.removeProperty('--row-bg-hover');
-            root.style.removeProperty('--row-color-primary');
-            root.style.removeProperty('--row-color-desc');
-
-            if (themeType === 'dark') {
-                root.style.setProperty('--bg-dark', '#020617');
-                root.style.setProperty('--bg-grid', '#0f172a');
-                root.style.setProperty('--header-black', '#000000');
-            } else if (themeType === 'blue') {
-                root.style.setProperty('--bg-dark', '#082f49');
-                root.style.setProperty('--bg-grid', '#0c4a6e');
-                root.style.setProperty('--header-black', '#042f2e');
-            } else if (themeType === 'gray') {
-                root.style.setProperty('--bg-dark', '#1e293b');
-                root.style.setProperty('--bg-grid', '#334155');
-                root.style.setProperty('--header-black', '#0f172a');
-            } else if (themeType === 'white') {
-                root.style.setProperty('--bg-dark', '#f1f5f9');
-                root.style.setProperty('--bg-grid', '#ffffff');
-                root.style.setProperty('--header-black', '#e2e8f0');
-                root.style.setProperty('--text-main', '#0f172a');
-                root.style.setProperty('--text-dim', '#475569');
-                
-                // Set exact requested colors for white theme as well
-                root.style.setProperty('--mekanik', '#00ffff');
-                root.style.setProperty('--elektrik', '#ffff00');
-                root.style.setProperty('--planli', '#ffa500');
-                root.style.setProperty('--is', '#22d3ee');
-                root.style.setProperty('--isg', '#ff0000');
-                root.style.setProperty('--diger', '#fffafa');
-                root.style.setProperty('--desc-color', '#15803d');
-                
-                // In white theme: backgrounds use the neon colors, text is black
-                root.style.setProperty('--card-bg', 'var(--c)');
-                root.style.setProperty('--card-color-primary', '#000000');
-                root.style.setProperty('--card-color-text', '#000000');
-                root.style.setProperty('--card-color-muted', '#111111');
-                root.style.setProperty('--card-color-desc', '#000000');
-                root.style.setProperty('--card-border', '#000000');
-                root.style.setProperty('--row-bg', 'var(--c)');
-                root.style.setProperty('--row-bg-hover', 'var(--c)');
-                root.style.setProperty('--row-color-primary', '#000000');
-                root.style.setProperty('--row-color-desc', '#111111');
-            }
-        }
-
-        function changeTheme(themeType) {
-            changeThemeVariables(themeType);
-            localStorage.setItem('hub-theme', themeType);
-        }
-
-        const savedScale = localStorage.getItem('hub-scale');
-        applyScale(savedScale || '0.75');
-        const savedFont = localStorage.getItem('hub-font') || 'Roboto';
-        const savedWeight = localStorage.getItem('hub-weight') || 'normal';
-        applyFont(savedFont, savedWeight);
-        const savedCardFs = localStorage.getItem('hub-card-fs') || '14';
-        const savedRowFs = localStorage.getItem('hub-row-fs') || '10';
-        applyFontSize(savedCardFs, savedRowFs);
-
-        // Apply saved theme on load
-        const savedTheme = localStorage.getItem('hub-theme');
-        if (savedTheme) {
-            changeTheme(savedTheme);
-        }
-
-        let refreshCounter = 20;
-        function updateRefreshTimer() {
-            refreshCounter--;
-            if (refreshCounter <= 0) {
-                fetchData();
-                refreshCounter = 20;
-            }
-            // Artık ekranda sayaç olmadığı için sadece logluyoruz (Opsiyonel)
-            // console.log("Yenilemeye kalan:", refreshCounter);
-        }
-
-        window.onload = () => {
-            fetchData();
-            setInterval(updateRefreshTimer, 1000);
-        };
+        window.onload = fetchData;
     </script>
 </body>
-
 </html>
