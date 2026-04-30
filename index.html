@@ -771,15 +771,7 @@
 
         // --- YENİ İŞ İSTEĞİ & FİLTRELEME MANTIĞI ---
         function populateMachineFilter() {
-            const select = document.getElementById('machine-filter');
-            if (!select || !window.makinelerList) return;
-            const currentVal = select.value;
-            let html = '<option value="ALL">TÜM MAKİNELER</option>';
-            window.makinelerList.sort().forEach(m => {
-                html += `<option value="${m}">${m}</option>`;
-            });
-            select.innerHTML = html;
-            select.value = currentVal; // preserve selection
+            if (!window.makinelerList) return;
             
             const modalSelect = document.getElementById('new-makine');
             if (modalSelect && modalSelect.options.length <= 1) { // populate only if empty
