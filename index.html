@@ -856,117 +856,19 @@
             });
         }
 
-        // --- AUTHENTICATION & SPA LOGIC ---
-        function checkAuthStatus() {
-            const auth = localStorage.getItem('userAuth');
-            if(auth) {
-                const u = JSON.parse(auth);
-                const firstName = u.name ? u.name.split(' ')[0] : 'Kullanıcı';
-                // const btnLogin = document.getElementById('btn-login');
-                // const btnLogout = document.getElementById('btn-logout');
-                // if(btnLogin) btnLogin.style.display = 'none';
-                // if(btnLogout) btnLogout.style.display = 'flex';
-                // if(document.getElementById('logged-user')) document.getElementById('logged-user').innerText = firstName;
+        // --- FULLSCREEN LOGIC ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
             } else {
-                // const btnLogin = document.getElementById('btn-login');
-                // const btnLogout = document.getElementById('btn-logout');
-                // if(btnLogin) btnLogin.style.display = 'flex';
-                // if(btnLogout) btnLogout.style.display = 'none';
-            }
-        }
-
-        function openOpAuth() {
-            if (localStorage.getItem('userAuth')) {
-                showOpPage();
-            } else {
-                document.getElementById('auth-modal').style.display = 'flex';
-                document.getElementById('pin-input').value = '';
-                document.getElementById('pin-input').focus();
-            }
-        }
-
-        function closeAuth() { document.getElementById('auth-modal').style.display = 'none'; }
-
-        function verifyPin() {
-            const pin = document.getElementById('pin-input').value;
-            const users = window.opData || [];
-            let foundUser = null;
-            
-            for(let i=1; i<users.length; i++) {
-                if(users[i][1] && users[i][1].toString() === pin.toString()) {
-                    foundUser = { name: users[i][0], role: users[i][2], foto: users[i][6] };
-                    break;
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
                 }
             }
-            
-            if (foundUser) {
-                localStorage.setItem('userAuth', JSON.stringify(foundUser));
-                closeAuth();
-                checkAuthStatus();
-                showOpPage();
-            } else {
-                alert("Hatalı PIN! Lütfen geçerli bir kod girin.");
-            }
         }
 
-        function logout() {
-            localStorage.removeItem('userAuth');
-            checkAuthStatus();
-            showDashboard();
-        }
-
-        function showOpPage() {
-            document.getElementById('dashboard-page').style.display = 'none';
-            document.getElementById('op-page').style.display = 'block';
-            document.getElementById('btn-login').style.display = 'none';
-            document.getElementById('btn-logout').style.display = 'none';
-        }
-
-        function showDashboard() {
-            document.getElementById('op-page').style.display = 'none';
-            document.getElementById('dashboard-page').style.display = 'block';
-            checkAuthStatus();
-        }
-
-        function renderOpPage() {
-            const list = document.getElementById('op-list');
-            const users = window.opData || [];
-            if(users.length < 2) return;
-            
-            let html = '';
-            for(let i=1; i<users.length; i++) {
-                const ad = users[i][0] || "";
-                if(!ad || ad==="-") continue;
-                
-                const role = (users[i][2] || "USER").toUpperCase();
-                let color = "var(--text-dim)";
-                if(role.includes("ADMİN") || role.includes("ADMIN")) color = "var(--c-planli)";
-                
-                let rawFoto = users[i][6];
-                let fotoUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-                if(rawFoto && rawFoto.includes("drive.google.com/file/d/")) {
-                    const idMatch = rawFoto.match(/file\/d\/([a-zA-Z0-9_-]+)/);
-                    if(idMatch && idMatch[1]) fotoUrl = `https://drive.google.com/uc?export=view&id=${idMatch[1]}`;
-                }
-
-                html += `
-                    <div class="op-card">
-                        <img src="${fotoUrl}" class="op-foto" onerror="this.src='https://cdn-icons-png.flaticon.com/512/149/149071.png'">
-                        <div>
-                            <div style="color:var(--text-main); font-weight:800; font-size:16px;">${ad}</div>
-                            <div style="color:${color}; font-size:11px; font-weight:800; letter-spacing:1px; margin-top:3px;">${role}</div>
-                        </div>
-                    </div>
-                `;
-            }
-            list.innerHTML = html;
-        }
-
-        document.getElementById('pin-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') verifyPin();
-        });
-
-        checkAuthStatus();
+        const fsBtn = document.getElementById('fs-btn');
+        if (fsBtn) fsBtn.onclick = toggleFullScreen;
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
