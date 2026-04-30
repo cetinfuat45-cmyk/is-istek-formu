@@ -369,29 +369,14 @@
         <button class="close-btn" onclick="closeAlert()">KAPAT</button>
     </div>
 
-    <div class="top-bar">
-        <div class="stat-btn">TOPLAM <span id="s-total">0</span></div>
-        <div class="stat-btn" style="color:var(--mekanik)"><span class="material-icons">settings</span> MEK <span id="s-mek">0</span></div>
-        <div class="stat-btn" style="color:var(--elektrik)"><span class="material-icons">bolt</span> ELEK <span id="s-elek">0</span></div>
-        <div class="stat-btn" style="color:var(--isg)"><span class="material-icons">gpp_maybe</span> İSG <span id="s-isg">0</span></div>
-        <div class="stat-btn"><span class="material-icons">history</span> TEKRAR <span id="s-tek">0</span></div>
-        <div class="stat-btn" style="color:var(--planli)"><span class="material-icons">event_note</span> P.BAKIM <span id="s-plan">0</span></div>
-        
-        <div style="margin-left: auto; display: flex; align-items: center; gap: 15px;">
-            <select id="machine-filter" onchange="applyMachineFilter()" style="background: var(--bg-dark); color: var(--text-main); border: 2px solid var(--text-dim); padding: 5px; border-radius: 4px; outline: none; font-weight: 800; max-width: 150px;">
-                <option value="ALL">TÜM MAKİNELER</option>
-            </select>
-            <div class="stat-btn" style="background:var(--is); color:#000; cursor:pointer;" onclick="openNewRequestModal()">
-                <span class="material-icons">add_circle</span> YENİ İŞ İSTEĞİ
-            </div>
+    <div class="top-bar" style="justify-content: space-between; padding: 10px 20px;">
+        <div style="color:var(--is); font-size:24px; font-weight:900;">İŞ İSTEK FORMU</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
             <div id="install-btn" class="stat-btn" style="display:none; background:var(--c-mekanik); color:var(--text-main); cursor:pointer;" onclick="installPWA()">
-                <span class="material-icons">download</span> YÜKLE
+                <span class="material-icons">download</span> UYGULAMAYI YÜKLE
             </div>
-            <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800; min-width:80px;">SON: --:--:--</div>
-            <div class="stat-btn" style="color:var(--text-dim); font-size:10px;">
-                YENİLEME: <span id="refresh-timer" style="color:var(--text-main); min-width:20px; display:inline-block">20</span>S
-            </div>
-            <div class="fs-toggle" onclick="openSettingsModal()" style="margin-right: 5px;" title="Ayarlar">
+            <div id="last-sync" style="color:var(--is); font-size:10px; font-weight:800;">SON: --:--:--</div>
+            <div class="fs-toggle" onclick="openSettingsModal()" title="Ayarlar">
                 <span class="material-icons">settings</span>
             </div>
             <div class="fs-toggle" id="fs-btn">
@@ -400,46 +385,26 @@
         </div>
     </div>
 
-    <div id="dashboard-page">
-        <div class="section-header" style="color:var(--is)">BUGÜNÜN ARIZALARI</div>
-        <div id="grid-view" class="grid-view"></div>
-
-        <div class="section-header">ESKİ BEKLEYEN KAYITLAR</div>
-        <div id="list-view" class="list-view"></div>
-    </div>
-
-    <!-- Login Modal -->
-    <div id="auth-modal" class="auth-overlay">
-        <div class="auth-box">
-            <span class="material-icons" style="color:var(--c-planli); font-size:48px;">lock_person</span>
-            <div style="color:var(--c-planli); font-size:20px; font-weight:900; margin-top:10px;">KİMLİK DOĞRULAMA</div>
-            <div style="color:var(--text-dim); font-size:12px; margin-top:5px;">İş emirlerine erişmek için 4 haneli PIN şifrenizi girin</div>
-            <input type="password" id="pin-input" class="auth-input" maxlength="4" placeholder="••••" autocomplete="off" inputmode="numeric">
-            <button class="auth-btn" onclick="verifyPin()">GİRİŞ YAP</button>
-            <div style="margin-top:20px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeAuth()">İptal Et</div>
-        </div>
-    </div>
-
-    <!-- New Request Modal -->
-    <div id="new-req-modal" class="auth-overlay" style="background: rgba(0,0,0,0.6);">
-        <div class="auth-box" style="width: 90%; max-width: 500px; border: 2px solid var(--is); box-shadow: 0 10px 40px rgba(34, 211, 238, 0.4);">
-            <div style="color:var(--is); font-size:24px; font-weight:900; margin-bottom:15px; border-bottom: 2px solid var(--text-dim); padding-bottom:10px;">YENİ İŞ İSTEĞİ OLUŞTUR</div>
+    <div id="form-page" style="padding: 20px; display: flex; flex-direction: column; align-items: center; width: 100%;">
+        
+        <!-- Ana Form Kutusu -->
+        <div class="auth-box" style="width: 100%; max-width: 600px; border: 2px solid var(--is); box-shadow: 0 10px 40px rgba(34, 211, 238, 0.2); background: var(--bg-dark); border-radius: 12px; position: relative; padding: 30px;">
             
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">İsteği Açan Kişi</div>
-                <input type="text" id="new-acan" placeholder="Adınız Soyadınız" style="width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid var(--text-dim); padding: 10px; border-radius: 6px; outline: none; font-weight:700;">
+                <input type="text" id="new-acan" placeholder="Adınız Soyadınız" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
             </div>
 
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Makine / Bölüm</div>
-                <select id="new-makine" style="width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid var(--text-dim); padding: 10px; border-radius: 6px; outline: none; font-weight:700;">
+                <select id="new-makine" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
                     <option value="">Makine Seçin...</option>
                 </select>
             </div>
 
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Vardiya</div>
-                <select id="new-vardiya" style="width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid var(--text-dim); padding: 10px; border-radius: 6px; outline: none; font-weight:700;">
+                <select id="new-vardiya" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
                     <option value="1.VARDİYA 00:00 // 08:00">1.VARDİYA 00:00 // 08:00</option>
                     <option value="2.VARDİYA 08:00 // 16:00" selected>2.VARDİYA 08:00 // 16:00</option>
                     <option value="3.VARDİYA 16:00 // 00:00">3.VARDİYA 16:00 // 00:00</option>
@@ -448,7 +413,7 @@
 
             <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">İş Türü</div>
-                <select id="new-tur" style="width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid var(--text-dim); padding: 10px; border-radius: 6px; outline: none; font-weight:700;">
+                <select id="new-tur" style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700;">
                     <option value="MEKANİK ARIZA">MEKANİK ARIZA</option>
                     <option value="ELEKTRİK ARIZA">ELEKTRİK ARIZA</option>
                     <option value="İSG GÜVENLİĞİ !!!">İSG GÜVENLİĞİ !!!</option>
@@ -458,14 +423,33 @@
                 </select>
             </div>
 
-            <div style="text-align: left; margin-bottom: 25px;">
+            <div style="text-align: left; margin-bottom: 15px;">
                 <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 5px;">Açıklama</div>
-                <textarea id="new-aciklama" rows="3" placeholder="Arıza veya istek detayını yazın..." style="width: 100%; background: var(--bg-dark); color: #fff; border: 2px solid var(--text-dim); padding: 10px; border-radius: 6px; outline: none; font-weight:700; resize: vertical;"></textarea>
+                <textarea id="new-aciklama" rows="3" placeholder="Arıza veya istek detayını yazın..." style="width: 100%; background: var(--bg-grid); color: var(--text-main); border: 2px solid var(--text-dim); padding: 12px; border-radius: 6px; outline: none; font-weight:700; resize: vertical;"></textarea>
             </div>
 
-            <button id="submit-req-btn" class="auth-btn" onclick="submitNewRequest()" style="background:var(--is);">KAYDI OLUŞTUR</button>
-            <div style="margin-top:15px; color:var(--text-dim); font-size:12px; cursor:pointer; text-decoration:underline;" onclick="closeNewRequestModal()">İptal Et</div>
+            <!-- FOTOĞRAF YÜKLEME ALANI -->
+            <div style="text-align: left; margin-bottom: 25px; border: 2px dashed var(--text-dim); padding: 15px; border-radius: 6px; background: rgba(0,0,0,0.1);">
+                <div style="color:var(--text-dim); font-size:12px; font-weight:800; margin-bottom: 10px; display:flex; align-items:center; gap:5px;">
+                    <span class="material-icons">photo_camera</span> FOTOĞRAF EKLE (İsteğe Bağlı)
+                </div>
+                <input type="file" id="new-foto" accept="image/*" style="display:none;" onchange="previewImage(event)">
+                <label for="new-foto" style="display:inline-block; background: var(--bg-grid); color: var(--text-main); padding: 8px 15px; border-radius: 4px; cursor: pointer; border: 1px solid var(--text-dim); font-weight:bold; font-size: 14px;">Resim Seç veya Çek</label>
+                <div id="foto-preview-container" style="margin-top: 10px; display: none; position: relative;">
+                    <img id="foto-preview" src="" style="max-width: 100%; max-height: 200px; border-radius: 8px; border: 2px solid var(--is);">
+                    <div onclick="removePhoto()" style="position: absolute; top: -10px; right: -10px; background: red; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold; font-size: 14px;">X</div>
+                </div>
+            </div>
+
+            <button id="submit-req-btn" class="auth-btn" onclick="submitNewRequest()" style="background:var(--is); width: 100%; font-size: 18px; padding: 15px;">KAYDI GÖNDER</button>
         </div>
+
+        <!-- SON EKLENENLER LİSTESİ -->
+        <div style="width: 100%; max-width: 800px; margin-top: 40px;">
+            <div class="section-header" style="color:var(--text-main); text-align:center;">SON EKLENEN KAYITLAR</div>
+            <div id="list-view" class="list-view" style="padding-bottom: 50px;"></div>
+        </div>
+
     </div>
 
     <!-- Settings Modal -->
@@ -586,37 +570,61 @@
             return p[0][0].toUpperCase() + "." + p[p.length - 1];
         }
 
-        let savedKeys = [];
-        try { savedKeys = JSON.parse(localStorage.getItem('hub-alerts') || '[]'); } catch(e) {}
-        let alertedKeys = new Set(savedKeys);
-        let wasMemoryEmpty = savedKeys.length === 0;
-        let alertInterval;
+        // --- FOTOĞRAF SIKIŞTIRMA MANTIĞI ---
+        let currentCompressedImageBase64 = null;
 
-        function showAlert(machine, desc, person) {
-            const overlay = document.getElementById('alert-overlay');
-            if (overlay.style.display === 'flex') return;
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            const timerSpan = document.getElementById('alert-timer');
-            document.getElementById('alert-machine').innerText = machine || "-";
-            document.getElementById('alert-desc').innerText = desc || "-";
-            document.getElementById('alert-person').innerText = person || "-";
-
-            let timeLeft = 30;
-            overlay.style.display = 'flex';
-            timerSpan.innerText = timeLeft;
-
-            clearInterval(alertInterval);
-            alertInterval = setInterval(() => {
-                timeLeft--;
-                if (timerSpan) timerSpan.innerText = timeLeft;
-                if (timeLeft <= 0) closeAlert();
-            }, 1000);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Maksimum boyutlar
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Sıkıştır
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% kalite
+                    
+                    document.getElementById('foto-preview').src = compressedDataUrl;
+                    document.getElementById('foto-preview-container').style.display = 'inline-block';
+                    
+                    // Base64 kısmını ayır
+                    currentCompressedImageBase64 = compressedDataUrl.split(',')[1];
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
-        function closeAlert() {
-            const overlay = document.getElementById('alert-overlay');
-            if (overlay) overlay.style.display = 'none';
-            clearInterval(alertInterval);
+        function removePhoto() {
+            document.getElementById('new-foto').value = "";
+            document.getElementById('foto-preview-container').style.display = 'none';
+            document.getElementById('foto-preview').src = "";
+            currentCompressedImageBase64 = null;
         }
 
         function parseDateComponents(str) {
@@ -640,70 +648,23 @@
             let rows = Array.isArray(rawData) ? rawData : (rawData.value || rawData.data || Object.values(rawData)[0] || []);
             if (!rows || rows.length < 2) return;
             
-            // API kullanıldığı için CDN Dalgalanma korumasına artık gerek yok. Veri milisaniyesinde anlıktır.
             try {
-                const grid = document.getElementById('grid-view');
                 const list = document.getElementById('list-view');
-                
-                const nowDT = new Date();
-                const realToday = { d: nowDT.getDate(), m: nowDT.getMonth() + 1, y: nowDT.getFullYear() };
-                
-                let counts = { total: 0, mek: 0, elek: 0, isg: 0, plan: 0 };
-                let todayTasks = [];
-                let gridHtml = "";
+                if(!list) return;
+
                 let groups = { isg: [], mekanik: [], elektrik: [], planli: [], is: [], other: [] };
                 
-                const seenKeys = new Set(); // Mükerrer kayıdı engellemek için
-                const nextAlertedKeys = new Set(); // Hafıza temizliği için geçici liste
-                let latestTask = null;
-                const dataRows = rows; // Since backend sends array of objects, no need to slice header
-
-                dataRows.forEach(row => {
-                    if (!row) return;
-                    const rawDate = row.tarih || "";
-                    if (rawDate === "") return;
-
-                    const datePart = rawDate.split(' ')[0] || "";
-                    const machine = row.makine ? row.makine.trim() : "-"; // C: Makine
-                    const desc = row.aciklama ? row.aciklama.trim() : "-";    // F: Açıklama
-                    
-                    const filterMachine = document.getElementById('machine-filter') ? document.getElementById('machine-filter').value : 'ALL';
-                    if (filterMachine !== 'ALL' && machine !== filterMachine) return;
-                    
-                    const key = datePart + "_" + machine + "_" + desc;
-                    if (seenKeys.has(key)) return; 
-                    
-                    seenKeys.add(key);
-                    counts.total++;
-                        
-                        // Eğer bu görev bilgisayarın kalıcı hafızasında (LocalStorage) yoksa YENİDİR:
-                        if (!skipAlerts && !wasMemoryEmpty && !alertedKeys.has(key)) {
-                            latestTask = row;
-                        }
-                        
-                        // Açık olan bu arızayı yeni hafıza listesine ekle
-                        nextAlertedKeys.add(key); 
-                });
-
-                if (latestTask) {
-                    const machine = (latestTask.makine || "").trim() || "-";
-                    const desc = (latestTask.aciklama || "").trim() || "-";
-                    const acan = shortenName(latestTask.acan || "-");
-                    showAlert(machine, desc, acan);
-                }
-                
-                wasMemoryEmpty = false;
-                alertedKeys = nextAlertedKeys; // Sadece BUGÜN açık olan arızaları hafızada tut (Çöp Temizliği)
-                localStorage.setItem('hub-alerts', JSON.stringify([...alertedKeys]));
-
                 const finalSeen = new Set();
+                
+                // Sadece son 50 kaydı alalım, çok yormasın (tersten dönebiliriz)
+                const dataRows = [...rows].reverse().slice(0, 50);
+
                 dataRows.forEach(row => {
                     if (!row) return;
                     const rawDate = row.tarih || "";
                     if (rawDate === "") return;
 
                     const datePart = rawDate.split(' ')[0] || "";
-                    const rowDateComp = parseDateComponents(rawDate);
                     const timePart = rawDate.split(' ')[1] || "";
                     
                     const acan = shortenName(row.acan || "-");
@@ -713,79 +674,39 @@
                     const desc = row.aciklama ? row.aciklama.trim() : "-";
                     const foto = (row.foto || "").trim();
                     
-                    // Gelen tüm iş isteklerini yeni kabul edip kartlarda gösteriyoruz (Teknisyen sütunu olmadığı için)
-                    const isNew = true;
+                    // Not: Bu ekranda filtre kullanılmıyor, ancak ileride eklenirse diye hazır kod:
+                    // const filterMachine = document.getElementById('machine-filter') ? document.getElementById('machine-filter').value : 'ALL';
+                    // if (filterMachine !== 'ALL' && machine !== filterMachine) return;
 
                     const key = datePart + "_" + machine + "_" + desc;
                     if (finalSeen.has(key)) return;
-
                     finalSeen.add(key);
+
                     const info = getTypeInfo(tur);
 
-                        // Eğer bugün gelen ve HENÜZ GÖREVLİ EKLENMEMİŞ bir arızaysa Yukarıdaki KART ızgarasına düşer
-                        if (isToday(realToday, rowDateComp) && isNew) {
-                            if (tur.includes("MEKANİK")) counts.mek++;
-                            else if (tur.includes("ELEKTRİK")) counts.elek++;
-                            else if (tur.includes("İSG") || tur.includes("GÜVENLİ")) counts.isg++;
-                            else if (tur.includes("PLANLI")) counts.plan++;
-                            todayTasks.push({ info, name: machine, timePart, desc, acan, datePart: datePart, vardiya: vardiya, foto: foto });
-                        } else {
-                            // Görevli atananlar veya eski tarihliler Alt Tabloya düşer
-                            const rowHtml = `
-                                <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
-                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
-                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
-                                    <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
-                                    <div class="r-type ${info.c}">${info.label}</div>
-                                    <div class="r-val" style="color:var(--desc-override, #00FF00); font-weight:800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${desc}</div>
-                                    <div class="r-val" style="text-align:right; font-weight:900; font-size:1em;">
-                                        ${foto !== "" && foto.toLowerCase() !== "fotograf yok" && foto.toLowerCase() !== "fotoğraf yok" ? `<a href="${foto}" target="_blank" style="color:#22d3ee; text-decoration:underline;">Fotoğrafı Gör</a>` : '<span style="color:var(--text-dim);font-size:0.8em;">Foto Yok</span>'}
-                                    </div>
-                                </div>`;
-                            if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
-                            else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
-                            else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
-                            else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
-                            else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
-                            else groups.other.push(rowHtml);
-                        }
-                });
-
-                document.getElementById('s-total').innerText = counts.total;
-                document.getElementById('s-mek').innerText = counts.mek;
-                document.getElementById('s-elek').innerText = counts.elek;
-                document.getElementById('s-isg').innerText = counts.isg;
-                document.getElementById('s-plan').innerText = counts.plan;
-
-                // Ne olursa olsun her zaman EN YENİ (En yakın saat) en üstte çıkacak şekilde sırala
-                todayTasks.sort((a, b) => {
-                    // Tarih formatı tr: dd.mm.yyyy HH:MM:SS -> ISO: yyyy-mm-ddTHH:MM:SS
-                    const formatIso = (dp, tp) => dp.split('.').reverse().join('-') + 'T' + (tp.length === 5 ? tp+':00' : tp);
-                    return new Date(formatIso(b.datePart, b.timePart)) - new Date(formatIso(a.datePart, a.timePart));
-                });
-
-                todayTasks.forEach(t => {
-                    const timeShort = (t.timePart || "").substring(0, 5);
-                    gridHtml += `
-                        <div class="card ${t.info.c}" style="padding: 6px 10px; gap: 2px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                <div style="color:var(--card-color-primary, #000); font-weight:900; font-size:var(--card-title-fs, 1.15em); text-transform:uppercase; letter-spacing:0.5px;">${t.info.label}</div>
-                                <div style="color:var(--card-color-primary, #000); font-weight:800; font-size:var(--card-time-fs, 0.95em); border:1px solid var(--card-border, rgba(0,0,0,0.5)); padding:1px 5px; border-radius:4px;">${timeShort}</div>
+                    const rowHtml = `
+                        <div class="list-row ${info.c}" data-datetime="${datePart} ${timePart}">
+                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:700">${datePart} ${timePart}</div>
+                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${acan}</div>
+                            <div class="r-val" style="color:var(--row-color-primary, #000); font-weight:800">${machine}</div>
+                            <div class="r-type ${info.c}">${info.label}</div>
+                            <div class="r-val" style="color:var(--desc-override, #00FF00); font-weight:800; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">${desc}</div>
+                            <div class="r-val" style="text-align:right; font-weight:900; font-size:1em;">
+                                ${foto !== "" && foto.toLowerCase() !== "fotograf yok" && foto.toLowerCase() !== "fotoğraf yok" ? `<a href="${foto}" target="_blank" style="color:#22d3ee; text-decoration:underline;">Fotoğrafı Gör</a>` : '<span style="color:var(--text-dim);font-size:0.8em;">Foto Yok</span>'}
                             </div>
-                            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top:2px; gap: 5px;">
-                                <div style="color:var(--card-color-text, #000); font-weight:800; font-size:var(--card-body-fs, 1em); line-height:1.2;">${t.acan}</div>
-                                ${t.vardiya ? `<div style="color:var(--card-color-muted, #222); font-weight:800; font-size:calc(var(--card-sm-fs, 0.8em) * 0.95); text-align:right; white-space:nowrap;">${t.vardiya}</div>` : ''}
-                            </div>
-                            <div style="color:var(--card-color-primary, #000); font-weight:900; font-size:var(--card-sm-fs, 0.8em); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">${t.name}</div>
-                            <div style="color:var(--desc-override, #00FF00); font-weight:900; font-size:var(--card-desc-fs, 0.85em); margin-top:6px; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">${t.desc}</div>
-                            ${t.foto !== "" && t.foto.toLowerCase() !== "fotograf yok" && t.foto.toLowerCase() !== "fotoğraf yok" ? `<div style="margin-top:6px;"><a href="${t.foto}" target="_blank" style="color:#000; background:#fff; padding:2px 6px; border-radius:4px; font-size:0.8em; font-weight:800; text-decoration:none; display:inline-block;">📷 FOTOĞRAFI GÖR</a></div>` : ''}
                         </div>`;
+                        
+                    if (tur.includes("İSG") || tur.includes("GÜVENLİ")) groups.isg.push(rowHtml);
+                    else if (tur.includes("MEKANİK")) groups.mekanik.push(rowHtml);
+                    else if (tur.includes("ELEKTRİK")) groups.elektrik.push(rowHtml);
+                    else if (tur.includes("PLANLI")) groups.planli.push(rowHtml);
+                    else if (tur.includes("YAPILAN")) groups.is.push(rowHtml);
+                    else groups.other.push(rowHtml);
                 });
-                grid.innerHTML = gridHtml || '<div style="color:var(--text-dim); padding:10px">Bugün bekleyen açık arıza kaydı bulunmuyor.</div>';
 
-                const renderGroup = (label, rows, colorClass) => {
-                    if (rows.length === 0) return "";
-                    return `<div class="group-sep ${colorClass}">${label} (${rows.length})</div>` + rows.join('');
+                const renderGroup = (label, rowsGroup, colorClass) => {
+                    if (rowsGroup.length === 0) return "";
+                    return `<div class="group-sep ${colorClass}">${label} (${rowsGroup.length})</div>` + rowsGroup.join('');
                 };
 
                 let listHtml = "";
@@ -796,7 +717,7 @@
                 listHtml += renderGroup("YAPILAN İŞ HAKKINDA", groups.is, "c-is");
                 listHtml += renderGroup("DİĞER KAYITLAR", groups.other, "c-other");
 
-                list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px">Eski bekleyen kayıt bulunmuyor.</div>';
+                list.innerHTML = listHtml || '<div style="color:var(--text-dim); padding:10px; text-align:center;">Henüz eklenen kayıt bulunmuyor.</div>';
             } catch (e) {
                 console.error("Veri işleme hatası:", e);
             }
@@ -876,14 +797,6 @@
             }
         }
 
-        function openNewRequestModal() {
-            document.getElementById('new-req-modal').style.display = 'flex';
-        }
-
-        function closeNewRequestModal() {
-            document.getElementById('new-req-modal').style.display = 'none';
-        }
-
         function submitNewRequest() {
             const acan = document.getElementById('new-acan').value.trim();
             const makine = document.getElementById('new-makine').value;
@@ -897,11 +810,18 @@
             }
 
             const btn = document.getElementById('submit-req-btn');
-            btn.innerText = "KAYDEDİLİYOR...";
+            btn.innerText = "KAYDEDİLİYOR LÜTFEN BEKLEYİN...";
             btn.disabled = true;
             btn.style.opacity = "0.5";
 
-            const payload = { acan, makine, vardiya, tur, aciklama };
+            const payload = { 
+                acan, 
+                makine, 
+                vardiya, 
+                tur, 
+                aciklama,
+                imgData: currentCompressedImageBase64 || ""
+            };
 
             fetch(API_URL, {
                 method: 'POST',
@@ -911,12 +831,13 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === "success") {
-                    alert("İş isteğiniz başarıyla kaydedildi!");
-                    closeNewRequestModal();
+                    alert("İş isteğiniz başarıyla gönderildi!");
+                    
                     // Formu temizle
                     document.getElementById('new-acan').value = "";
                     document.getElementById('new-makine').value = "";
                     document.getElementById('new-aciklama').value = "";
+                    removePhoto();
                     
                     fetchData(); // Listeyi yenile
                 } else {
@@ -927,7 +848,7 @@
                 alert("Kayıt sırasında hata oluştu: " + err.message);
             })
             .finally(() => {
-                btn.innerText = "KAYDI OLUŞTUR";
+                btn.innerText = "KAYDI GÖNDER";
                 btn.disabled = false;
                 btn.style.opacity = "1";
             });
