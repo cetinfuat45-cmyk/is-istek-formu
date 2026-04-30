@@ -736,6 +736,7 @@
                         throw new Error("Google Giriş Ekranı geldi! Makro yetkisi 'Herkes (Anyone)' olarak ayarlanmamış.");
                     }
                     const data = JSON.parse(text);
+                    console.log("Sunucudan gelen veri:", data);
                     
                     if (data.arizalar) {
                         window.opData = data.kullanicilar || [];
@@ -1151,7 +1152,8 @@
                 fetchData();
                 refreshCounter = 20;
             }
-            document.getElementById('refresh-timer').innerText = refreshCounter;
+            // Artık ekranda sayaç olmadığı için sadece logluyoruz (Opsiyonel)
+            // console.log("Yenilemeye kalan:", refreshCounter);
         }
 
         window.onload = () => {
