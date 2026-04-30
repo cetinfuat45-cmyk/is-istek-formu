@@ -743,7 +743,6 @@
                         window.makinelerList = data.makineler || [];
                         populateMachineFilter();
                         processData(data.arizalar);
-                        renderOpPage();
                     } else if (Array.isArray(data)) {
                         processData(data);
                     } else if (data.value && Array.isArray(data.value)) {
