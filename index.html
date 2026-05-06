@@ -1106,27 +1106,41 @@
 
         // PWA Kurulum Mantığı (Install Prompt)
         let deferredPrompt;
+        const installBtn = document.getElementById('install-app-btn');
+        
+        // Butonu her halükarda görünür yapıyoruz (kullanıcıya yardımcı olmak için)
+        if (installBtn) {
+            installBtn.style.display = 'block';
+        }
+
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault(); // Varsayılan tarayıcı prompt'unu engelle
             deferredPrompt = e; // Event'i sakla
-            
-            const installBtn = document.getElementById('install-app-btn');
-            if (installBtn) {
-                installBtn.style.display = 'block'; // Butonu görünür yap
-                
-                installBtn.addEventListener('click', async () => {
+        });
+
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // Sistem PWA yüklemeye hazırsa
                     installBtn.style.display = 'none'; // Butonu gizle
                     deferredPrompt.prompt(); // Tarayıcının kurulum penceresini göster
                     
                     const { outcome } = await deferredPrompt.userChoice;
                     console.log(`Kullanıcı kurulum seçimi: ${outcome}`);
                     deferredPrompt = null;
-                });
-            }
-        });
+                } else {
+                    // Sistem otomatik yüklemeye izin vermiyorsa (iOS, Gizli Sekme veya zaten yüklüyse)
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    if (isIOS) {
+                        alert('iPhone/iPad Cihazlarda: Tarayıcının alt kısmındaki "Paylaş" ikonuna (kare içinden yukarı ok) tıklayın ve "Ana Ekrana Ekle" (Add to Home Screen) seçeneğini seçin.');
+                    } else {
+                        alert('Android Cihazlarda: Tarayıcının sağ üst köşesindeki "Üç Nokta" menüsüne tıklayın ve "Ana Ekrana Ekle" veya "Uygulamayı Yükle" seçeneğini seçin. (Eğer daha önce yüklediyseniz tekrar çıkmayabilir).');
+                    }
+                }
+            });
+        }
 
         window.addEventListener('appinstalled', () => {
-            const installBtn = document.getElementById('install-app-btn');
             if (installBtn) installBtn.style.display = 'none';
             deferredPrompt = null;
             console.log('Uygulama başarıyla yüklendi.');
