@@ -1,235 +1,1028 @@
-function doGet() {
-  var tmp = HtmlService.createTemplateFromFile('index');
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheetVeri = ss.getSheetByName("Veri");
-  var sheetAyarlar = ss.getSheetByName("Ayarlar");
+<!DOCTYPE html>
+<html lang="tr">
 
-  // Ayarlar C1 hücresinden hoşgeldin mesajı
-  tmp.karsilamaMesaji = sheetAyarlar.getRange("C1").getValue() || "Sisteme Hoş Geldiniz";
-
-  // Veri sayfası E1 hücresinden İş Güvenliği Notunu çekiyoruz
-  tmp.isGuvenligiNotu = sheetVeri.getRange("E1").getValue() || "Güvenlik kurallarına uyunuz.";
-
-  var sonSatirVeri = sheetVeri.getLastRow();
-  if (sonSatirVeri > 1) {
-    // A ve B sütunlarını birlikte alıyoruz (Maliyet Merkezi - Makine eşleşmesi)
-    var veriAB = sheetVeri.getRange("A2:B" + sonSatirVeri).getValues();
-    tmp.maliyetMakineData = veriAB.filter(row => row[0] || row[1]); // Boş satırları temizle
-    
-    // C ve D sütunları (Vardiya ve İş Türü)
-    tmp.listeC = sheetVeri.getRange("C2:C" + sonSatirVeri).getValues().flat().filter(String);
-    tmp.listeD = sheetVeri.getRange("D2:D" + sonSatirVeri).getValues().flat().filter(String);
-    
-    // Geçmiş uyumluluk için listeB'yi (tüm makineler) de yollayabiliriz veya frontend'de maliyetMakineData'dan üretebiliriz
-    tmp.listeB = veriAB.map(r => r[1]).filter(String);
-  } else {
-    tmp.maliyetMakineData = []; tmp.listeB = []; tmp.listeC = []; tmp.listeD = [];
-  }
-
-  return tmp.evaluate()
-    .setTitle("AKG Veri Kayıt")
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
-}
-
-function veriKaydet(obj) {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheetGelen = ss.getSheetByName("Gelen");
-    var sheetAyarlar = ss.getSheetByName("Ayarlar");
-    var folderId = "1JeIF9CFrueibB6wLADSFp-u3nNqCe_yO";
-    var fotoUrl = "Fotograf Yok";
-    var fotoSatiri = ""; 
-    var inlineImages = {};
-    var fotoBlob = null;
-
-    if (!sheetAyarlar) return "❌ Hata: 'Ayarlar' sayfası bulunamadı!";
-    var aliciMail = sheetAyarlar.getRange("A1").getValue();
-    var telegramToken = sheetAyarlar.getRange("A2").getValue();
-    var telegramChatId = sheetAyarlar.getRange("B2").getValue();
-
-    if (obj.imgData && obj.imgData !== "") {
-      try {
-        var folder = DriveApp.getFolderById(folderId);
-        var cleanData = obj.imgData;
-        if (obj.imgData.indexOf(",") > -1) {
-          cleanData = obj.imgData.split(",")[1];
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#f8fafc">
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #f8fafc;
+            --bg-panel: #ffffff;
+            --bg-input: #f1f5f9;
+            --border-color: #cbd5e1;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --accent-gold: #2563eb;
+            /* Gün ışığında daha net seçilen mavi */
+            --accent-green: #16a34a;
+            --accent-red: #dc2626;
+            --shadow-color: rgba(15, 23, 42, 0.1);
+            --font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
-        fotoBlob = Utilities.newBlob(Utilities.base64Decode(cleanData), "image/jpeg", "foto_" + new Date().getTime() + ".jpg");
-        var file = folder.createFile(fotoBlob);
-        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-        fotoUrl = file.getUrl();
-        
-        inlineImages = { "image": fotoBlob };
-        fotoSatiri = `<p><strong>Fotoğraf:</strong></p><img src="cid:image" style="width: 250px; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
-      } catch(imgErr) {
-        Logger.log("Resim yükleme hatası: " + imgErr.toString());
-      }
-    }
 
-    // Gelen sayfasına kayıt
-    // E Sütunu: İş Türü (obj.selD), F Sütunu: Açıklama (obj.notAlani)
-    var yeniSatir = [obj.tarih, obj.sutun0, obj.selB, obj.selC, obj.selD, obj.notAlani, fotoUrl, ""];
-    sheetGelen.appendRow(yeniSatir);
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            background-color: transparent;
+            /* Resmin görünmesi için şeffaf */
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    if (aliciMail && aliciMail.toString().includes("@")) {
-      
-      var preheader = `<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${obj.notAlani}</div>`;
-      
-      var htmlGovde = `
-        ${preheader}
-        <div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
-          <h2 style="color: #2563eb;">Yeni Kayıt Bildirimi</h2>
-          <p><strong>Personel:</strong> ${obj.sutun0}</p>
-          <p><strong>Makine:</strong> ${obj.selB}</p>
-          <p><strong>Vardiya:</strong> ${obj.selC}</p>
-          <p><strong>İş Türü:</strong> ${obj.selD}</p>
-          <p><strong>Açıklama:</strong> ${obj.notAlani}</p>
-          <p><strong>Tarih:</strong> ${obj.tarih}</p>
-          ${fotoSatiri}
-        </div>`;
+        /* 🚨 İŞ İSTEK FORMU TÜM SİSTEM ARKAPLANI 🚨 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('https://i.ibb.co/pvfS9JSS/84-EA7-AFD-9-FC4-477-C-B895-DC15870335-E0.png');
+            background-size: 100% 100vh;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 1;
+            z-index: -999;
+        }
 
-      GmailApp.sendEmail(aliciMail, obj.selB, "", { 
-        name: obj.selD, 
-        htmlBody: htmlGovde,
-        inlineImages: inlineImages
-      });
-      ss.toast("Mail gönderildi", "✅ E-POSTA BAŞARILI");
-    }
+        * {
+            box-sizing: border-box;
+            outline: none !important;
+        }
 
-    if (telegramToken && telegramChatId) {
-      // Changed header to obj.selD (İş Türü) and switched to HTML formatting for bolder text
-      // Telegram'a Gönderilecek Mesajın HTML Formatlı "Rapor" Şeklinde Hazırlanması
-      var mesajMetni = "🚨 <b>" + obj.selD + "</b>\n";
-      mesajMetni += "───────────────\n\n";
-      mesajMetni += "<b>Tarih:</b> " + obj.tarih + "\n\n";
-      mesajMetni += "<b>İstek Açan:</b> " + obj.sutun0 + "\n\n";
-      mesajMetni += "<b>Makine:</b> " + obj.selB + "\n\n";
-      mesajMetni += "<b>Vardiya:</b> " + obj.selC + "\n\n";
-      mesajMetni += "───────────────\n\n";
-      
-      // Eğer İş Türü "İş Güvenliği" ise dikkat çekmesi için (Arka planlı Blok)
-      if (obj.selD.toUpperCase().indexOf("İŞ GÜVENLİĞİ") !== -1) {
-         mesajMetni += "<b>Açıklama:</b>\n<blockquote><b>" + obj.notAlani + "</b></blockquote>\n\n\n";
-      } else {
-         // Diğer normal arızalar (Arkaplansız sade ve kalın)
-         mesajMetni += "<b>Açıklama:</b>\n<b>" + obj.notAlani + "</b>\n\n\n";
-      }
-      
-      mesajMetni += "<b>Fotoğraf Durumu:</b> " + (fotoBlob != null ? "Mevcut 📸" : "Yok ❌");
+        /* GİRİŞ EKRANI */
+        #entry-screen {
+            position: fixed;
+            inset: 0;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding-left: 20px;
+            padding-right: 20px;
+        }
 
-      // Telegram'a metin mesajı gönderme (HTML parse mode ile)
-      var telegramUrl = "https://api.telegram.org/bot" + telegramToken;
-      
-      var textPayload = {
-        "chat_id": telegramChatId,
-        "text": mesajMetni,
-        "parse_mode": "HTML"
-      };
-      
-      var textOptions = {
-        "method": "post",
-        "payload": textPayload,
-        "muteHttpExceptions": true
-      };
-      UrlFetchApp.fetch(telegramUrl + "/sendMessage", textOptions);
+        .entry-card {
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px var(--shadow-color);
+        }
 
-      // Fotoğraf varsa Metnin ALTINA fotoğrafı (Captionsuz) gönder
-      if (fotoBlob != null) {
-        try {
-          var photoPayload = {
-            "chat_id": telegramChatId,
-            "photo": fotoBlob
-          };
-          var photoOptions = {
-            "method": "post",
-            "payload": photoPayload,
-            "muteHttpExceptions": true
-          };
-          var response = UrlFetchApp.fetch(telegramUrl + "/sendPhoto", photoOptions);
-          var respCode = response.getResponseCode();
-          
-          // Eğer fotoğraf çok büyükse ve Telegram reddederse (200 değilse), Drive linkini fallback yolla
-          if (respCode !== 200) {
-            UrlFetchApp.fetch(telegramUrl + "/sendMessage", {
-              "method": "post",
-              "payload": {
-                "chat_id": telegramChatId,
-                "text": `⚠️ <b>Sistem Notu:</b> Yüklenen fotoğraf çok büyük olduğu için gruba medya olarak gönderilemedi.\n\n🖼️ <b>Fotoğraf (Drive):</b> <a href="${fotoUrl}">Görüntülemek için tıkla</a>`,
-                "parse_mode": "HTML"
-              },
-              "muteHttpExceptions": true
+        .entry-title {
+            color: var(--accent-gold);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .entry-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-gold);
+            color: #ffffff;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            border: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .entry-btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .entry-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* ANA SİHİRBAZ YAPISI */
+        .wizard-overlay {
+            position: fixed;
+            inset: 0;
+            padding-top: calc(20px + env(safe-area-inset-top));
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding-left: 20px;
+            padding-right: 20px;
+            overflow-y: auto;
+            background: var(--bg-dark);
+        }
+
+        /* YENİ ADIM GÖSTERGESİ */
+        .step-indicator-container {
+            width: 100%;
+            padding: 20px 0;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .step-top-line {
+            position: absolute;
+            top: 36px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background-color: var(--border-color);
+        }
+
+        .steps-wrapper {
+            display: flex;
+            justify-content: space-around;
+            position: relative;
+        }
+
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 40px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-line {
+            width: 2px;
+            height: 16px;
+            background-color: var(--border-color);
+        }
+
+        .step-icon-wrapper {
+            z-index: 1;
+            position: relative;
+            padding: 5px;
+            background-color: var(--bg-dark);
+        }
+
+        .step-icon-bubble {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-panel);
+            transition: all 0.3s;
+        }
+
+        .step-icon-bubble svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        .step-content {
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            background: transparent;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .step-number-box {
+            padding: 6px;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-primary);
+            background-color: var(--bg-input);
+            transition: all 0.3s;
+        }
+
+        .step-title-box {
+            padding: 8px 4px;
+            background: var(--bg-panel);
+            display: none;
+            /* Varsayılan olarak gizle */
+        }
+
+        .step-item.active .step-title-box {
+            display: block;
+            /* Sadece aktif adımda göster */
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-title-box h3 {
+            font-size: 9px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin: 0;
+            text-transform: uppercase;
+            line-height: 1.2;
+            letter-spacing: 0.5px;
+        }
+
+        .step-item.completed .step-line,
+        .step-item.completed .step-icon-bubble {
+            background-color: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .step-item.completed .step-icon-bubble svg {
+            stroke: #fff;
+        }
+
+        .step-item.completed .step-number-box {
+            background-color: var(--accent-green);
+            color: #ffffff;
+        }
+
+        .step-item.completed .step-content {
+            border-color: var(--accent-green);
+        }
+
+        .step-item.active .step-line,
+        .step-item.active .step-icon-bubble {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        .step-item.active .step-icon-bubble {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .step-item.active .step-icon-bubble svg {
+            stroke: #fff;
+        }
+
+        .step-item.active .step-number-box {
+            background-color: var(--accent-red);
+            color: #fff;
+        }
+
+        .step-item.active .step-content {
+            border-color: var(--accent-red);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+        }
+
+        .step-item.active .step-title-box h3 {
+            color: var(--accent-gold);
+            font-weight: 700;
+        }
+
+        /* FORM KARTI */
+        .form-card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-panel);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+            margin-bottom: auto;
+            min-height: 400px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        .step-title {
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-grow: 1;
+        }
+
+        .step-container {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            animation: fadeIn 0.5s;
+        }
+
+        .step-container.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* FORM ELEMANLARI */
+        .form-input,
+        .search-input {
+            width: 100%;
+            background: var(--bg-input);
+            padding: 20px;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid transparent;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .form-input:focus,
+        .search-input:focus {
+            background: var(--bg-dark);
+            border-color: var(--accent-gold);
+        }
+
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .search-input {
+            padding-left: 45px;
+        }
+
+        .step-container>div:first-child {
+            position: relative;
+        }
+
+        .step-container>div:first-child::before {
+            content: '🔍';
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            font-size: 18px;
+            opacity: 0.3;
+        }
+
+        .list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .list-item {
+            padding: 18px;
+            background: var(--bg-input);
+            border-radius: 12px;
+            font-size: 15px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .list-item:hover {
+            background: #333;
+            color: var(--text-primary);
+        }
+
+        .list-item.selected {
+            background: var(--accent-gold);
+            color: #ffffff;
+            font-weight: 700;
+            transform: scale(1.02);
+            border-color: var(--accent-gold);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+        /* NAVİGASYON */
+        .header-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header-nav button {
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        #btn-prev {
+            background: #f1f5f9;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        #btn-next {
+            background: var(--accent-green);
+            color: #ffffff;
+        }
+
+        .header-nav button:active {
+            transform: scale(0.97);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-nav button.disabled,
+        #btn-next[style*="opacity: 0.1"] {
+            opacity: 0.2 !important;
+            pointer-events: none;
+        }
+
+        #btn-prev[style*="visibility: hidden"],
+        #btn-next[style*="visibility: hidden"] {
+            visibility: hidden;
+        }
+
+        /* TAMAMLAMA BUTONLARI */
+        .finish-button {
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            font-weight: 800;
+            font-size: 15px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .finish-button:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+
+        .finish-button.hollow {
+            background: transparent;
+            color: var(--accent-gold);
+            border: 2px dashed var(--accent-green);
+            margin-bottom: 15px;
+        }
+
+        .finish-button.solid {
+            background: #f1f5f9;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .finish-button.solid:hover {
+            background: #e2e8f0;
+        }
+
+
+        /* DURUM EKRANI */
+        #status-screen {
+            position: fixed;
+            inset: 0;
+            background: rgba(248, 250, 252, 0.9);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        #status-text {
+            font-size: 18px;
+            color: var(--text-primary);
+            font-weight: 800;
+            padding: 30px;
+            background: var(--bg-panel);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="entry-screen">
+        <div class="entry-card">
+            <h2 class="entry-title">İş İstek Sistemi</h2>
+            <button class="entry-btn" onclick="startSystem()">Sisteme Giriş</button>
+        </div>
+    </div>
+
+    <main id="wizard-overlay" class="wizard-overlay">
+        <div class="step-indicator-container">
+            <div class="step-top-line"></div>
+            <div class="steps-wrapper">
+                <div class="step-item" id="indicator-1">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">01</div>
+                        <div class="step-title-box">
+                            <h3>AD SOYAD</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-2">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">02</div>
+                        <div class="step-title-box">
+                            <h3>BÖLÜM</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-3">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+                                <rect x="9" y="9" width="6" height="6"></rect>
+                                <line x1="9" y1="1" x2="9" y2="4"></line>
+                                <line x1="15" y1="1" x2="15" y2="4"></line>
+                                <line x1="9" y1="20" x2="9" y2="23"></line>
+                                <line x1="15" y1="20" x2="15" y2="23"></line>
+                                <line x1="20" y1="9" x2="23" y2="9"></line>
+                                <line x1="20" y1="14" x2="23" y2="14"></line>
+                                <line x1="1" y1="9" x2="4" y2="9"></line>
+                                <line x1="1" y1="14" x2="4" y2="14"></line>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">03</div>
+                        <div class="step-title-box">
+                            <h3>MAKİNE SEÇİNİZ</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-4">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">04</div>
+                        <div class="step-title-box">
+                            <h3>VARDIYA</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-5">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">05</div>
+                        <div class="step-title-box">
+                            <h3>İŞ İSTEK TÜRÜ</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-6">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">06</div>
+                        <div class="step-title-box">
+                            <h3>AÇIKLAMA</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="step-item" id="indicator-7">
+                    <div class="step-line"></div>
+                    <div class="step-icon-wrapper">
+                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                            </svg></div>
+                    </div>
+                    <div class="step-content">
+                        <div class="step-number-box">07</div>
+                        <div class="step-title-box">
+                            <h3>TAMAMLA</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-card">
+            <div class="header-nav">
+                <button id="btn-prev" onclick="prevStep()">Geri</button>
+                <h2 id="step-title" class="step-title">BAŞLIK</h2>
+                <button id="btn-next" onclick="nextStep()">İleri</button>
+            </div>
+
+            <div id="step-1" class="step-container active">
+                <input type="text" id="w-kullanici" class="form-input" placeholder="Ad Soyad giriniz..."
+                    inputmode="text" oninput="validate(1)" autocomplete="name" autocorrect="off" autocapitalize="words"
+                    spellcheck="false">
+            </div>
+
+            <div id="step-2" class="step-container">
+                <div><input type="text" id="maliyet-search" class="search-input" placeholder="Bölüm ara..."
+                        inputmode="search" oninput="filterList('maliyet-list', this.value)" autocomplete="off"
+                        autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+                <div id="maliyet-list" class="list-container">
+                    <!-- Dinamik olarak dolacak -->
+                </div>
+            </div>
+
+            <div id="step-3" class="step-container">
+                <div><input type="text" id="makine-search" class="search-input" placeholder="Makine ara..."
+                        inputmode="search" oninput="filterList('makine-list', this.value)" autocomplete="off"
+                        autocorrect="off" autocapitalize="off" spellcheck="false"></div>
+                <div id="makine-list" class="list-container">
+                    <!-- Dinamik olarak dolacak -->
+                </div>
+            </div>
+
+            <div id="step-4" class="step-container">
+                <div id="vardiya-list" class="list-container">
+                    <!-- Dinamik olarak dolacak -->
+                </div>
+            </div>
+
+            <div id="step-5" class="step-container">
+                <div id="durum-list" class="list-container">
+                    <!-- Dinamik olarak dolacak -->
+                </div>
+            </div>
+
+            <div id="step-6" class="step-container">
+                <textarea id="w-not" class="form-input" rows="5" placeholder="Açıklama notunuzu buraya yazın..."
+                    inputmode="text" oninput="validate(6)" autocomplete="off" autocorrect="on"
+                    autocapitalize="sentences" spellcheck="true"></textarea>
+            </div>
+
+            <div id="step-7" class="step-container">
+                <button class="finish-button hollow" onclick="finish(null)">Fotoğrafsız Kaydet</button>
+                <input type="file" id="w-foto" accept="image/*" capture="environment" style="display:none;"
+                    onchange="submitWithFile(this)">
+                <button class="finish-button solid" onclick="document.getElementById('w-foto').click()">📸 Fotoğraf Çek
+                    ve Ekle</button>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="status-screen">
+        <div id="status-text">KAYIT GÖNDERİLİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen
+                Bekleyiniz</span></div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
+        const titles = ["AD SOYAD", "BÖLÜM", "MAKİNE SEÇİNİZ", "VARDIYA", "İŞ İSTEK TÜRÜ", "AÇIKLAMA", "TAMAMLA"];
+
+        var maliyetMakineData = <?!= JSON.stringify(typeof maliyetMakineData !== 'undefined' ? maliyetMakineData : []) ?>;
+        var listeC = <?!= JSON.stringify(typeof listeC !== 'undefined' ? listeC : []) ?>;
+        var listeD = <?!= JSON.stringify(typeof listeD !== 'undefined' ? listeD : []) ?>;
+
+        let lastNotificationTimestamp = null;
+
+        function startSystem() {
+            document.body.requestFullscreen?.();
+            document.getElementById('entry-screen').style.display = 'none';
+            document.getElementById('wizard-overlay').style.display = 'flex';
+            updateUI();
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                initializeNotifications();
+            }
+        }
+
+        function parseTurkishDate(dateString) {
+            if (!dateString || typeof dateString !== 'string') return null;
+            const parts = dateString.match(/(\d+)/g);
+            if (!parts || parts.length < 6) return null;
+            return new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
+        }
+
+        function initializeNotifications() {
+            if (!('Notification' in window)) {
+                console.log("Bu tarayıcı bildirimleri desteklemiyor.");
+                return;
+            }
+
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log("Bildirim izni alındı.");
+                        startChecking();
+                    }
+                });
+            } else {
+                startChecking();
+            }
+        }
+
+        function startChecking() {
+            if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+            google.script.run.withSuccessHandler(records => {
+                if (records && records.length > 0) {
+                    const lastRecord = records[0];
+                    lastNotificationTimestamp = parseTurkishDate(lastRecord[0]);
+                    console.log("İlk zaman damgası ayarlandı:", lastNotificationTimestamp);
+                }
+                setInterval(checkNewRecords, 30000);
+            }).sonKayitlariGetir();
+        }
+
+        function checkNewRecords() {
+            if (typeof google === 'undefined' || !google.script || !google.script.run) return;
+            console.log("Yeni kayıtlar kontrol ediliyor...");
+            google.script.run.withSuccessHandler(processNewRecords).sonKayitlariGetir();
+        }
+
+        function processNewRecords(records) {
+            if (!records || records.length === 0 || !lastNotificationTimestamp) {
+                return;
+            }
+
+            let newRecordsFound = false;
+            for (let i = records.length - 1; i >= 0; i--) {
+                const record = records[i];
+                const recordTimestamp = parseTurkishDate(record[0]);
+
+                if (recordTimestamp && recordTimestamp > lastNotificationTimestamp) {
+                    newRecordsFound = true;
+                    console.log("Yeni kayıt bulundu:", record);
+
+                    const notification = new Notification('Yeni İş İsteği', {
+                        body: `Personel: ${record[1]}\nMakine: ${record[2]}\nİstek: ${record[4]}`,
+                        icon: 'https://img.icons8.com/color/48/factory.png'
+                    });
+                }
+            }
+
+            if (newRecordsFound) {
+                const latestRecordTimestamp = parseTurkishDate(records[0][0]);
+                if (latestRecordTimestamp) {
+                    lastNotificationTimestamp = latestRecordTimestamp;
+                    console.log("Zaman damgası güncellendi:", lastNotificationTimestamp);
+                }
+            }
+        }
+
+
+        function updateUI() {
+            document.getElementById('step-title').innerText = titles[currentStep - 1];
+            const steps = document.getElementsByClassName('step-container');
+            for (let i = 0; i < steps.length; i++) {
+                steps[i].classList.toggle('active', (i + 1) === currentStep);
+            }
+
+            const stepItems = document.querySelectorAll('.step-item');
+            stepItems.forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                if (index < currentStep - 1) {
+                    item.classList.add('completed');
+                } else if (index === currentStep - 1) {
+                    item.classList.add('active');
+                }
             });
-          }
-        } catch (tpErr) {
-           Logger.log("Telegram Photo send error: " + tpErr.toString());
+
+            const prevBtn = document.getElementById('btn-prev');
+            const nextBtn = document.getElementById('btn-next');
+            prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
+            nextBtn.style.visibility = currentStep === 7 ? 'hidden' : 'visible';
+
+            checkValid();
         }
-      }
-      ss.toast("Telegram mesajı gönderildi", "✅ TELEGRAM BAŞARILI");
-    }
 
-    if (!aliciMail && !telegramToken) {
-       ss.toast("Sadece excele kaydedildi", "ℹ️ BİLGİ");
-    }
+        function checkValid() {
+            let ok = false;
+            if (currentStep === 1) ok = data.kullanici.trim().length >= 2;
+            else if (currentStep === 2) ok = data.maliyet !== '';
+            else if (currentStep === 3) ok = data.makine !== '';
+            else if (currentStep === 4) ok = data.vardiya !== '';
+            else if (currentStep === 5) ok = data.durum !== '';
+            else if (currentStep === 6) ok = data.not.trim().length >= 2;
+            else if (currentStep === 7) ok = true;
 
-    return "✅ Kayıt başarıyla tamamlandı!";
-  } catch (e) {
-    return "❌ Hata: " + e.toString();
-  }
-}
+            const nextBtn = document.getElementById('btn-next');
+            nextBtn.style.opacity = ok ? "1" : "0.1";
+            nextBtn.classList.toggle('disabled', !ok);
+        }
 
-function sonKayitlariGetir() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Gelen");
-  var sonSatir = sheet.getLastRow();
-  if (sonSatir < 2) return [];
-  var baslangic = Math.max(2, sonSatir - 4); 
-  // Tarih(A), Personel(B), Makine(C), İş Türü(E)
-  var range = sheet.getRange(baslangic, 1, (sonSatir - baslangic + 1), 5);
-  var values = range.getValues();
-  
-  // Sadece A, B, C, E sütunlarını al
-  var filteredValues = values.map(function(row) {
-    return [row[0], row[1], row[2], row[4]]; 
-  });
-  
-  return filteredValues.reverse();
-}
+        function nextStep() { if (currentStep < 7 && !document.getElementById('btn-next').classList.contains('disabled')) { currentStep++; updateUI(); } }
+        function prevStep() { if (currentStep > 1) { currentStep--; updateUI(); } }
 
-function testTelegram() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheetAyarlar = ss.getSheetByName("Ayarlar");
-    var token = sheetAyarlar.getRange("A2").getValue();
-    var chatId = sheetAyarlar.getRange("B2").getValue();
+        function pick(type, val, el) {
+            data[type] = val;
+            el.parentNode.querySelectorAll('.list-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
 
-    if (!token || !chatId) {
-      return "HATA: Token (" + token + ") veya ChatID (" + chatId + ") eksik!";
-    }
+            if (type === 'maliyet') {
+                updateMakineList(val);
+                data.makine = ''; // Makine seçimini sıfırla
+            }
 
-    var url = "https://api.telegram.org/bot" + token + "/sendMessage";
-    var payload = {
-      "chat_id": chatId,
-      "text": "🛠️ *Test Mesajı* - Bot bağlantısı başarılı!",
-      "parse_mode": "Markdown"
-    };
+            updateUI();
+            setTimeout(nextStep, 250);
+        }
 
-    var options = {
-      "method": "post",
-      "payload": payload,
-      "muteHttpExceptions": true
-    };
+        function updateMakineList(maliyet) {
+            const list = document.getElementById('makine-list');
+            const machines = maliyetMakineData
+                .filter(r => r[0] === maliyet)
+                .map(r => r[1])
+                .filter(m => m && m.toString().trim() !== ''); // Boş makineleri filtrele
 
-    var response = UrlFetchApp.fetch(url, options);
-    var responseText = response.getContentText();
-    var responseCode = response.getResponseCode();
-    
-    Logger.log("Test Sonucu Codu: " + responseCode + " | Yanıt: " + responseText);
-    return "HTTP " + responseCode + " - " + responseText;
+            list.innerHTML = machines.map(m => `<div class="list-item" onclick="pick('makine', '${m}', this)">${m}</div>`).join('');
+            document.getElementById('makine-search').value = '';
+        }
 
-  } catch (e) {
-    return "BEKLENMEYEN HATA: " + e.toString();
-  }
-}
+        function validate(step) {
+            if (step === 1) data.kullanici = document.getElementById('w-kullanici').value;
+            if (step === 6) data.not = document.getElementById('w-not').value;
+            updateUI();
+        }
 
-// Kod Sonu
+        function filterList(id, text) {
+            const items = document.getElementById(id).querySelectorAll('.list-item');
+            const filter = text.toUpperCase();
+            items.forEach(item => { item.style.display = item.innerText.toUpperCase().includes(filter) ? "" : "none"; });
+        }
+
+        function submitWithFile(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => finish(e.target.result.split(',')[1]);
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function finish(b64) {
+            if (!navigator.onLine) {
+                alert("❌ İnternet bağlantınız yok! Lütfen bağlantınızı kontrol edip tekrar deneyin.");
+                return;
+            }
+
+            document.getElementById('status-screen').style.display = 'flex';
+            data.not = document.getElementById('w-not').value.trim();
+
+            let payload = {
+                tarih: new Date().toLocaleString('tr-TR'),
+                sutun0: data.kullanici,
+                selB: data.makine, // Maliyet Merkezi gönderilmiyor, sadece filtre için kullanıldı
+                selC: data.vardiya,
+                selD: data.durum,
+                notAlani: data.not,
+                imgData: b64 || ""
+            };
+
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(res => {
+                        resetSystem(); // Sayfayı yenilemeden anında başa döndürür (Hızlı Geçiş)
+                    })
+                    .withFailureHandler(err => {
+                        document.getElementById('status-screen').style.display = 'none';
+                        alert("Hata: " + err);
+                    })
+                    .veriKaydet(payload);
+            } else {
+                // Sadece lokalde test ediliyorsa
+                setTimeout(() => {
+                    document.getElementById('status-screen').style.display = 'none';
+                    alert("Kayıt Başarılı (Lokal test modunda verileriniz Google Sheets'e gönderilemez.)");
+                    resetSystem(); // Lokal testte manuel reset
+                }, 1000);
+            }
+        }
+
+        function resetSystem() {
+            currentStep = 1;
+            data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
+
+            const userInput = document.getElementById('w-kullanici');
+            if (userInput) userInput.value = '';
+            const noteInput = document.getElementById('w-not');
+            if (noteInput) noteInput.value = '';
+            const searchInput = document.getElementById('makine-search');
+            if (searchInput) searchInput.value = '';
+            const maliyetSearch = document.getElementById('maliyet-search');
+            if (maliyetSearch) maliyetSearch.value = '';
+
+            document.querySelectorAll('.list-item.selected').forEach(el => el.classList.remove('selected'));
+
+            document.getElementById('status-screen').style.display = 'none';
+            document.getElementById('wizard-overlay').style.display = 'none';
+            document.getElementById('entry-screen').style.display = 'flex';
+
+            updateUI();
+        }
+
+        function populateLists() {
+            var maliyetList = document.getElementById('maliyet-list');
+            var vardiyaList = document.getElementById('vardiya-list');
+            var durumList = document.getElementById('durum-list');
+
+            // Benzersiz Maliyet Merkezlerini al ve boş olanları temizle
+            const maliyetler = [...new Set(maliyetMakineData.map(r => r[0]))]
+                .filter(m => m && m.toString().trim() !== '');
+
+            maliyetList.innerHTML = maliyetler.map(item => `<div class="list-item" onclick="pick('maliyet', '${item}', this)">${item}</div>`).join('');
+            vardiyaList.innerHTML = listeC.map(item => `<div class="list-item" onclick="pick('vardiya', '${item}', this)">${item}</div>`).join('');
+            durumList.innerHTML = listeD.map(item => `<div class="list-item" onclick="pick('durum', '${item}', this)">${item}</div>`).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateUI();
+            populateLists(); // Her durumda listeleri doldur (Hem GAS hem Lokal)
+        });
+    </script>
+</body>
+
+</html>
