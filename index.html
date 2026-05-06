@@ -135,7 +135,7 @@
             padding-top: calc(20px + env(safe-area-inset-top));
             padding-bottom: env(safe-area-inset-bottom);
             z-index: 2000;
-            display: none;
+            display: flex; /* DİREKT GÖSTER */
             flex-direction: column;
             align-items: center;
             padding-left: 20px;
@@ -549,7 +549,7 @@
 
 <body>
 
-    <div id="entry-screen">
+    <div id="entry-screen" style="display: none;">
         <div class="entry-card">
             <h2 class="entry-title">İş İstek Sistemi</h2>
             <button class="entry-btn" onclick="startSystem()">Sisteme Giriş</button>
@@ -1021,8 +1021,8 @@
             document.querySelectorAll('.list-item.selected').forEach(el => el.classList.remove('selected'));
 
             document.getElementById('status-screen').style.display = 'none';
-            document.getElementById('wizard-overlay').style.display = 'none';
-            document.getElementById('entry-screen').style.display = 'flex';
+            document.getElementById('wizard-overlay').style.display = 'flex';
+            document.getElementById('entry-screen').style.display = 'none';
 
             updateUI();
         }
@@ -1044,6 +1044,7 @@
         document.addEventListener('DOMContentLoaded', (event) => {
             updateUI();
             populateLists(); // Her durumda listeleri doldur (Hem GAS hem Lokal)
+            startSystem(); // Direkt sistemi başlat
         });
     </script>
 </body>
