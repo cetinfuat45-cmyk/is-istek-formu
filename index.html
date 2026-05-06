@@ -761,19 +761,11 @@
     </div>
 
     <script>
-        // Sunucudan gelen veriler (Lokal testlerde hata verirse uygulamanın çökmemesi için ayrı blokta tutulmuştur)
-        var maliyetMakineData = <?!= JSON.stringify(typeof maliyetMakineData !== 'undefined' ? maliyetMakineData : []) ?>;
-        var listeC = <?!= JSON.stringify(typeof listeC !== 'undefined' ? listeC : []) ?>;
-        var listeD = <?!= JSON.stringify(typeof listeD !== 'undefined' ? listeD : []) ?>;
-    </script>
-
-    <script>
-        // Lokal (Masaüstü) test modu için yedek veriler (Sunucuda çalışmadığında devreye girer)
-        if (typeof maliyetMakineData === 'undefined') {
-            var maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1'], ['TEST BÖLÜMÜ', 'TEST MAKİNE 2']];
-            var listeC = ["1.VARDİYA 00:00 // 08:00", "2.VARDİYA 08:00 // 16:00"];
-            var listeD = ["MEKANİK ARIZA", "ELEKTRİK ARIZA", "DİĞER"];
-        }
+        const API_URL = "https://script.google.com/macros/s/AKfycbzv1FO2PE-sQY5wI5D46BLW0-WxRbb9LKb-Im-kHtDdTKGf_ZiGpUBV6Drthyfp-RFN/exec";
+        
+        var maliyetMakineData = [];
+        var listeC = [];
+        var listeD = [];
 
         let currentStep = 1;
         let data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
@@ -786,9 +778,7 @@
             document.getElementById('entry-screen').style.display = 'none';
             document.getElementById('wizard-overlay').style.display = 'flex';
             updateUI();
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                initializeNotifications();
-            }
+            initializeNotifications();
         }
 
         function parseTurkishDate(dateString) {
@@ -817,21 +807,28 @@
         }
 
         function startChecking() {
-            if (typeof google === 'undefined' || !google.script || !google.script.run) return;
-            google.script.run.withSuccessHandler(records => {
-                if (records && records.length > 0) {
-                    const lastRecord = records[0];
-                    lastNotificationTimestamp = parseTurkishDate(lastRecord[0]);
-                    console.log("İlk zaman damgası ayarlandı:", lastNotificationTimestamp);
-                }
-                setInterval(checkNewRecords, 30000);
-            }).sonKayitlariGetir();
+            fetch(API_URL + "?action=sonKayitlar")
+                .then(res => res.json())
+                .then(responseData => {
+                    const records = responseData.sonKayitlar || [];
+                    if (records && records.length > 0) {
+                        const lastRecord = records[0];
+                        lastNotificationTimestamp = parseTurkishDate(lastRecord[0]);
+                        console.log("İlk zaman damgası ayarlandı:", lastNotificationTimestamp);
+                    }
+                    setInterval(checkNewRecords, 30000);
+                })
+                .catch(err => console.log("Bildirim API hatası", err));
         }
 
         function checkNewRecords() {
-            if (typeof google === 'undefined' || !google.script || !google.script.run) return;
             console.log("Yeni kayıtlar kontrol ediliyor...");
-            google.script.run.withSuccessHandler(processNewRecords).sonKayitlariGetir();
+            fetch(API_URL + "?action=sonKayitlar")
+                .then(res => res.json())
+                .then(responseData => {
+                    processNewRecords(responseData.sonKayitlar || []);
+                })
+                .catch(err => console.log("Bildirim kontrol hatası", err));
         }
 
         function processNewRecords(records) {
@@ -983,6 +980,7 @@
             }
 
             document.getElementById('status-screen').style.display = 'flex';
+            document.getElementById('status-text').innerHTML = 'KAYIT GÖNDERİLİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen Bekleyiniz</span>';
             data.not = document.getElementById('w-not').value.trim();
 
             let payload = {
@@ -995,24 +993,24 @@
                 imgData: b64 || ""
             };
 
-            if (typeof google !== 'undefined' && google.script && google.script.run) {
-                google.script.run
-                    .withSuccessHandler(res => {
-                        resetSystem(); // Sayfayı yenilemeden anında başa döndürür (Hızlı Geçiş)
-                    })
-                    .withFailureHandler(err => {
-                        document.getElementById('status-screen').style.display = 'none';
-                        alert("Hata: " + err);
-                    })
-                    .veriKaydet(payload);
-            } else {
-                // Sadece lokalde test ediliyorsa
-                setTimeout(() => {
+            fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(resData => {
+                if(resData.status === "success") {
+                    document.getElementById('status-text').innerHTML = 'KAYIT BAŞARILI!<br><span style="font-size: 14px; opacity: 0.7;">Form yenileniyor...</span>';
+                    setTimeout(resetSystem, 1000);
+                } else {
                     document.getElementById('status-screen').style.display = 'none';
-                    alert("Kayıt Başarılı (Lokal test modunda verileriniz Google Sheets'e gönderilemez.)");
-                    resetSystem(); // Lokal testte manuel reset
-                }, 1000);
-            }
+                    alert("Hata: " + resData.message);
+                }
+            })
+            .catch(err => {
+                document.getElementById('status-screen').style.display = 'none';
+                alert("Bağlantı Hatası: " + err);
+            });
         }
 
         function resetSystem() {
@@ -1051,10 +1049,36 @@
             durumList.innerHTML = listeD.map(item => `<div class="list-item" onclick="pick('durum', '${item}', this)">${item}</div>`).join('');
         }
 
+        function loadInitialData() {
+            document.getElementById('status-screen').style.display = 'flex';
+            document.getElementById('status-text').innerHTML = 'VERİLER YÜKLENİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen Bekleyiniz</span>';
+            
+            fetch(API_URL)
+                .then(res => res.json())
+                .then(resData => {
+                    maliyetMakineData = resData.maliyetMakineData || [];
+                    listeC = resData.listeC || [];
+                    listeD = resData.listeD || [];
+                    
+                    populateLists();
+                    document.getElementById('status-screen').style.display = 'none';
+                    startSystem();
+                })
+                .catch(err => {
+                    document.getElementById('status-screen').style.display = 'none';
+                    alert("Veriler yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+                    // Fallback
+                    maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1']];
+                    listeC = ["1.VARDİYA"];
+                    listeD = ["MEKANİK ARIZA"];
+                    populateLists();
+                    startSystem();
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', (event) => {
             updateUI();
-            populateLists(); // Her durumda listeleri doldur (Hem GAS hem Lokal)
-            startSystem(); // Direkt sistemi başlat
+            loadInitialData(); // Verileri sunucudan çek, listeleri doldur ve sistemi başlat
         });
     </script>
 </body>
