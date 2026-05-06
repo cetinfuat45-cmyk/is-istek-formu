@@ -761,13 +761,23 @@
     </div>
 
     <script>
-        let currentStep = 1;
-        let data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
-        const titles = ["AD SOYAD", "BÖLÜM", "MAKİNE SEÇİNİZ", "VARDIYA", "İŞ İSTEK TÜRÜ", "AÇIKLAMA", "TAMAMLA"];
-
+        // Sunucudan gelen veriler (Lokal testlerde hata verirse uygulamanın çökmemesi için ayrı blokta tutulmuştur)
         var maliyetMakineData = <?!= JSON.stringify(typeof maliyetMakineData !== 'undefined' ? maliyetMakineData : []) ?>;
         var listeC = <?!= JSON.stringify(typeof listeC !== 'undefined' ? listeC : []) ?>;
         var listeD = <?!= JSON.stringify(typeof listeD !== 'undefined' ? listeD : []) ?>;
+    </script>
+
+    <script>
+        // Lokal (Masaüstü) test modu için yedek veriler (Sunucuda çalışmadığında devreye girer)
+        if (typeof maliyetMakineData === 'undefined') {
+            var maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1'], ['TEST BÖLÜMÜ', 'TEST MAKİNE 2']];
+            var listeC = ["1.VARDİYA 00:00 // 08:00", "2.VARDİYA 08:00 // 16:00"];
+            var listeD = ["MEKANİK ARIZA", "ELEKTRİK ARIZA", "DİĞER"];
+        }
+
+        let currentStep = 1;
+        let data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
+        const titles = ["AD SOYAD", "BÖLÜM", "MAKİNE SEÇİNİZ", "VARDIYA", "İŞ İSTEK TÜRÜ", "AÇIKLAMA", "TAMAMLA"];
 
         let lastNotificationTimestamp = null;
 
