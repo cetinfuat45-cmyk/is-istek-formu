@@ -995,7 +995,8 @@
             let payload = {
                 tarih: new Date().toLocaleString('tr-TR'),
                 sutun0: data.kullanici,
-                selB: data.makine, // Maliyet Merkezi gönderilmiyor, sadece filtre için kullanıldı
+                maliyet: data.maliyet,
+                selB: data.makine,
                 selC: data.vardiya,
                 selD: data.durum,
                 notAlani: data.not,
