@@ -937,9 +937,32 @@
 
         function submitWithFile(input) {
             if (input.files && input.files[0]) {
+                const file = input.files[0];
                 const reader = new FileReader();
-                reader.onload = (e) => finish(e.target.result.split(',')[1]);
-                reader.readAsDataURL(input.files[0]);
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const max = 1000;
+                        if (width > height) {
+                            if (width > max) { height *= max / width; width = max; }
+                        } else {
+                            if (height > max) { width *= max / height; height = max; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Sıkıştırılmış resmi al ve finish fonksiyonuna gönder
+                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
+                        finish(compressedBase64);
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
             }
         }
 
