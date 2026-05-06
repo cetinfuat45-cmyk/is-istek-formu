@@ -1,7 +1,7 @@
 {
   "name": "İş İstek Sistemi",
   "short_name": "İş İstek",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#f8fafc",
