@@ -560,10 +560,12 @@
     <div id="entry-screen" style="display: none;">
         <div class="entry-card">
             <h2 class="entry-title">İş İstek Sistemi</h2>
-            <button id="install-app-btn" class="entry-btn" style="display: none; background: #16a34a; margin-bottom: 15px; font-size: 14px; padding: 12px;">⬇️ Uygulama Olarak Kaydet</button>
             <button class="entry-btn" onclick="startSystem()">Sisteme Giriş</button>
         </div>
     </div>
+
+    <!-- Küçük Yükle Butonu (Sağ Alt Köşe) -->
+    <button id="install-app-btn" style="display: none; position: fixed; bottom: 25px; right: 25px; z-index: 10000; background: #16a34a; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); align-items: center; justify-content: center;">📲</button>
 
     <main id="wizard-overlay" class="wizard-overlay">
         <div class="step-indicator-container">
@@ -1115,7 +1117,7 @@
         
         // Butonu her halükarda görünür yapıyoruz (kullanıcıya yardımcı olmak için)
         if (installBtn) {
-            installBtn.style.display = 'block';
+            installBtn.style.display = 'flex';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
