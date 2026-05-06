@@ -1004,6 +1004,10 @@
 
             fetch(API_URL, {
                 method: "POST",
+                redirect: "follow",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8"
+                },
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
@@ -1062,7 +1066,7 @@
             document.getElementById('status-screen').style.display = 'flex';
             document.getElementById('status-text').innerHTML = 'VERİLER YÜKLENİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen Bekleyiniz</span>';
             
-            fetch(API_URL)
+            fetch(API_URL, { redirect: 'follow' })
                 .then(res => res.json())
                 .then(resData => {
                     maliyetMakineData = resData.maliyetMakineData || [];
@@ -1071,7 +1075,7 @@
                     
                     populateLists();
                     document.getElementById('status-screen').style.display = 'none';
-                    startSystem();
+                    document.getElementById('entry-screen').style.display = 'flex';
                 })
                 .catch(err => {
                     document.getElementById('status-screen').style.display = 'none';
@@ -1081,7 +1085,7 @@
                     listeC = ["1.VARDİYA"];
                     listeD = ["MEKANİK ARIZA"];
                     populateLists();
-                    startSystem();
+                    document.getElementById('entry-screen').style.display = 'flex';
                 });
         }
 
