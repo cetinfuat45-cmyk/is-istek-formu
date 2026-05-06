@@ -1,291 +1,235 @@
-<!DOCTYPE html>
-<html lang="tr">
+function doGet() {
+  var tmp = HtmlService.createTemplateFromFile('index');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetVeri = ss.getSheetByName("Veri");
+  var sheetAyarlar = ss.getSheetByName("Ayarlar");
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#0f172a">
-    <title>İş İstek Formu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #020617;
-            --bg-grid: #0f172a;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
-            --is: #22d3ee;
+  // Ayarlar C1 hücresinden hoşgeldin mesajı
+  tmp.karsilamaMesaji = sheetAyarlar.getRange("C1").getValue() || "Sisteme Hoş Geldiniz";
+
+  // Veri sayfası E1 hücresinden İş Güvenliği Notunu çekiyoruz
+  tmp.isGuvenligiNotu = sheetVeri.getRange("E1").getValue() || "Güvenlik kurallarına uyunuz.";
+
+  var sonSatirVeri = sheetVeri.getLastRow();
+  if (sonSatirVeri > 1) {
+    // A ve B sütunlarını birlikte alıyoruz (Maliyet Merkezi - Makine eşleşmesi)
+    var veriAB = sheetVeri.getRange("A2:B" + sonSatirVeri).getValues();
+    tmp.maliyetMakineData = veriAB.filter(row => row[0] || row[1]); // Boş satırları temizle
+    
+    // C ve D sütunları (Vardiya ve İş Türü)
+    tmp.listeC = sheetVeri.getRange("C2:C" + sonSatirVeri).getValues().flat().filter(String);
+    tmp.listeD = sheetVeri.getRange("D2:D" + sonSatirVeri).getValues().flat().filter(String);
+    
+    // Geçmiş uyumluluk için listeB'yi (tüm makineler) de yollayabiliriz veya frontend'de maliyetMakineData'dan üretebiliriz
+    tmp.listeB = veriAB.map(r => r[1]).filter(String);
+  } else {
+    tmp.maliyetMakineData = []; tmp.listeB = []; tmp.listeC = []; tmp.listeD = [];
+  }
+
+  return tmp.evaluate()
+    .setTitle("AKG Veri Kayıt")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+}
+
+function veriKaydet(obj) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetGelen = ss.getSheetByName("Gelen");
+    var sheetAyarlar = ss.getSheetByName("Ayarlar");
+    var folderId = "1JeIF9CFrueibB6wLADSFp-u3nNqCe_yO";
+    var fotoUrl = "Fotograf Yok";
+    var fotoSatiri = ""; 
+    var inlineImages = {};
+    var fotoBlob = null;
+
+    if (!sheetAyarlar) return "❌ Hata: 'Ayarlar' sayfası bulunamadı!";
+    var aliciMail = sheetAyarlar.getRange("A1").getValue();
+    var telegramToken = sheetAyarlar.getRange("A2").getValue();
+    var telegramChatId = sheetAyarlar.getRange("B2").getValue();
+
+    if (obj.imgData && obj.imgData !== "") {
+      try {
+        var folder = DriveApp.getFolderById(folderId);
+        var cleanData = obj.imgData;
+        if (obj.imgData.indexOf(",") > -1) {
+          cleanData = obj.imgData.split(",")[1];
         }
+        fotoBlob = Utilities.newBlob(Utilities.base64Decode(cleanData), "image/jpeg", "foto_" + new Date().getTime() + ".jpg");
+        var file = folder.createFile(fotoBlob);
+        file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+        fotoUrl = file.getUrl();
+        
+        inlineImages = { "image": fotoBlob };
+        fotoSatiri = `<p><strong>Fotoğraf:</strong></p><img src="cid:image" style="width: 250px; height: auto; border: 1px solid #ccc; border-radius: 8px;">`;
+      } catch(imgErr) {
+        Logger.log("Resim yükleme hatası: " + imgErr.toString());
+      }
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Roboto', sans-serif;
-        }
+    // Gelen sayfasına kayıt
+    // E Sütunu: İş Türü (obj.selD), F Sütunu: Açıklama (obj.notAlani)
+    var yeniSatir = [obj.tarih, obj.sutun0, obj.selB, obj.selC, obj.selD, obj.notAlani, fotoUrl, ""];
+    sheetGelen.appendRow(yeniSatir);
 
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
+    if (aliciMail && aliciMail.toString().includes("@")) {
+      
+      var preheader = `<div style="display:none;font-size:1px;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${obj.notAlani}</div>`;
+      
+      var htmlGovde = `
+        ${preheader}
+        <div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
+          <h2 style="color: #2563eb;">Yeni Kayıt Bildirimi</h2>
+          <p><strong>Personel:</strong> ${obj.sutun0}</p>
+          <p><strong>Makine:</strong> ${obj.selB}</p>
+          <p><strong>Vardiya:</strong> ${obj.selC}</p>
+          <p><strong>İş Türü:</strong> ${obj.selD}</p>
+          <p><strong>Açıklama:</strong> ${obj.notAlani}</p>
+          <p><strong>Tarih:</strong> ${obj.tarih}</p>
+          ${fotoSatiri}
+        </div>`;
 
-        .form-container {
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg-grid);
-            padding: 30px;
-            border-radius: 16px;
-            border: 2px solid var(--is);
-            box-shadow: 0 10px 40px rgba(34, 211, 238, 0.2);
-        }
+      GmailApp.sendEmail(aliciMail, obj.selB, "", { 
+        name: obj.selD, 
+        htmlBody: htmlGovde,
+        inlineImages: inlineImages
+      });
+      ss.toast("Mail gönderildi", "✅ E-POSTA BAŞARILI");
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
+    if (telegramToken && telegramChatId) {
+      // Changed header to obj.selD (İş Türü) and switched to HTML formatting for bolder text
+      // Telegram'a Gönderilecek Mesajın HTML Formatlı "Rapor" Şeklinde Hazırlanması
+      var mesajMetni = "🚨 <b>" + obj.selD + "</b>\n";
+      mesajMetni += "───────────────\n\n";
+      mesajMetni += "<b>Tarih:</b> " + obj.tarih + "\n\n";
+      mesajMetni += "<b>İstek Açan:</b> " + obj.sutun0 + "\n\n";
+      mesajMetni += "<b>Makine:</b> " + obj.selB + "\n\n";
+      mesajMetni += "<b>Vardiya:</b> " + obj.selC + "\n\n";
+      mesajMetni += "───────────────\n\n";
+      
+      // Eğer İş Türü "İş Güvenliği" ise dikkat çekmesi için (Arka planlı Blok)
+      if (obj.selD.toUpperCase().indexOf("İŞ GÜVENLİĞİ") !== -1) {
+         mesajMetni += "<b>Açıklama:</b>\n<blockquote><b>" + obj.notAlani + "</b></blockquote>\n\n\n";
+      } else {
+         // Diğer normal arızalar (Arkaplansız sade ve kalın)
+         mesajMetni += "<b>Açıklama:</b>\n<b>" + obj.notAlani + "</b>\n\n\n";
+      }
+      
+      mesajMetni += "<b>Fotoğraf Durumu:</b> " + (fotoBlob != null ? "Mevcut 📸" : "Yok ❌");
 
-        .header h1 {
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--is);
-            letter-spacing: 1px;
-        }
+      // Telegram'a metin mesajı gönderme (HTML parse mode ile)
+      var telegramUrl = "https://api.telegram.org/bot" + telegramToken;
+      
+      var textPayload = {
+        "chat_id": telegramChatId,
+        "text": mesajMetni,
+        "parse_mode": "HTML"
+      };
+      
+      var textOptions = {
+        "method": "post",
+        "payload": textPayload,
+        "muteHttpExceptions": true
+      };
+      UrlFetchApp.fetch(telegramUrl + "/sendMessage", textOptions);
 
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            color: var(--text-dim);
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid #334155;
-            padding: 12px;
-            border-radius: 8px;
-            color: #fff;
-            outline: none;
-            font-size: 16px;
-            font-weight: 600;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--is);
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: var(--is);
-            color: #000;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 900;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.2s, opacity 0.2s;
-        }
-
-        .submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        .photo-area {
-            border: 2px dashed #334155;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #foto-preview {
-            max-width: 100%;
-            max-height: 200px;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-            border: 2px solid var(--is);
-        }
-
-        #last-sync {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-    </style>
-</head>
-
-<body>
-    <div id="last-sync">Bağlanıyor...</div>
-
-    <div class="form-container">
-        <div class="header">
-            <h1>İŞ İSTEK FORMU</h1>
-        </div>
-
-        <div class="input-group">
-            <label>İsteği Açan Kişi</label>
-            <input type="text" id="new-acan" placeholder="Adınız Soyadınız">
-        </div>
-
-        <div class="input-group">
-            <label>Makine / Bölüm</label>
-            <select id="new-makine">
-                <option value="">Yükleniyor...</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Vardiya</label>
-            <select id="new-vardiya">
-                <option value="1.VARDİYA 00:00 // 08:00">1.VARDİYA 00:00 // 08:00</option>
-                <option value="2.VARDİYA 08:00 // 16:00" selected>2.VARDİYA 08:00 // 16:00</option>
-                <option value="3.VARDİYA 16:00 // 00:00">3.VARDİYA 16:00 // 00:00</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>İş Türü</label>
-            <select id="new-tur">
-                <option value="MEKANİK ARIZA">MEKANİK ARIZA</option>
-                <option value="ELEKTRİK ARIZA">ELEKTRİK ARIZA</option>
-                <option value="İSG GÜVENLİĞİ !!!">İSG GÜVENLİĞİ !!!</option>
-                <option value="PLANLI BAKIM KODU">PLANLI BAKIM KODU</option>
-                <option value="TEKRAR EDEN ARIZA !!!">TEKRAR EDEN ARIZA !!!</option>
-                <option value="DİĞER">DİĞER</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label>Açıklama</label>
-            <textarea id="new-aciklama" rows="3" placeholder="Detayları buraya yazın..."></textarea>
-        </div>
-
-        <div class="photo-area">
-            <label style="margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                <span class="material-icons">photo_camera</span> Fotoğraf Ekle
-            </label>
-            <input type="file" id="new-foto" accept="image/*" style="display:none;" onchange="previewImage(event)">
-            <button onclick="document.getElementById('new-foto').click()" style="background: #334155; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">Resim Seç</button>
-            <img id="foto-preview">
-        </div>
-
-        <button id="submit-btn" class="submit-btn" onclick="submitRequest()">KAYDI GÖNDER</button>
-    </div>
-
-    <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbzv1FO2PE-sQY5wI5D46BLW0-WxRbb9LKb-Im-kHtDdTKGf_ZiGpUBV6Drthyfp-RFN/exec';
-        let currentImageBase64 = "";
-
-        function previewImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-                    const max = 1000;
-                    if (width > height) {
-                        if (width > max) { height *= max / width; width = max; }
-                    } else {
-                        if (height > max) { width *= max / height; height = max; }
-                    }
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    currentImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    const preview = document.getElementById('foto-preview');
-                    preview.src = currentImageBase64;
-                    preview.style.display = 'block';
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function fetchData() {
-            fetch(API_URL + '?_t=' + Date.now())
-                .then(r => r.json())
-                .then(data => {
-                    if (data.makineler) {
-                        const select = document.getElementById('new-makine');
-                        let html = '<option value="">Makine Seçin...</option>';
-                        data.makineler.sort().forEach(m => {
-                            if (m) html += `<option value="${m}">${m}</option>`;
-                        });
-                        select.innerHTML = html;
-                        document.getElementById('last-sync').innerText = "Veri Güncel: " + new Date().toLocaleTimeString();
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    document.getElementById('last-sync').innerText = "Bağlantı Hatası!";
-                });
-        }
-
-        function submitRequest() {
-            const acan = document.getElementById('new-acan').value.trim();
-            const makine = document.getElementById('new-makine').value;
-            const vardiya = document.getElementById('new-vardiya').value;
-            const tur = document.getElementById('new-tur').value;
-            const aciklama = document.getElementById('new-aciklama').value.trim();
-
-            if (!acan || !makine || !aciklama) {
-                alert("Lütfen Adınızı, Makineyi ve Açıklamayı doldurun!");
-                return;
-            }
-
-            const btn = document.getElementById('submit-btn');
-            btn.innerText = "GÖNDERİLİYOR...";
-            btn.disabled = true;
-
-            const payload = { acan, makine, vardiya, tur, aciklama, imgData: currentImageBase64 };
-
-            fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            })
-            .then(r => r.json())
-            .then(res => {
-                if (res.status === "success") {
-                    alert("Başarıyla kaydedildi!");
-                    location.reload();
-                } else {
-                    alert("Hata: " + res.message);
-                }
-            })
-            .catch(err => alert("Hata oluştu: " + err.message))
-            .finally(() => {
-                btn.innerText = "KAYDI GÖNDER";
-                btn.disabled = false;
+      // Fotoğraf varsa Metnin ALTINA fotoğrafı (Captionsuz) gönder
+      if (fotoBlob != null) {
+        try {
+          var photoPayload = {
+            "chat_id": telegramChatId,
+            "photo": fotoBlob
+          };
+          var photoOptions = {
+            "method": "post",
+            "payload": photoPayload,
+            "muteHttpExceptions": true
+          };
+          var response = UrlFetchApp.fetch(telegramUrl + "/sendPhoto", photoOptions);
+          var respCode = response.getResponseCode();
+          
+          // Eğer fotoğraf çok büyükse ve Telegram reddederse (200 değilse), Drive linkini fallback yolla
+          if (respCode !== 200) {
+            UrlFetchApp.fetch(telegramUrl + "/sendMessage", {
+              "method": "post",
+              "payload": {
+                "chat_id": telegramChatId,
+                "text": `⚠️ <b>Sistem Notu:</b> Yüklenen fotoğraf çok büyük olduğu için gruba medya olarak gönderilemedi.\n\n🖼️ <b>Fotoğraf (Drive):</b> <a href="${fotoUrl}">Görüntülemek için tıkla</a>`,
+                "parse_mode": "HTML"
+              },
+              "muteHttpExceptions": true
             });
+          }
+        } catch (tpErr) {
+           Logger.log("Telegram Photo send error: " + tpErr.toString());
         }
+      }
+      ss.toast("Telegram mesajı gönderildi", "✅ TELEGRAM BAŞARILI");
+    }
 
-        window.onload = fetchData;
-    </script>
-</body>
-</html>
+    if (!aliciMail && !telegramToken) {
+       ss.toast("Sadece excele kaydedildi", "ℹ️ BİLGİ");
+    }
+
+    return "✅ Kayıt başarıyla tamamlandı!";
+  } catch (e) {
+    return "❌ Hata: " + e.toString();
+  }
+}
+
+function sonKayitlariGetir() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Gelen");
+  var sonSatir = sheet.getLastRow();
+  if (sonSatir < 2) return [];
+  var baslangic = Math.max(2, sonSatir - 4); 
+  // Tarih(A), Personel(B), Makine(C), İş Türü(E)
+  var range = sheet.getRange(baslangic, 1, (sonSatir - baslangic + 1), 5);
+  var values = range.getValues();
+  
+  // Sadece A, B, C, E sütunlarını al
+  var filteredValues = values.map(function(row) {
+    return [row[0], row[1], row[2], row[4]]; 
+  });
+  
+  return filteredValues.reverse();
+}
+
+function testTelegram() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetAyarlar = ss.getSheetByName("Ayarlar");
+    var token = sheetAyarlar.getRange("A2").getValue();
+    var chatId = sheetAyarlar.getRange("B2").getValue();
+
+    if (!token || !chatId) {
+      return "HATA: Token (" + token + ") veya ChatID (" + chatId + ") eksik!";
+    }
+
+    var url = "https://api.telegram.org/bot" + token + "/sendMessage";
+    var payload = {
+      "chat_id": chatId,
+      "text": "🛠️ *Test Mesajı* - Bot bağlantısı başarılı!",
+      "parse_mode": "Markdown"
+    };
+
+    var options = {
+      "method": "post",
+      "payload": payload,
+      "muteHttpExceptions": true
+    };
+
+    var response = UrlFetchApp.fetch(url, options);
+    var responseText = response.getContentText();
+    var responseCode = response.getResponseCode();
+    
+    Logger.log("Test Sonucu Codu: " + responseCode + " | Yanıt: " + responseText);
+    return "HTTP " + responseCode + " - " + responseText;
+
+  } catch (e) {
+    return "BEKLENMEYEN HATA: " + e.toString();
+  }
+}
+
+// Kod Sonu
