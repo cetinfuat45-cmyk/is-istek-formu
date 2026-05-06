@@ -1,4 +1,4 @@
-const CACHE_NAME = 'is-istek-v1';
+const CACHE_NAME = 'is-istek-v2';
 const ASSETS = [
     './',
     './index.html',
