@@ -1,1 +1,0 @@
-# is-istek-formu
