@@ -560,6 +560,7 @@
     <div id="entry-screen" style="display: none;">
         <div class="entry-card">
             <h2 class="entry-title">İş İstek Sistemi</h2>
+            <button id="install-app-btn" class="entry-btn" style="display: none; background: #16a34a; margin-bottom: 15px; font-size: 14px; padding: 12px;">⬇️ Uygulama Olarak Kaydet</button>
             <button class="entry-btn" onclick="startSystem()">Sisteme Giriş</button>
         </div>
     </div>
@@ -1101,6 +1102,34 @@
             }
 
             loadInitialData(); // Verileri sunucudan çek, listeleri doldur ve sistemi başlat
+        });
+
+        // PWA Kurulum Mantığı (Install Prompt)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Varsayılan tarayıcı prompt'unu engelle
+            deferredPrompt = e; // Event'i sakla
+            
+            const installBtn = document.getElementById('install-app-btn');
+            if (installBtn) {
+                installBtn.style.display = 'block'; // Butonu görünür yap
+                
+                installBtn.addEventListener('click', async () => {
+                    installBtn.style.display = 'none'; // Butonu gizle
+                    deferredPrompt.prompt(); // Tarayıcının kurulum penceresini göster
+                    
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`Kullanıcı kurulum seçimi: ${outcome}`);
+                    deferredPrompt = null;
+                });
+            }
+        });
+
+        window.addEventListener('appinstalled', () => {
+            const installBtn = document.getElementById('install-app-btn');
+            if (installBtn) installBtn.style.display = 'none';
+            deferredPrompt = null;
+            console.log('Uygulama başarıyla yüklendi.');
         });
     </script>
 </body>
