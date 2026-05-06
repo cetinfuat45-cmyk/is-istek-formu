@@ -367,6 +367,12 @@
             }
         }
 
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
         /* FORM ELEMANLARI */
         .form-input,
         .search-input {
@@ -556,6 +562,12 @@
 </head>
 
 <body>
+
+    <!-- AÇILIŞ / SPLASH EKRANI -->
+    <div id="splash-screen" style="position: fixed; inset: 0; background: #f8fafc; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
+        <img src="AKGLOG.png" alt="AKG Logo" style="width: 250px; height: auto; margin-bottom: 25px; animation: pulseLogo 2.5s infinite ease-in-out;">
+        <h1 style="color: #2563eb; font-size: 22px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin: 0; padding: 0 20px;">AKG MAINTENANCE SYSTEM</h1>
+    </div>
 
     <div id="entry-screen" style="display: none;">
         <div class="entry-card">
@@ -1065,30 +1077,48 @@
             durumList.innerHTML = listeD.map(item => `<div class="list-item" onclick="pick('durum', '${item}', this)">${item}</div>`).join('');
         }
 
+        function hideSplashScreen() {
+            const splash = document.getElementById('splash-screen');
+            if(splash) {
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    startSystem();
+                }, 500); // 0.5sn fade-out animasyonu beklemesi
+            } else {
+                startSystem();
+            }
+        }
+
         function loadInitialData() {
-            document.getElementById('status-screen').style.display = 'flex';
-            document.getElementById('status-text').innerHTML = 'VERİLER YÜKLENİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen Bekleyiniz</span>';
+            // Veri yükleme ve en az 3 saniye bekleme için iki ayrı işlem (Promise) tanımlıyoruz
+            const minimumSplashTime = new Promise(resolve => setTimeout(resolve, 3000));
             
-            fetch(API_URL, { redirect: 'follow' })
+            const fetchData = fetch(API_URL, { redirect: 'follow' })
                 .then(res => res.json())
                 .then(resData => {
                     maliyetMakineData = resData.maliyetMakineData || [];
                     listeC = resData.listeC || [];
                     listeD = resData.listeD || [];
-                    
                     populateLists();
-                    document.getElementById('status-screen').style.display = 'none';
-                    startSystem();
+                });
+
+            // Hem 3 saniye dolsun, hem de veriler gelsin (hangisi uzun sürerse onu bekler)
+            Promise.all([fetchData, minimumSplashTime])
+                .then(() => {
+                    hideSplashScreen();
                 })
                 .catch(err => {
-                    document.getElementById('status-screen').style.display = 'none';
-                    alert("Veriler yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
-                    // Fallback
-                    maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1']];
-                    listeC = ["1.VARDİYA"];
-                    listeD = ["MEKANİK ARIZA"];
-                    populateLists();
-                    startSystem();
+                    // Hata olursa yine de splash süresini bekleyip içeri al
+                    minimumSplashTime.then(() => {
+                        alert("Veriler tam yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+                        // Fallback
+                        maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1']];
+                        listeC = ["1.VARDİYA"];
+                        listeD = ["MEKANİK ARIZA"];
+                        populateLists();
+                        hideSplashScreen();
+                    });
                 });
         }
 
