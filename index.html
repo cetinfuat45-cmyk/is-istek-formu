@@ -721,6 +721,72 @@
             display: flex;
             align-items: center;
         }
+
+        /* ÇIKIŞ ONAY MODALI */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 100010;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .confirm-box {
+            background: var(--bg-panel, #ffffff);
+            width: 90%;
+            max-width: 350px;
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .confirm-box img {
+            width: 160px;
+            height: auto;
+            margin-bottom: 25px;
+        }
+        .confirm-box p {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+        .confirm-btn-group {
+            display: flex;
+            gap: 15px;
+        }
+        .confirm-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .confirm-yes {
+            background: var(--accent-red);
+            color: white;
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
+        }
+        .confirm-yes:hover {
+            background: #b91c1c;
+        }
+        .confirm-no {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .confirm-no:hover {
+            background: #e2e8f0;
+        }
     </style>
 </head>
 
@@ -750,6 +816,18 @@
     <button class="close-app-btn" onclick="closeApp()" title="Uygulamayı Kapat">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13,3h-2v10h2V3z M17.83,5.17l-1.42,1.42C17.99,7.86,19,9.81,19,12c0,3.87-3.13,7-7,7s-7-3.13-7-7c0-2.19,1.01-4.14,2.58-5.42L6.17,5.17C4.23,6.82,3,9.26,3,12c0,4.97,4.03,9,9,9s9-4.03,9-9C21,9.26,19.77,6.82,17.83,5.17z"/></svg>
     </button>
+
+    <!-- ÇIKIŞ ONAY MODALI -->
+    <div id="confirm-overlay" class="confirm-overlay">
+        <div class="confirm-box">
+            <img src="AKGLOG.png" alt="AKG Logo">
+            <p>AKG İş İstek formundan çıkmak istediğinize emin misiniz?</p>
+            <div class="confirm-btn-group">
+                <button class="confirm-btn confirm-no" onclick="cancelClose()">Hayır</button>
+                <button class="confirm-btn confirm-yes" onclick="confirmClose()">Evet</button>
+            </div>
+        </div>
+    </div>
 
     <div id="settings-overlay" class="settings-overlay">
         <div class="settings-box">
@@ -1391,14 +1469,21 @@
 
         /* --- AYARLAR MENÜSÜ & ÇIKIŞ FONKSİYONLARI --- */
         function closeApp() {
-            if(confirm("Uygulamayı kapatmak istediğinize emin misiniz?")) {
-                window.close(); // PWA, masaüstü veya özel tarayıcılarda sekmeyi/uygulamayı kapatır
-                
-                // Eğer tarayıcı engellerse diye alternatif
-                setTimeout(() => {
-                    alert("Eğer sayfa otomatik kapanmadıysa, tarayıcı penceresini veya uygulamayı manuel olarak kapatabilirsiniz.");
-                }, 500);
-            }
+            document.getElementById('confirm-overlay').style.display = 'flex';
+        }
+
+        function cancelClose() {
+            document.getElementById('confirm-overlay').style.display = 'none';
+        }
+
+        function confirmClose() {
+            document.getElementById('confirm-overlay').style.display = 'none';
+            window.close(); // PWA, masaüstü veya özel tarayıcılarda sekmeyi/uygulamayı kapatır
+            
+            // Eğer tarayıcı engellerse diye alternatif
+            setTimeout(() => {
+                alert("Eğer sayfa otomatik kapanmadıysa, tarayıcı penceresini veya uygulamayı manuel olarak kapatabilirsiniz.");
+            }, 500);
         }
 
         function openSettings() {
