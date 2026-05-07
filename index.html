@@ -34,6 +34,8 @@
             --accent-red: #dc2626;
             --shadow-color: rgba(15, 23, 42, 0.1);
             --font-family: 'Inter', sans-serif;
+            --card-fs-base: 16px;
+            --card-opacity: 1;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -373,6 +375,9 @@
             100% { transform: scale(0.95); opacity: 0.8; }
         }
 
+        body[data-thickness="thin"] *:not(.material-icons):not(.settings-btn svg) { font-weight: 300 !important; }
+        body[data-thickness="thick"] *:not(.material-icons):not(.settings-btn svg) { font-weight: 800 !important; }
+
         /* FORM ELEMANLARI */
         .form-input,
         .search-input {
@@ -381,7 +386,8 @@
             padding: 20px;
             border-radius: 12px;
             color: var(--text-primary);
-            font-size: 16px;
+            font-size: var(--card-fs-base);
+            font-family: var(--font-family);
             margin-bottom: 15px;
             border: 1px solid transparent;
             transition: border-color 0.3s, background-color 0.3s;
@@ -428,7 +434,7 @@
             padding: 18px;
             background: var(--bg-input);
             border-radius: 12px;
-            font-size: 15px;
+            font-size: var(--card-fs-base);
             color: var(--text-secondary);
             cursor: pointer;
             border: 1px solid transparent;
@@ -558,6 +564,136 @@
             border: 1px solid var(--border-color);
             text-align: center;
         }
+
+        /* AYARLAR MENÜSÜ CSS */
+        .settings-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10001;
+            background: rgba(15, 23, 42, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .settings-btn:hover {
+            transform: rotate(90deg);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        .settings-btn svg { width: 24px; height: 24px; fill: #38bdf8; }
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.85);
+            z-index: 100005;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+        .settings-box {
+            background: #1e293b;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 16px;
+            padding: 25px;
+            color: #f8fafc;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .settings-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .settings-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .settings-header svg {
+            width: 48px;
+            height: 48px;
+            fill: #38bdf8;
+            margin-bottom: 10px;
+        }
+        .settings-header h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .setting-group {
+            margin-bottom: 20px;
+        }
+        .setting-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            text-align: left;
+        }
+        .setting-control {
+            width: 100%;
+            background: #334155;
+            border: 1px solid #475569;
+            color: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .setting-control:focus {
+            border-color: #38bdf8;
+        }
+        .setting-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #cbd5e1;
+            border-radius: 3px;
+            outline: none;
+        }
+        .setting-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+        }
+        .theme-preview {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-right: 10px;
+            border: 1px solid #cbd5e1;
+        }
+        .theme-flex {
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -578,6 +714,80 @@
 
     <!-- Küçük Yükle Butonu (Sağ Alt Köşe) -->
     <button id="install-app-btn" style="display: none; position: fixed; bottom: 25px; right: 25px; z-index: 10000; background: #16a34a; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); align-items: center; justify-content: center;">📲</button>
+
+    <!-- AYARLAR BUTONU VE MODALI -->
+    <button class="settings-btn" onclick="openSettings()" title="Ayarlar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+    </button>
+
+    <div id="settings-overlay" class="settings-overlay">
+        <div class="settings-box">
+            <button class="settings-close" onclick="closeSettings()">&times;</button>
+            <div class="settings-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                <h2>AYARLAR</h2>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Arka Plan Teması (Kart Renkleri)</label>
+                <div class="theme-flex">
+                    <div id="theme-preview" class="theme-preview" style="background: #ffffff;"></div>
+                    <select id="set-theme" class="setting-control" onchange="applySettings()">
+                        <option value="light">Açık Beyaz (Standart)</option>
+                        <option value="dark">Koyu Lacivert</option>
+                        <option value="black">Tam Siyah</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Yazı Karakteri (Font)</label>
+                <select id="set-font" class="setting-control" onchange="applySettings()">
+                    <option value="Inter">Inter (Standart)</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Arial">Arial</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Yazı Kalınlığı</label>
+                <select id="set-weight" class="setting-control" onchange="applySettings()">
+                    <option value="normal">Normal</option>
+                    <option value="thin">İnce</option>
+                    <option value="thick">Kalın</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Görünüm Modu</label>
+                <select id="set-view" class="setting-control" onchange="applySettings()">
+                    <option value="standard">Standart Görünüm</option>
+                    <option value="compact">Kompakt Görünüm</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" id="val-fs">Kart Yazı Boyutu: 16px</label>
+                <input type="range" id="set-fs" class="setting-slider" min="12" max="24" step="1" value="16" oninput="applySettings()">
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label" id="val-op">Kart Şeffaflığı: 100%</label>
+                <input type="range" id="set-op" class="setting-slider" min="10" max="100" step="5" value="100" oninput="applySettings()">
+            </div>
+
+            <div class="setting-group">
+                <label class="setting-label">Sayfa Ölçeği (Zoom)</label>
+                <select id="set-zoom" class="setting-control" onchange="applySettings()">
+                    <option value="0.8">80%</option>
+                    <option value="0.9">90%</option>
+                    <option value="1" selected>100%</option>
+                    <option value="1.1">110%</option>
+                    <option value="1.2">120%</option>
+                </select>
+            </div>
+        </div>
+    </div>
 
     <main id="wizard-overlay" class="wizard-overlay">
         <div class="step-indicator-container">
@@ -1122,7 +1332,86 @@
                 });
         }
 
+        /* --- AYARLAR MENÜSÜ FONKSİYONLARI --- */
+        function openSettings() {
+            document.getElementById('settings-overlay').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-overlay').style.display = 'none';
+        }
+
+        function applySettings() {
+            const theme = document.getElementById('set-theme').value;
+            const font = document.getElementById('set-font').value;
+            const weight = document.getElementById('set-weight').value;
+            const view = document.getElementById('set-view').value;
+            const fs = document.getElementById('set-fs').value;
+            const op = document.getElementById('set-op').value;
+            const zoom = document.getElementById('set-zoom').value;
+
+            document.getElementById('val-fs').innerText = `Kart Yazı Boyutu: ${fs}px`;
+            document.getElementById('val-op').innerText = `Kart Şeffaflığı: ${op}%`;
+
+            const root = document.documentElement;
+
+            // Tema Ataması (Light / Dark / Black)
+            if(theme === 'dark') {
+                root.style.setProperty('--bg-panel', '#1e293b');
+                root.style.setProperty('--bg-input', '#0f172a');
+                root.style.setProperty('--text-primary', '#f8fafc');
+                root.style.setProperty('--text-secondary', '#cbd5e1');
+                root.style.setProperty('--border-color', '#334155');
+                document.getElementById('theme-preview').style.background = '#1e293b';
+            } else if(theme === 'black') {
+                root.style.setProperty('--bg-panel', '#000000');
+                root.style.setProperty('--bg-input', '#111111');
+                root.style.setProperty('--text-primary', '#ffffff');
+                root.style.setProperty('--text-secondary', '#a1a1aa');
+                root.style.setProperty('--border-color', '#27272a');
+                document.getElementById('theme-preview').style.background = '#000000';
+            } else { // Light (Standart)
+                root.style.setProperty('--bg-panel', '#ffffff');
+                root.style.setProperty('--bg-input', '#f1f5f9');
+                root.style.setProperty('--text-primary', '#0f172a');
+                root.style.setProperty('--text-secondary', '#475569');
+                root.style.setProperty('--border-color', '#cbd5e1');
+                document.getElementById('theme-preview').style.background = '#ffffff';
+            }
+
+            // Global Ayarlar
+            root.style.setProperty('--font-family', `'${font}', sans-serif`);
+            document.body.setAttribute('data-thickness', weight);
+            document.body.setAttribute('data-view', view);
+            root.style.setProperty('--card-fs-base', `${fs}px`);
+            root.style.setProperty('--card-opacity', op / 100);
+            
+            // Mobil cihazlarda zoom bazen sorun yaratabilir, sadece desktop/overlay zoom
+            document.body.style.zoom = zoom;
+
+            // Ayarları Kaydet
+            localStorage.setItem('istekHubSettings', JSON.stringify({theme, font, weight, view, fs, op, zoom}));
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('istekHubSettings');
+                if(saved) {
+                    const s = JSON.parse(saved);
+                    if(s.theme) document.getElementById('set-theme').value = s.theme;
+                    if(s.font) document.getElementById('set-font').value = s.font;
+                    if(s.weight) document.getElementById('set-weight').value = s.weight;
+                    if(s.view) document.getElementById('set-view').value = s.view;
+                    if(s.fs) document.getElementById('set-fs').value = s.fs;
+                    if(s.op) document.getElementById('set-op').value = s.op;
+                    if(s.zoom) document.getElementById('set-zoom').value = s.zoom;
+                }
+            } catch(e) {}
+            applySettings(); // Ayarları sayfaya uygula
+        }
+
         document.addEventListener('DOMContentLoaded', (event) => {
+            loadSettings();
             updateUI();
             
             // Service Worker Registration for PWA Support
