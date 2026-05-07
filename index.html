@@ -712,8 +712,7 @@
         </div>
     </div>
 
-    <!-- Küçük Yükle Butonu (Sağ Alt Köşe) -->
-    <button id="install-app-btn" style="display: none; position: fixed; bottom: 25px; right: 25px; z-index: 10000; background: #16a34a; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); align-items: center; justify-content: center;">📲</button>
+    <!-- Yükle Butonu artık ayarlar menüsünün içinde yer alıyor -->
 
     <!-- AYARLAR BUTONU VE MODALI -->
     <button class="settings-btn" onclick="openSettings()" title="Ayarlar">
@@ -729,7 +728,7 @@
             </div>
             
             <div class="setting-group">
-                <label class="setting-label">Arka Plan Teması (Kart Renkleri)</label>
+                <label class="setting-label">Arka Plan Teması (Genel & Kart)</label>
                 <div class="theme-flex">
                     <div id="theme-preview" class="theme-preview" style="background: #ffffff;"></div>
                     <select id="set-theme" class="setting-control" onchange="applySettings()">
@@ -785,6 +784,14 @@
                     <option value="1.1">110%</option>
                     <option value="1.2">120%</option>
                 </select>
+            </div>
+
+            <!-- UYGULAMAYI YÜKLE BUTONU BURAYA TAŞINDI -->
+            <div class="setting-group" id="install-container" style="display: none; margin-top: 30px; border-top: 1px solid #334155; padding-top: 20px;">
+                <label class="setting-label" style="color: #4ade80;">Uygulamayı İndir</label>
+                <button id="install-app-btn" class="setting-control" style="background: #16a34a; color: white; border: none; font-weight: 800; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px;">
+                    📲 Telefona/PC'ye Yükle
+                </button>
             </div>
         </div>
     </div>
@@ -1362,6 +1369,7 @@
                 root.style.setProperty('--text-primary', '#f8fafc');
                 root.style.setProperty('--text-secondary', '#cbd5e1');
                 root.style.setProperty('--border-color', '#334155');
+                document.body.style.backgroundColor = '#0f172a'; // ANA EKRAN ARKA PLANI
                 document.getElementById('theme-preview').style.background = '#1e293b';
             } else if(theme === 'black') {
                 root.style.setProperty('--bg-panel', '#000000');
@@ -1369,6 +1377,7 @@
                 root.style.setProperty('--text-primary', '#ffffff');
                 root.style.setProperty('--text-secondary', '#a1a1aa');
                 root.style.setProperty('--border-color', '#27272a');
+                document.body.style.backgroundColor = '#000000'; // ANA EKRAN ARKA PLANI
                 document.getElementById('theme-preview').style.background = '#000000';
             } else { // Light (Standart)
                 root.style.setProperty('--bg-panel', '#ffffff');
@@ -1376,6 +1385,7 @@
                 root.style.setProperty('--text-primary', '#0f172a');
                 root.style.setProperty('--text-secondary', '#475569');
                 root.style.setProperty('--border-color', '#cbd5e1');
+                document.body.style.backgroundColor = '#f8fafc'; // ANA EKRAN ARKA PLANI
                 document.getElementById('theme-preview').style.background = '#ffffff';
             }
 
@@ -1433,10 +1443,11 @@
         // PWA Kurulum Mantığı (Install Prompt)
         let deferredPrompt;
         const installBtn = document.getElementById('install-app-btn');
+        const installContainer = document.getElementById('install-container');
         
         // Butonu her halükarda görünür yapıyoruz (kullanıcıya yardımcı olmak için)
-        if (installBtn) {
-            installBtn.style.display = 'flex';
+        if (installContainer) {
+            installContainer.style.display = 'block';
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -1448,7 +1459,8 @@
             installBtn.addEventListener('click', async () => {
                 if (deferredPrompt) {
                     // Sistem PWA yüklemeye hazırsa
-                    installBtn.style.display = 'none'; // Butonu gizle
+                    if (installContainer) installContainer.style.display = 'none'; // Butonu gizle
+                    closeSettings(); // Menüyü kapat
                     deferredPrompt.prompt(); // Tarayıcının kurulum penceresini göster
                     
                     const { outcome } = await deferredPrompt.userChoice;
@@ -1467,7 +1479,7 @@
         }
 
         window.addEventListener('appinstalled', () => {
-            if (installBtn) installBtn.style.display = 'none';
+            if (installContainer) installContainer.style.display = 'none';
             deferredPrompt = null;
             console.log('Uygulama başarıyla yüklendi.');
         });
