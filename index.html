@@ -1391,8 +1391,13 @@
 
         /* --- AYARLAR MENÜSÜ & ÇIKIŞ FONKSİYONLARI --- */
         function closeApp() {
-            if(confirm("İşlemi iptal edip sayfayı baştan yüklemek (kapatmak) istediğinize emin misiniz?")) {
-                window.location.reload();
+            if(confirm("Uygulamayı kapatmak istediğinize emin misiniz?")) {
+                window.close(); // PWA, masaüstü veya özel tarayıcılarda sekmeyi/uygulamayı kapatır
+                
+                // Eğer tarayıcı engellerse diye alternatif
+                setTimeout(() => {
+                    alert("Eğer sayfa otomatik kapanmadıysa, tarayıcı penceresini veya uygulamayı manuel olarak kapatabilirsiniz.");
+                }, 500);
             }
         }
 
