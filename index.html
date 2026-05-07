@@ -735,6 +735,24 @@
                         <option value="light">Açık Beyaz (Standart)</option>
                         <option value="dark">Koyu Lacivert</option>
                         <option value="black">Tam Siyah</option>
+                        <option value="Red">Kırmızı (Red)</option>
+                        <option value="Cyan">Camgöbeği (Cyan)</option>
+                        <option value="Blue">Mavi (Blue)</option>
+                        <option value="DarkBlue">Koyu Mavi (DarkBlue)</option>
+                        <option value="LightBlue">Açık Mavi (LightBlue)</option>
+                        <option value="Purple">Mor (Purple)</option>
+                        <option value="Yellow">Sarı (Yellow)</option>
+                        <option value="Lime">Açık Yeşil (Lime)</option>
+                        <option value="Magenta">Eflatun (Magenta)</option>
+                        <option value="Pink">Pembe (Pink)</option>
+                        <option value="Silver">Gümüş (Silver)</option>
+                        <option value="Gray">Gri (Gray)</option>
+                        <option value="Orange">Turuncu (Orange)</option>
+                        <option value="Brown">Kahverengi (Brown)</option>
+                        <option value="Maroon">Bordo (Maroon)</option>
+                        <option value="Green">Yeşil (Green)</option>
+                        <option value="Olive">Zeytin Yeşili (Olive)</option>
+                        <option value="Aquamarine">Turkuaz (Aquamarine)</option>
                     </select>
                 </div>
             </div>
@@ -1362,32 +1380,41 @@
 
             const root = document.documentElement;
 
-            // Tema Ataması (Light / Dark / Black)
-            if(theme === 'dark') {
-                root.style.setProperty('--bg-panel', '#1e293b');
-                root.style.setProperty('--bg-input', '#0f172a');
-                root.style.setProperty('--text-primary', '#f8fafc');
-                root.style.setProperty('--text-secondary', '#cbd5e1');
-                root.style.setProperty('--border-color', '#334155');
-                document.body.style.backgroundColor = '#0f172a'; // ANA EKRAN ARKA PLANI
-                document.getElementById('theme-preview').style.background = '#1e293b';
-            } else if(theme === 'black') {
-                root.style.setProperty('--bg-panel', '#000000');
-                root.style.setProperty('--bg-input', '#111111');
-                root.style.setProperty('--text-primary', '#ffffff');
-                root.style.setProperty('--text-secondary', '#a1a1aa');
-                root.style.setProperty('--border-color', '#27272a');
-                document.body.style.backgroundColor = '#000000'; // ANA EKRAN ARKA PLANI
-                document.getElementById('theme-preview').style.background = '#000000';
-            } else { // Light (Standart)
-                root.style.setProperty('--bg-panel', '#ffffff');
-                root.style.setProperty('--bg-input', '#f1f5f9');
-                root.style.setProperty('--text-primary', '#0f172a');
-                root.style.setProperty('--text-secondary', '#475569');
-                root.style.setProperty('--border-color', '#cbd5e1');
-                document.body.style.backgroundColor = '#f8fafc'; // ANA EKRAN ARKA PLANI
-                document.getElementById('theme-preview').style.background = '#ffffff';
-            }
+            const themeColors = {
+                'light': { hex: '#ffffff', text: '#0f172a', sec: '#475569', input: '#f1f5f9', border: '#cbd5e1' },
+                'dark': { hex: '#1e293b', text: '#f8fafc', sec: '#cbd5e1', input: '#0f172a', border: '#334155' },
+                'black': { hex: '#000000', text: '#ffffff', sec: '#a1a1aa', input: '#111111', border: '#27272a' },
+                'Red': { hex: '#FF0000', text: '#ffffff', sec: '#fca5a5', input: '#7f1d1d', border: '#b91c1c' },
+                'Cyan': { hex: '#00FFFF', text: '#0f172a', sec: '#0891b2', input: '#cffafe', border: '#06b6d4' },
+                'Blue': { hex: '#0000FF', text: '#ffffff', sec: '#93c5fd', input: '#1e3a8a', border: '#2563eb' },
+                'DarkBlue': { hex: '#00008B', text: '#ffffff', sec: '#bfdbfe', input: '#0f172a', border: '#1e40af' },
+                'LightBlue': { hex: '#ADD8E6', text: '#0f172a', sec: '#334155', input: '#e0f2fe', border: '#7dd3fc' },
+                'Purple': { hex: '#800080', text: '#ffffff', sec: '#d8b4fe', input: '#3b0764', border: '#7e22ce' },
+                'Yellow': { hex: '#FFFF00', text: '#0f172a', sec: '#713f12', input: '#fef08a', border: '#eab308' },
+                'Lime': { hex: '#00FF00', text: '#0f172a', sec: '#14532d', input: '#bbf7d0', border: '#22c55e' },
+                'Magenta': { hex: '#FF00FF', text: '#ffffff', sec: '#f9a8d4', input: '#831843', border: '#db2777' },
+                'Pink': { hex: '#FFC0CB', text: '#0f172a', sec: '#831843', input: '#fce7f3', border: '#f472b6' },
+                'Silver': { hex: '#C0C0C0', text: '#0f172a', sec: '#334155', input: '#f1f5f9', border: '#94a3b8' },
+                'Gray': { hex: '#808080', text: '#ffffff', sec: '#e2e8f0', input: '#334155', border: '#64748b' },
+                'Orange': { hex: '#FFA500', text: '#0f172a', sec: '#7c2d12', input: '#ffedd5', border: '#f97316' },
+                'Brown': { hex: '#A52A2A', text: '#ffffff', sec: '#fdba74', input: '#431407', border: '#9a3412' },
+                'Maroon': { hex: '#800000', text: '#ffffff', sec: '#fca5a5', input: '#450a0a', border: '#7f1d1d' },
+                'Green': { hex: '#008000', text: '#ffffff', sec: '#86efac', input: '#052e16', border: '#16a34a' },
+                'Olive': { hex: '#808000', text: '#ffffff', sec: '#fef08a', input: '#422006', border: '#a16207' },
+                'Aquamarine': { hex: '#7FFFD4', text: '#0f172a', sec: '#0f766e', input: '#ccfbf1', border: '#14b8a6' }
+            };
+
+            const t = themeColors[theme] || themeColors['light'];
+            
+            root.style.setProperty('--bg-panel', t.hex);
+            root.style.setProperty('--bg-input', t.input);
+            root.style.setProperty('--text-primary', t.text);
+            root.style.setProperty('--text-secondary', t.sec);
+            root.style.setProperty('--border-color', t.border);
+            
+            // Eğer ışıklı temaysa arka plan f8fafc (hafif gri/mavi) kalsın, diğerlerinde tam hex
+            document.body.style.backgroundColor = (theme === 'light') ? '#f8fafc' : t.hex; 
+            document.getElementById('theme-preview').style.background = t.hex;
 
             // Global Ayarlar
             root.style.setProperty('--font-family', `'${font}', sans-serif`);
