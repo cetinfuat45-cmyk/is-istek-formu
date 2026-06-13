@@ -8,14 +8,14 @@ window.triggerFeedback = () => {
         const osc = window.audioCtx.createOscillator();
         const gainNode = window.audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, window.audioCtx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(50, window.audioCtx.currentTime + 0.05);
-        gainNode.gain.setValueAtTime(0.3, window.audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.05);
+        osc.frequency.setValueAtTime(1200, window.audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0, window.audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.3, window.audioCtx.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, window.audioCtx.currentTime + 0.3);
         osc.connect(gainNode);
         gainNode.connect(window.audioCtx.destination);
         osc.start();
-        osc.stop(window.audioCtx.currentTime + 0.05);
+        osc.stop(window.audioCtx.currentTime + 0.35);
     } catch(e) {}
 };
 // Service Worker Registration for PWA (Android Install)
@@ -402,23 +402,7 @@ window.goToStep = (step) => {
         
         targetNav.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         
-        if (step === 7) {
-            document.getElementById('sum-name').innerText = document.getElementById('userName').value || '-';
-            
-            const cc = document.getElementById('costCenter');
-            document.getElementById('sum-dept').innerText = (cc && cc.selectedIndex >= 0) ? cc.options[cc.selectedIndex].text : '-';
-            
-            const mach = document.getElementById('machine');
-            document.getElementById('sum-mach').innerText = (mach && mach.selectedIndex >= 0) ? mach.options[mach.selectedIndex].text : '-';
-            
-            const sh = document.getElementById('shift');
-            document.getElementById('sum-shift').innerText = (sh && sh.selectedIndex >= 0) ? sh.options[sh.selectedIndex].text : '-';
-            
-            const jt = document.getElementById('jobType');
-            document.getElementById('sum-job').innerText = (jt && jt.selectedIndex >= 0) ? jt.options[jt.selectedIndex].text : '-';
-            
-            document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
-        }
+
         
         const firstInput = targetCard.querySelector('input, select, textarea');
         if(firstInput && !firstInput.dataset.customized) setTimeout(() => firstInput.focus(), 300);
@@ -427,8 +411,45 @@ window.goToStep = (step) => {
 
 window.nextStep = (currentStepNum) => {
     window.triggerFeedback();
-    if (validateStep(currentStepNum)) goToStep(currentStepNum + 1);
+    if (validateStep(currentStepNum)) {
+        if (currentStepNum === 6) {
+            window.showSummaryOverlay();
+        } else {
+            goToStep(currentStepNum + 1);
+        }
+    }
 };
+
+window.showSummaryOverlay = () => {
+    document.getElementById('sum-name').innerText = document.getElementById('userName').value || '-';
+    const cc = document.getElementById('costCenter');
+    document.getElementById('sum-dept').innerText = (cc && cc.selectedIndex >= 0) ? cc.options[cc.selectedIndex].text : '-';
+    const mach = document.getElementById('machine');
+    document.getElementById('sum-mach').innerText = (mach && mach.selectedIndex >= 0) ? mach.options[mach.selectedIndex].text : '-';
+    const sh = document.getElementById('shift');
+    document.getElementById('sum-shift').innerText = (sh && sh.selectedIndex >= 0) ? sh.options[sh.selectedIndex].text : '-';
+    const jt = document.getElementById('jobType');
+    document.getElementById('sum-job').innerText = (jt && jt.selectedIndex >= 0) ? jt.options[jt.selectedIndex].text : '-';
+    document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
+    
+    document.getElementById('summaryOverlay').classList.remove('hidden');
+};
+
+window.closeSummaryOverlay = () => {
+    window.triggerFeedback();
+    document.getElementById('summaryOverlay').classList.add('hidden');
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('submitBtnOverlay');
+    if(btn) {
+        btn.addEventListener('click', () => {
+            window.triggerFeedback();
+            // Programmatically submit the form
+            document.getElementById('faultForm').requestSubmit();
+        });
+    }
+});
 
 const validateStep = (step) => {
     const container = document.getElementById('step' + step);
@@ -462,6 +483,8 @@ const validateStep = (step) => {
 
 // Form submit başarılı olduğunda veya güç butonuna basıldığında ilk adıma döndür
 window.resetStepper = () => {
+    const overlay = document.getElementById('summaryOverlay');
+    if(overlay) overlay.classList.add('hidden');
     document.querySelectorAll('.card-step').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
     
@@ -742,6 +765,9 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
+
+
 
 
 
