@@ -429,7 +429,23 @@ window.showSummaryOverlay = () => {
     const sh = document.getElementById('shift');
     document.getElementById('sum-shift').innerText = (sh && sh.selectedIndex >= 0) ? sh.options[sh.selectedIndex].text : '-';
     const jt = document.getElementById('jobType');
-    document.getElementById('sum-job').innerText = (jt && jt.selectedIndex >= 0) ? jt.options[jt.selectedIndex].text : '-';
+    const overlay = document.getElementById('summaryOverlay');
+    const tIcons = overlay.querySelectorAll('.t-icon');
+    
+    if (jt && jt.selectedIndex >= 0) {
+        const jobText = jt.options[jt.selectedIndex].text;
+        document.getElementById('sum-job').innerText = jobText;
+        
+        const checkText = jobText.toUpperCase();
+        if (checkText.includes('İSG') || checkText.includes('ISG') || checkText.includes('GÜVEN') || checkText.includes('GUVEN') || checkText.includes('IS GUVENLIGI')) {
+            overlay.classList.add('is-isg');
+        } else {
+            overlay.classList.remove('is-isg');
+        }
+    } else {
+        document.getElementById('sum-job').innerText = '-';
+        overlay.classList.remove('is-isg');
+    }
     document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
     
     document.getElementById('summaryOverlay').classList.remove('hidden');
@@ -765,6 +781,12 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
+
+
+
+
+
 
 
 
