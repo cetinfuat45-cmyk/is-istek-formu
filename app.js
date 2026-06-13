@@ -439,12 +439,15 @@ window.showSummaryOverlay = () => {
         const checkText = jobText.toUpperCase();
         if (checkText.includes('İSG') || checkText.includes('ISG') || checkText.includes('GÜVEN') || checkText.includes('GUVEN') || checkText.includes('IS GUVENLIGI')) {
             overlay.classList.add('is-isg');
+            overlay.classList.remove('is-normal');
         } else {
             overlay.classList.remove('is-isg');
+            overlay.classList.add('is-normal');
         }
     } else {
         document.getElementById('sum-job').innerText = '-';
         overlay.classList.remove('is-isg');
+        overlay.classList.add('is-normal');
     }
     document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
     
@@ -781,6 +784,7 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
 
 
 
