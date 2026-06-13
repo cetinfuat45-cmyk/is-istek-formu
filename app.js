@@ -1,4 +1,4 @@
-﻿// Service Worker Registration for PWA (Android Install)
+// Service Worker Registration for PWA (Android Install)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(console.error);
@@ -393,7 +393,7 @@ window.nextStep = (currentStepNum) => {
 };
 
 const validateStep = (step) => {
-    const container = document.getElementById(step${step});
+    const container = document.getElementById('step' + step);
     if (!container) return true;
     
     const inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
