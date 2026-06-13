@@ -1,1644 +1,226 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="tr">
-
 <head>
-    <base target="_top">
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-        
-    <!-- iOS / Apple Support -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="İş İstek">
-    <link rel="apple-touch-icon" href="AKGLOG.png">
-    
-    <!-- Android / General PWA Support -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#f8fafc">
+    <meta name="theme-color" content="#ffffff">
     <link rel="manifest" href="manifest.json">
-    
-    <title>İş İstek Sistemi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #f8fafc;
-            --bg-panel: #ffffff;
-            --bg-input: #f1f5f9;
-            --border-color: #cbd5e1;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --accent-gold: #2563eb;
-            /* Gün ışığında daha net seçilen mavi */
-            --accent-green: #16a34a;
-            --accent-red: #dc2626;
-            --shadow-color: rgba(15, 23, 42, 0.1);
-            --font-family: 'Inter', sans-serif;
-            --card-fs-base: 16px;
-            --card-opacity: 1;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-            background-color: transparent;
-            /* Resmin görünmesi için şeffaf */
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            overflow-x: hidden;
-            overflow-y: auto;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* 🚨 İŞ İSTEK FORMU TÜM SİSTEM ARKAPLANI 🚨 */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('AKGLOG.png');
-            background-size: contain; /* Esnememesi için orantılı sığdır */
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.15; /* Resmi soluklaştırdık (Sulu boya/filigran efekti) */
-            z-index: -999;
-        }
-
-        * {
-            box-sizing: border-box;
-            outline: none !important;
-        }
-
-        /* GİRİŞ EKRANI */
-        #entry-screen {
-            position: fixed;
-            inset: 0;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            padding-left: 20px;
-            padding-right: 20px;
-        }
-
-        .entry-card {
-            text-align: center;
-            width: 100%;
-            max-width: 350px;
-            padding: 40px 30px;
-            border-radius: 24px;
-            background: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 60px var(--shadow-color);
-        }
-
-        .entry-title {
-            color: var(--accent-gold);
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0 0 20px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .entry-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--accent-gold);
-            color: #ffffff;
-            font-weight: 800;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 16px;
-            text-transform: uppercase;
-            border: none;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-        }
-
-        .entry-btn:hover {
-            background: #1d4ed8;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        .entry-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* ANA SİHİRBAZ YAPISI */
-        .wizard-overlay {
-            position: fixed;
-            inset: 0;
-            padding-top: calc(20px + env(safe-area-inset-top));
-            padding-bottom: env(safe-area-inset-bottom);
-            z-index: 2000;
-            display: flex; /* DİREKT GÖSTER */
-            flex-direction: column;
-            align-items: center;
-            padding-left: 20px;
-            padding-right: 20px;
-            overflow-y: auto;
-            background: transparent; /* Arka plan resminin görünmesi için şeffaf */
-        }
-
-        /* YENİ ADIM GÖSTERGESİ */
-        .step-indicator-container {
-            width: 100%;
-            padding: 20px 0;
-            position: relative;
-            margin-bottom: 5px;
-        }
-
-        .step-top-line {
-            position: absolute;
-            top: 36px;
-            left: 5%;
-            right: 5%;
-            height: 2px;
-            background-color: var(--border-color);
-        }
-
-        .steps-wrapper {
-            display: flex;
-            justify-content: space-around;
-            position: relative;
-        }
-
-        .step-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            min-width: 40px;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .step-line {
-            width: 2px;
-            height: 16px;
-            background-color: var(--border-color);
-        }
-
-        .step-icon-wrapper {
-            z-index: 1;
-            position: relative;
-            padding: 5px;
-            background-color: var(--bg-dark);
-        }
-
-        .step-icon-bubble {
-            width: 32px;
-            height: 32px;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--bg-panel);
-            transition: all 0.3s;
-        }
-
-        .step-icon-bubble svg {
-            width: 16px;
-            height: 16px;
-            stroke: var(--text-secondary);
-            transition: all 0.3s;
-        }
-
-        .step-content {
-            margin-top: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            width: 100%;
-            text-align: center;
-            background: transparent;
-            transition: all 0.3s;
-            overflow: hidden;
-        }
-
-        .step-number-box {
-            padding: 6px;
-            font-size: 14px;
-            font-weight: 800;
-            color: var(--text-primary);
-            background-color: var(--bg-input);
-            transition: all 0.3s;
-        }
-
-        .step-title-box {
-            padding: 8px 4px;
-            background: var(--bg-panel);
-            display: none;
-            /* Varsayılan olarak gizle */
-        }
-
-        .step-item.active .step-title-box {
-            display: block;
-            /* Sadece aktif adımda göster */
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .step-title-box h3 {
-            font-size: 9px;
-            font-weight: 700;
-            color: var(--accent-gold);
-            margin: 0;
-            text-transform: uppercase;
-            line-height: 1.2;
-            letter-spacing: 0.5px;
-        }
-
-        .step-item.completed .step-line,
-        .step-item.completed .step-icon-bubble {
-            background-color: var(--accent-green);
-            border-color: var(--accent-green);
-        }
-
-        .step-item.completed .step-icon-bubble svg {
-            stroke: #fff;
-        }
-
-        .step-item.completed .step-number-box {
-            background-color: var(--accent-green);
-            color: #ffffff;
-        }
-
-        .step-item.completed .step-content {
-            border-color: var(--accent-green);
-        }
-
-        .step-item.active .step-line,
-        .step-item.active .step-icon-bubble {
-            background-color: var(--accent-red);
-            border-color: var(--accent-red);
-        }
-
-        .step-item.active .step-icon-bubble {
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-        }
-
-        .step-item.active .step-icon-bubble svg {
-            stroke: #fff;
-        }
-
-        .step-item.active .step-number-box {
-            background-color: var(--accent-red);
-            color: #fff;
-        }
-
-        .step-item.active .step-content {
-            border-color: var(--accent-red);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
-        }
-
-        .step-item.active .step-title-box h3 {
-            color: var(--accent-gold);
-            font-weight: 700;
-        }
-
-        /* FORM KARTI */
-        .form-card {
-            width: 100%;
-            max-width: 500px;
-            background: var(--bg-panel);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid var(--border-color);
-            margin-top: 10px;
-            margin-bottom: auto;
-            min-height: 400px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-        }
-
-        .step-title {
-            font-size: 18px;
-            font-weight: 800;
-            text-align: center;
-            margin: 0;
-            color: var(--text-primary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            flex-grow: 1;
-        }
-
-        .step-container {
-            display: none;
-            flex-direction: column;
-            width: 100%;
-            animation: fadeIn 0.5s;
-        }
-
-        .step-container.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulseLogo {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-
-        body[data-thickness="thin"] *:not(.material-icons):not(.settings-btn svg) { font-weight: 300 !important; }
-        body[data-thickness="thick"] *:not(.material-icons):not(.settings-btn svg) { font-weight: 800 !important; }
-
-        /* FORM ELEMANLARI */
-        .form-input,
-        .search-input {
-            width: 100%;
-            background: var(--bg-input);
-            padding: 20px;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-size: var(--card-fs-base);
-            font-family: var(--font-family);
-            margin-bottom: 15px;
-            border: 1px solid transparent;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-
-        .form-input:focus,
-        .search-input:focus {
-            background: var(--bg-dark);
-            border-color: var(--accent-gold);
-        }
-
-        textarea.form-input {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .search-input {
-            padding-left: 45px;
-        }
-
-        .step-container>div:first-child {
-            position: relative;
-        }
-
-        .step-container>div:first-child::before {
-            content: '🔍';
-            position: absolute;
-            left: 15px;
-            top: 20px;
-            font-size: 18px;
-            opacity: 0.3;
-        }
-
-        .list-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: 50vh;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .list-item {
-            padding: 18px;
-            background: var(--bg-input);
-            border-radius: 12px;
-            font-size: var(--card-fs-base);
-            color: var(--text-secondary);
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-            font-weight: 500;
-        }
-
-        .list-item:hover {
-            background: #333;
-            color: var(--text-primary);
-        }
-
-        .list-item.selected {
-            background: var(--accent-gold);
-            color: #ffffff;
-            font-weight: 700;
-            transform: scale(1.02);
-            border-color: var(--accent-gold);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-        }
-
-        /* NAVİGASYON */
-        .header-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .header-nav button {
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: 700;
-            border-radius: 12px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        #btn-prev {
-            background: #f1f5f9;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-color);
-        }
-
-        #btn-next {
-            background: var(--accent-green);
-            color: #ffffff;
-        }
-
-        .header-nav button:active {
-            transform: scale(0.97);
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .header-nav button.disabled,
-        #btn-next[style*="opacity: 0.1"] {
-            opacity: 0.2 !important;
-            pointer-events: none;
-        }
-
-        #btn-prev[style*="visibility: hidden"],
-        #btn-next[style*="visibility: hidden"] {
-            visibility: hidden;
-        }
-
-        /* TAMAMLAMA BUTONLARI */
-        .finish-button {
-            width: 100%;
-            padding: 20px;
-            border-radius: 15px;
-            font-weight: 800;
-            font-size: 15px;
-            text-align: center;
-            cursor: pointer;
-            border: none;
-            text-transform: uppercase;
-            transition: all 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .finish-button:active {
-            transform: scale(0.98);
-            opacity: 0.8;
-        }
-
-        .finish-button.hollow {
-            background: transparent;
-            color: var(--accent-gold);
-            border: 2px dashed var(--accent-green);
-            margin-bottom: 15px;
-        }
-
-        .finish-button.solid {
-            background: #f1f5f9;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .finish-button.solid:hover {
-            background: #e2e8f0;
-        }
-
-
-        /* DURUM EKRANI */
-        #status-screen {
-            position: fixed;
-            inset: 0;
-            background: rgba(248, 250, 252, 0.9);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-
-        #status-text {
-            font-size: 18px;
-            color: var(--text-primary);
-            font-weight: 800;
-            padding: 30px;
-            background: var(--bg-panel);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.15);
-            border: 1px solid var(--border-color);
-            text-align: center;
-        }
-
-        /* AYARLAR MENÜSÜ CSS */
-        .settings-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 10001;
-            background: rgba(15, 23, 42, 0.7);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .settings-btn:hover {
-            transform: rotate(90deg);
-            background: rgba(15, 23, 42, 0.9);
-        }
-        .settings-btn svg { width: 24px; height: 24px; fill: #38bdf8; }
-
-        /* ANA EKRAN KAPANMA BUTONU (ORTA ALT) */
-        .close-app-btn {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10001;
-            background: rgba(220, 38, 38, 0.85);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 55px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
-        }
-        .close-app-btn:hover {
-            background: rgba(185, 28, 28, 1);
-            transform: translateX(-50%) scale(1.05);
-        }
-        .close-app-btn svg { width: 28px; height: 28px; fill: white; }
-
-        .settings-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(2, 6, 23, 0.85);
-            z-index: 100005;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
-        .settings-box {
-            background: #1e293b;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 16px;
-            padding: 25px;
-            color: #f8fafc;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .settings-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        .settings-header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-        .settings-header svg {
-            width: 48px;
-            height: 48px;
-            fill: #38bdf8;
-            margin-bottom: 10px;
-        }
-        .settings-header h2 {
-            font-size: 20px;
-            font-weight: 800;
-            margin: 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-        .setting-group {
-            margin-bottom: 20px;
-        }
-        .setting-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            color: #cbd5e1;
-            text-align: left;
-        }
-        .setting-control {
-            width: 100%;
-            background: #334155;
-            border: 1px solid #475569;
-            color: #f8fafc;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-        .setting-control:focus {
-            border-color: #38bdf8;
-        }
-        .setting-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: #cbd5e1;
-            border-radius: 3px;
-            outline: none;
-        }
-        .setting-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #38bdf8;
-            cursor: pointer;
-        }
-        .theme-preview {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            vertical-align: middle;
-            margin-right: 10px;
-            border: 1px solid #cbd5e1;
-        }
-        .theme-flex {
-            display: flex;
-            align-items: center;
-        }
-
-        /* ÇIKIŞ ONAY MODALI */
-        .confirm-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.9);
-            z-index: 100010;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(8px);
-        }
-        .confirm-box {
-            background: var(--bg-panel, #ffffff);
-            width: 90%;
-            max-width: 350px;
-            border-radius: 20px;
-            padding: 35px 25px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-        }
-        .confirm-box img {
-            width: 160px;
-            height: auto;
-            margin-bottom: 25px;
-        }
-        .confirm-box p {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 30px;
-            line-height: 1.5;
-            color: var(--text-primary);
-        }
-        .confirm-btn-group {
-            display: flex;
-            gap: 15px;
-        }
-        .confirm-btn {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 15px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
-        .confirm-yes {
-            background: var(--accent-red);
-            color: white;
-            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.3);
-        }
-        .confirm-yes:hover {
-            background: #b91c1c;
-        }
-        .confirm-no {
-            background: var(--bg-input);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        .confirm-no:hover {
-            background: #e2e8f0;
-        }
-    </style>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <title>Arıza Bildirim Formu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
-
 <body>
-
-    <!-- AÇILIŞ / SPLASH EKRANI -->
-    <div id="splash-screen" style="position: fixed; inset: 0; background: #f8fafc; z-index: 100000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
-        <img src="AKGLOG.png" alt="AKG Logo" style="width: 250px; height: auto; margin-bottom: 25px; animation: pulseLogo 2.5s infinite ease-in-out;">
-        <h1 style="color: #2563eb; font-size: 22px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin: 0; padding: 0 20px;">AKG MAINTENANCE SYSTEM</h1>
-    </div>
-
-    <div id="entry-screen" style="display: none;">
-        <div class="entry-card">
-            <h2 class="entry-title">İş İstek Sistemi</h2>
-            <button class="entry-btn" onclick="startSystem()">Sisteme Giriş</button>
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left"></div>
+        <div class="top-bar-right">
+            <button type="button" class="btn-settings" onclick="adminLogin()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
         </div>
     </div>
 
-    <!-- Yükle Butonu artık ayarlar menüsünün içinde yer alıyor -->
-
-    <!-- AYARLAR BUTONU VE MODALI -->
-    <button class="settings-btn" onclick="openSettings()" title="Ayarlar">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-    </button>
-
-    <!-- ANA EKRAN KAPANMA BUTONU (ORTA ALT) -->
-    <button class="close-app-btn" onclick="closeApp()" title="Uygulamayı Kapat">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13,3h-2v10h2V3z M17.83,5.17l-1.42,1.42C17.99,7.86,19,9.81,19,12c0,3.87-3.13,7-7,7s-7-3.13-7-7c0-2.19,1.01-4.14,2.58-5.42L6.17,5.17C4.23,6.82,3,9.26,3,12c0,4.97,4.03,9,9,9s9-4.03,9-9C21,9.26,19.77,6.82,17.83,5.17z"/></svg>
-    </button>
-
-    <!-- ÇIKIŞ ONAY MODALI -->
-    <div id="confirm-overlay" class="confirm-overlay">
-        <div class="confirm-box">
-            <img src="AKGLOG.png" alt="AKG Logo">
-            <p>AKG İş İstek formundan çıkmak istediğinize emin misiniz?</p>
-            <div class="confirm-btn-group">
-                <button class="confirm-btn confirm-no" onclick="cancelClose()">Hayır</button>
-                <button class="confirm-btn confirm-yes" onclick="confirmClose()">Evet</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="settings-overlay" class="settings-overlay">
-        <div class="settings-box">
-            <button class="settings-close" onclick="closeSettings()">&times;</button>
-            <div class="settings-header">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                <h2>AYARLAR</h2>
-            </div>
+    <!-- Horizontal Stepper -->
+    <div class="stepper-wrapper">
+        <div class="stepper-container">
+            <div class="stepper-line"></div>
             
-            <div class="setting-group">
-                <label class="setting-label">Arka Plan Teması (Genel & Kart)</label>
-                <div class="theme-flex">
-                    <div id="theme-preview" class="theme-preview" style="background: #ffffff;"></div>
-                    <select id="set-theme" class="setting-control" onchange="applySettings()">
-                        <option value="light">Açık Beyaz (Standart)</option>
-                        <option value="dark">Koyu Lacivert</option>
-                        <option value="black">Tam Siyah</option>
-                        <option value="Red">Kırmızı (Red)</option>
-                        <option value="Cyan">Camgöbeği (Cyan)</option>
-                        <option value="Blue">Mavi (Blue)</option>
-                        <option value="DarkBlue">Koyu Mavi (DarkBlue)</option>
-                        <option value="LightBlue">Açık Mavi (LightBlue)</option>
-                        <option value="Purple">Mor (Purple)</option>
-                        <option value="Yellow">Sarı (Yellow)</option>
-                        <option value="Lime">Açık Yeşil (Lime)</option>
-                        <option value="Magenta">Eflatun (Magenta)</option>
-                        <option value="Pink">Pembe (Pink)</option>
-                        <option value="Silver">Gümüş (Silver)</option>
-                        <option value="Gray">Gri (Gray)</option>
-                        <option value="Orange">Turuncu (Orange)</option>
-                        <option value="Brown">Kahverengi (Brown)</option>
-                        <option value="Maroon">Bordo (Maroon)</option>
-                        <option value="Green">Yeşil (Green)</option>
-                        <option value="Olive">Zeytin Yeşili (Olive)</option>
-                        <option value="Aquamarine">Turkuaz (Aquamarine)</option>
+            <div class="step-item active" id="nav-step1" onclick="goToStep(1)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                <div class="step-badge"><div class="step-num">01</div><div class="step-text">AD SOYAD</div></div>
+            </div>
+            <div class="step-item" id="nav-step2" onclick="goToStep(2)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+                <div class="step-badge"><div class="step-num">02</div><div class="step-text">BÖLÜM</div></div>
+            </div>
+            <div class="step-item" id="nav-step3" onclick="goToStep(3)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
+                <div class="step-badge"><div class="step-num">03</div><div class="step-text">MAKİNE</div></div>
+            </div>
+            <div class="step-item" id="nav-step4" onclick="goToStep(4)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div>
+                <div class="step-badge"><div class="step-num">04</div><div class="step-text">VARDİYA</div></div>
+            </div>
+            <div class="step-item" id="nav-step5" onclick="goToStep(5)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div>
+                <div class="step-badge"><div class="step-num">05</div><div class="step-text">İŞ TÜRÜ</div></div>
+            </div>
+            <div class="step-item" id="nav-step6" onclick="goToStep(6)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></div>
+                <div class="step-badge"><div class="step-num">06</div><div class="step-text">AÇIKLAMA</div></div>
+            </div>
+            <div class="step-item" id="nav-step7" onclick="goToStep(7)">
+                <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                <div class="step-badge"><div class="step-num">07</div><div class="step-text">GÖNDER</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <form id="faultForm" class="stepper-form">
+            <!-- Step 1 -->
+            <div class="card-step active" id="step1">
+                <div class="card-header">
+                    <h2>AD SOYAD</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(1)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <input type="text" id="userName" class="custom-input" required placeholder="Ad Soyad giriniz...">
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="card-step" id="step2">
+                <div class="card-header">
+                    <h2>BÖLÜM</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(2)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <select id="costCenter" class="custom-input custom-select" required>
+                        <option value="">Seçiniz...</option>
                     </select>
                 </div>
             </div>
 
-            <div class="setting-group">
-                <label class="setting-label">Yazı Karakteri (Font)</label>
-                <select id="set-font" class="setting-control" onchange="applySettings()">
-                    <option value="Inter">Inter (Standart)</option>
-                    <option value="Roboto">Roboto</option>
-                    <option value="Arial">Arial</option>
-                </select>
+            <!-- Step 3 -->
+            <div class="card-step" id="step3">
+                <div class="card-header">
+                    <h2>MAKİNE</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(3)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <select id="machine" class="custom-input custom-select" required>
+                        <option value="">Seçiniz...</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="setting-group">
-                <label class="setting-label">Yazı Kalınlığı</label>
-                <select id="set-weight" class="setting-control" onchange="applySettings()">
-                    <option value="normal">Normal</option>
-                    <option value="thin">İnce</option>
-                    <option value="thick">Kalın</option>
-                </select>
+            <!-- Step 4 -->
+            <div class="card-step" id="step4">
+                <div class="card-header">
+                    <h2>VARDİYA</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(4)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <select id="shift" class="custom-input custom-select" required>
+                        <option value="">Seçiniz...</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="setting-group">
-                <label class="setting-label">Görünüm Modu</label>
-                <select id="set-view" class="setting-control" onchange="applySettings()">
-                    <option value="standard">Standart Görünüm</option>
-                    <option value="compact">Kompakt Görünüm</option>
-                </select>
+            <!-- Step 5 -->
+            <div class="card-step" id="step5">
+                <div class="card-header">
+                    <h2>İŞ TÜRÜ</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(5)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <select id="jobType" class="custom-input custom-select" required>
+                        <option value="">Seçiniz...</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="setting-group">
-                <label class="setting-label" id="val-fs">Kart Yazı Boyutu: 16px</label>
-                <input type="range" id="set-fs" class="setting-slider" min="12" max="24" step="1" value="16" oninput="applySettings()">
+            <!-- Step 6 -->
+            <div class="card-step" id="step6">
+                <div class="card-header">
+                    <h2>AÇIKLAMA</h2>
+                    <button type="button" class="btn-ileri" onclick="nextStep(6)">İleri</button>
+                </div>
+                <div class="card-body">
+                    <textarea id="description" class="custom-input custom-textarea" rows="4" required placeholder="Sorunu detaylıca açıklayın..."></textarea>
+                </div>
             </div>
 
-            <div class="setting-group">
-                <label class="setting-label" id="val-op">Kart Şeffaflığı: 100%</label>
-                <input type="range" id="set-op" class="setting-slider" min="10" max="100" step="5" value="100" oninput="applySettings()">
+            <!-- Step 7 -->
+            <div class="card-step" id="step7">
+                <div class="card-header">
+                    <h2></h2>
+                    <!-- Gizli form submit butonu -->
+                    <button type="submit" id="submitBtn" class="btn-ileri ready-to-submit">Gönder</button>
+                </div>
+                <div class="card-body">
+                    <button type="button" id="openPhotoModalBtn" class="photo-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        <span id="photoCompactText">Fotoğraf Ekle (Opsiyonel)</span>
+                    </button>
+                </div>
             </div>
+        </form>
+    </div>
 
-            <div class="setting-group">
-                <label class="setting-label">Sayfa Ölçeği (Zoom)</label>
-                <select id="set-zoom" class="setting-control" onchange="applySettings()">
-                    <option value="0.8">80%</option>
-                    <option value="0.9">90%</option>
-                    <option value="1" selected>100%</option>
-                    <option value="1.1">110%</option>
-                    <option value="1.2">120%</option>
-                </select>
+    <!-- Bottom Power Button -->
+    <div class="bottom-power-wrapper">
+        <button type="button" class="btn-power" onclick="window.resetStepper()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+        </button>
+    </div>
+
+    <!-- Fotoğraf Seçim Modalı -->
+    <div id="photoSelectionModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 320px; text-align: center; padding: 1.5rem; background: #fff;">
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="close-modal" onclick="document.getElementById('photoSelectionModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer;">×</button>
             </div>
+            <h3 style="margin-bottom: 1.5rem; color: #333;">Fotoğraf Ekle</h3>
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden">
+            <input type="file" id="fileInput" accept="image/*" class="hidden">
+            <button type="button" onclick="document.getElementById('cameraInput').click()" style="width: 100%; background: #e53e3e; color: white; border-radius: 12px; padding: 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; border: none; cursor: pointer;">Kameradan Çek</button>
+            <button type="button" onclick="document.getElementById('fileInput').click()" style="width: 100%; background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid #e53e3e; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 1rem; cursor: pointer;">Dosyalardan Seç</button>
+        </div>
+    </div>
 
-            <!-- UYGULAMAYI YÜKLE BUTONU BURAYA TAŞINDI -->
-            <div class="setting-group" id="install-container" style="display: none; margin-top: 30px; border-top: 1px solid #334155; padding-top: 20px;">
-                <label class="setting-label" style="color: #4ade80;">Uygulamayı İndir</label>
-                <button id="install-app-btn" class="setting-control" style="background: #16a34a; color: white; border: none; font-weight: 800; cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 16px;">
-                    📲 Telefona/PC'ye Yükle
-                </button>
+    <!-- Gönderim / Başarı Modalı -->
+    <div id="submissionModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px; text-align: center; padding: 2rem; background: #fff;">
+            <div id="loadingState">
+                <div style="display: inline-block; width: 48px; height: 48px; border: 4px solid rgba(229, 62, 62, 0.3); border-top-color: #e53e3e; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 1rem;"></div>
+                <h3 style="color: #333; margin-bottom: 0.5rem;">Talebiniz Gönderiliyor...</h3>
+                <p style="color: #666; font-size: 0.9rem;" id="loadingSubText">Lütfen bekleyin</p>
+                <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+            </div>
+            <div id="successState" class="hidden">
+                <div style="width: 64px; height: 64px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h3 style="color: #333; margin-bottom: 0.5rem;">Kayıt Başarılı!</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">Ne yapmak istersiniz?</p>
+                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <button type="button" onclick="window.location.href='dashboard.html'" style="background: #e53e3e; color: white; border-radius: 12px; padding: 1rem; border: none; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">🔍 Arıza Takip Paneline Git</button>
+                    <button type="button" onclick="window.startNewForm()" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid #e53e3e; border-radius: 12px; padding: 1rem; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">📝 Yeni Form Doldur</button>
+                    <button type="button" onclick="window.closeSystem()" style="background: rgba(100, 100, 100, 0.1); color: #666; border: 1px solid rgba(100, 100, 100, 0.2); border-radius: 12px; padding: 1rem; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">❌ Sistemi Kapat (<span id="closeCountdown">10</span>)</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <main id="wizard-overlay" class="wizard-overlay">
-        <div class="step-indicator-container">
-            <div class="step-top-line"></div>
-            <div class="steps-wrapper">
-                <div class="step-item" id="indicator-1">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">01</div>
-                        <div class="step-title-box">
-                            <h3>AD SOYAD</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-2">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">02</div>
-                        <div class="step-title-box">
-                            <h3>BÖLÜM</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-3">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
-                                <rect x="9" y="9" width="6" height="6"></rect>
-                                <line x1="9" y1="1" x2="9" y2="4"></line>
-                                <line x1="15" y1="1" x2="15" y2="4"></line>
-                                <line x1="9" y1="20" x2="9" y2="23"></line>
-                                <line x1="15" y1="20" x2="15" y2="23"></line>
-                                <line x1="20" y1="9" x2="23" y2="9"></line>
-                                <line x1="20" y1="14" x2="23" y2="14"></line>
-                                <line x1="1" y1="9" x2="4" y2="9"></line>
-                                <line x1="1" y1="14" x2="4" y2="14"></line>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">03</div>
-                        <div class="step-title-box">
-                            <h3>MAKİNE SEÇİNİZ</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-4">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <polyline points="12 6 12 12 16 14"></polyline>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">04</div>
-                        <div class="step-title-box">
-                            <h3>VARDIYA</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-5">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">05</div>
-                        <div class="step-title-box">
-                            <h3>İŞ İSTEK TÜRÜ</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-6">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                <polyline points="14 2 14 8 20 8"></polyline>
-                                <line x1="16" y1="13" x2="8" y2="13"></line>
-                                <line x1="16" y1="17" x2="8" y2="17"></line>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">06</div>
-                        <div class="step-title-box">
-                            <h3>AÇIKLAMA</h3>
-                        </div>
-                    </div>
-                </div>
-                <div class="step-item" id="indicator-7">
-                    <div class="step-line"></div>
-                    <div class="step-icon-wrapper">
-                        <div class="step-icon-bubble"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                            </svg></div>
-                    </div>
-                    <div class="step-content">
-                        <div class="step-number-box">07</div>
-                        <div class="step-title-box">
-                            <h3>TAMAMLA</h3>
-                        </div>
-                    </div>
-                </div>
+    <!-- Admin Giriş Modalı -->
+    <div id="adminLoginModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 350px; text-align: center; padding: 2rem; background: #fff;">
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="close-modal" onclick="document.getElementById('adminLoginModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 1rem;">×</button>
             </div>
+            <h3 style="color: #333; margin-bottom: 0.5rem; font-weight: 700;">Admin Girişi</h3>
+            <input type="password" id="adminPasswordInput" placeholder="Şifrenizi Girin" style="width: 100%; text-align: center; font-size: 1.2rem; letter-spacing: 0.2rem; margin-bottom: 1rem;">
+            <button type="button" onclick="submitAdminModalLogin()" style="width: 100%; background: #111827; color: #fff; border-radius: 12px; padding: 1rem; border: none; font-weight: 700; cursor: pointer;">Giriş Yap</button>
         </div>
-
-        <div class="form-card">
-            <div class="header-nav">
-                <button id="btn-prev" onclick="prevStep()">Geri</button>
-                <h2 id="step-title" class="step-title">BAŞLIK</h2>
-                <button id="btn-next" onclick="nextStep()">İleri</button>
-            </div>
-
-            <div id="step-1" class="step-container active">
-                <input type="text" id="w-kullanici" class="form-input" placeholder="Ad Soyad giriniz..."
-                    inputmode="text" oninput="validate(1)" autocomplete="name" autocorrect="off" autocapitalize="words"
-                    spellcheck="false">
-            </div>
-
-            <div id="step-2" class="step-container">
-                <div><input type="text" id="maliyet-search" class="search-input" placeholder="Bölüm ara..."
-                        inputmode="search" oninput="filterList('maliyet-list', this.value)" autocomplete="off"
-                        autocorrect="off" autocapitalize="off" spellcheck="false"></div>
-                <div id="maliyet-list" class="list-container">
-                    <!-- Dinamik olarak dolacak -->
-                </div>
-            </div>
-
-            <div id="step-3" class="step-container">
-                <div><input type="text" id="makine-search" class="search-input" placeholder="Makine ara..."
-                        inputmode="search" oninput="filterList('makine-list', this.value)" autocomplete="off"
-                        autocorrect="off" autocapitalize="off" spellcheck="false"></div>
-                <div id="makine-list" class="list-container">
-                    <!-- Dinamik olarak dolacak -->
-                </div>
-            </div>
-
-            <div id="step-4" class="step-container">
-                <div id="vardiya-list" class="list-container">
-                    <!-- Dinamik olarak dolacak -->
-                </div>
-            </div>
-
-            <div id="step-5" class="step-container">
-                <div id="durum-list" class="list-container">
-                    <!-- Dinamik olarak dolacak -->
-                </div>
-            </div>
-
-            <div id="step-6" class="step-container">
-                <textarea id="w-not" class="form-input" rows="5" placeholder="Açıklama notunuzu buraya yazın..."
-                    inputmode="text" oninput="validate(6)" autocomplete="off" autocorrect="on"
-                    autocapitalize="sentences" spellcheck="true"></textarea>
-            </div>
-
-            <div id="step-7" class="step-container">
-                <button class="finish-button hollow" onclick="finish(null)">Fotoğrafsız Kaydet</button>
-                <input type="file" id="w-foto" accept="image/*" capture="environment" style="display:none;"
-                    onchange="submitWithFile(this)">
-                <button class="finish-button solid" onclick="document.getElementById('w-foto').click()">📸 Fotoğraf Çek
-                    ve Ekle</button>
-            </div>
-        </div>
-
-    </main>
-
-    <div id="status-screen">
-        <div id="status-text">KAYIT GÖNDERİLİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen
-                Bekleyiniz</span></div>
     </div>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbzv1FO2PE-sQY5wI5D46BLW0-WxRbb9LKb-Im-kHtDdTKGf_ZiGpUBV6Drthyfp-RFN/exec";
-        
-        var maliyetMakineData = [];
-        var listeC = [];
-        var listeD = [];
-
-        let currentStep = 1;
-        let data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
-        const titles = ["AD SOYAD", "BÖLÜM", "MAKİNE SEÇİNİZ", "VARDIYA", "İŞ İSTEK TÜRÜ", "AÇIKLAMA", "TAMAMLA"];
-
-        let lastNotificationTimestamp = null;
-
-        function startSystem() {
-            document.body.requestFullscreen?.();
-            document.getElementById('entry-screen').style.display = 'none';
-            document.getElementById('wizard-overlay').style.display = 'flex';
-            updateUI();
-            initializeNotifications();
-        }
-
-        function parseTurkishDate(dateString) {
-            if (!dateString || typeof dateString !== 'string') return null;
-            const parts = dateString.match(/(\d+)/g);
-            if (!parts || parts.length < 6) return null;
-            return new Date(parts[2], parts[1] - 1, parts[0], parts[3], parts[4], parts[5]);
-        }
-
-        function initializeNotifications() {
-            if (!('Notification' in window)) {
-                console.log("Bu tarayıcı bildirimleri desteklemiyor.");
-                return;
-            }
-
-            if (Notification.permission !== 'granted') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        console.log("Bildirim izni alındı.");
-                        startChecking();
-                    }
-                });
-            } else {
-                startChecking();
-            }
-        }
-
-        function startChecking() {
-            fetch(API_URL + "?action=sonKayitlar")
-                .then(res => res.json())
-                .then(responseData => {
-                    const records = responseData.sonKayitlar || [];
-                    if (records && records.length > 0) {
-                        const lastRecord = records[0];
-                        lastNotificationTimestamp = parseTurkishDate(lastRecord[0]);
-                        console.log("İlk zaman damgası ayarlandı:", lastNotificationTimestamp);
-                    }
-                    setInterval(checkNewRecords, 30000);
-                })
-                .catch(err => console.log("Bildirim API hatası", err));
-        }
-
-        function checkNewRecords() {
-            console.log("Yeni kayıtlar kontrol ediliyor...");
-            fetch(API_URL + "?action=sonKayitlar")
-                .then(res => res.json())
-                .then(responseData => {
-                    processNewRecords(responseData.sonKayitlar || []);
-                })
-                .catch(err => console.log("Bildirim kontrol hatası", err));
-        }
-
-        function processNewRecords(records) {
-            if (!records || records.length === 0 || !lastNotificationTimestamp) {
-                return;
-            }
-
-            let newRecordsFound = false;
-            for (let i = records.length - 1; i >= 0; i--) {
-                const record = records[i];
-                const recordTimestamp = parseTurkishDate(record[0]);
-
-                if (recordTimestamp && recordTimestamp > lastNotificationTimestamp) {
-                    newRecordsFound = true;
-                    console.log("Yeni kayıt bulundu:", record);
-
-                    const notification = new Notification('Yeni İş İsteği', {
-                        body: `Personel: ${record[1]}\nMakine: ${record[2]}\nİstek: ${record[4]}`,
-                        icon: 'https://img.icons8.com/color/48/factory.png'
-                    });
-                }
-            }
-
-            if (newRecordsFound) {
-                const latestRecordTimestamp = parseTurkishDate(records[0][0]);
-                if (latestRecordTimestamp) {
-                    lastNotificationTimestamp = latestRecordTimestamp;
-                    console.log("Zaman damgası güncellendi:", lastNotificationTimestamp);
-                }
-            }
-        }
-
-
-        function updateUI() {
-            document.getElementById('step-title').innerText = titles[currentStep - 1];
-            const steps = document.getElementsByClassName('step-container');
-            for (let i = 0; i < steps.length; i++) {
-                steps[i].classList.toggle('active', (i + 1) === currentStep);
-            }
-
-            const stepItems = document.querySelectorAll('.step-item');
-            stepItems.forEach((item, index) => {
-                item.classList.remove('active', 'completed');
-                if (index < currentStep - 1) {
-                    item.classList.add('completed');
-                } else if (index === currentStep - 1) {
-                    item.classList.add('active');
-                }
-            });
-
-            const prevBtn = document.getElementById('btn-prev');
-            const nextBtn = document.getElementById('btn-next');
-            prevBtn.style.visibility = currentStep === 1 ? 'hidden' : 'visible';
-            nextBtn.style.visibility = currentStep === 7 ? 'hidden' : 'visible';
-
-            checkValid();
-        }
-
-        function checkValid() {
-            let ok = false;
-            if (currentStep === 1) ok = data.kullanici.trim().length >= 2;
-            else if (currentStep === 2) ok = data.maliyet !== '';
-            else if (currentStep === 3) ok = data.makine !== '';
-            else if (currentStep === 4) ok = data.vardiya !== '';
-            else if (currentStep === 5) ok = data.durum !== '';
-            else if (currentStep === 6) ok = data.not.trim().length >= 2;
-            else if (currentStep === 7) ok = true;
-
-            const nextBtn = document.getElementById('btn-next');
-            nextBtn.style.opacity = ok ? "1" : "0.1";
-            nextBtn.classList.toggle('disabled', !ok);
-        }
-
-        function nextStep() { if (currentStep < 7 && !document.getElementById('btn-next').classList.contains('disabled')) { currentStep++; updateUI(); } }
-        function prevStep() { if (currentStep > 1) { currentStep--; updateUI(); } }
-
-        function pick(type, val, el) {
-            data[type] = val;
-            el.parentNode.querySelectorAll('.list-item').forEach(i => i.classList.remove('selected'));
-            el.classList.add('selected');
-
-            if (type === 'maliyet') {
-                updateMakineList(val);
-                data.makine = ''; // Makine seçimini sıfırla
-            }
-
-            updateUI();
-            setTimeout(nextStep, 250);
-        }
-
-        function updateMakineList(maliyet) {
-            const list = document.getElementById('makine-list');
-            const machines = maliyetMakineData
-                .filter(r => r[0] === maliyet)
-                .map(r => r[1])
-                .filter(m => m && m.toString().trim() !== ''); // Boş makineleri filtrele
-
-            list.innerHTML = machines.map(m => `<div class="list-item" onclick="pick('makine', '${m}', this)">${m}</div>`).join('');
-            document.getElementById('makine-search').value = '';
-        }
-
-        function validate(step) {
-            if (step === 1) data.kullanici = document.getElementById('w-kullanici').value;
-            if (step === 6) data.not = document.getElementById('w-not').value;
-            updateUI();
-        }
-
-        function filterList(id, text) {
-            const items = document.getElementById(id).querySelectorAll('.list-item');
-            const filter = text.toUpperCase();
-            items.forEach(item => { item.style.display = item.innerText.toUpperCase().includes(filter) ? "" : "none"; });
-        }
-
-        function submitWithFile(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        const max = 1000;
-                        if (width > height) {
-                            if (width > max) { height *= max / width; width = max; }
-                        } else {
-                            if (height > max) { width *= max / height; height = max; }
-                        }
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Sıkıştırılmış resmi al ve finish fonksiyonuna gönder
-                        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-                        finish(compressedBase64);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function finish(b64) {
-            if (!navigator.onLine) {
-                alert("❌ İnternet bağlantınız yok! Lütfen bağlantınızı kontrol edip tekrar deneyin.");
-                return;
-            }
-
-            document.getElementById('status-screen').style.display = 'flex';
-            document.getElementById('status-text').innerHTML = 'KAYIT GÖNDERİLİYOR...<br><span style="font-size: 14px; opacity: 0.7;">Lütfen Bekleyiniz</span>';
-            data.not = document.getElementById('w-not').value.trim();
-
-            let payload = {
-                tarih: new Date().toLocaleString('tr-TR'),
-                sutun0: data.kullanici,
-                maliyet: data.maliyet,
-                selB: data.makine,
-                selC: data.vardiya,
-                selD: data.durum,
-                notAlani: data.not,
-                imgData: b64 || ""
-            };
-
-            fetch(API_URL, {
-                method: "POST",
-                redirect: "follow",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(resData => {
-                if(resData.status === "success") {
-                    document.getElementById('status-text').innerHTML = 'KAYIT BAŞARILI!<br><span style="font-size: 14px; opacity: 0.7;">Form yenileniyor...</span>';
-                    setTimeout(resetSystem, 1000);
-                } else {
-                    document.getElementById('status-screen').style.display = 'none';
-                    alert("Hata: " + resData.message);
-                }
-            })
-            .catch(err => {
-                document.getElementById('status-screen').style.display = 'none';
-                alert("Bağlantı Hatası: " + err);
-            });
-        }
-
-        function resetSystem() {
-            currentStep = 1;
-            data = { kullanici: '', maliyet: '', makine: '', vardiya: '', durum: '', not: '' };
-
-            const userInput = document.getElementById('w-kullanici');
-            if (userInput) userInput.value = '';
-            const noteInput = document.getElementById('w-not');
-            if (noteInput) noteInput.value = '';
-            const searchInput = document.getElementById('makine-search');
-            if (searchInput) searchInput.value = '';
-            const maliyetSearch = document.getElementById('maliyet-search');
-            if (maliyetSearch) maliyetSearch.value = '';
-
-            document.querySelectorAll('.list-item.selected').forEach(el => el.classList.remove('selected'));
-
-            document.getElementById('status-screen').style.display = 'none';
-            document.getElementById('wizard-overlay').style.display = 'flex';
-            document.getElementById('entry-screen').style.display = 'none';
-
-            updateUI();
-        }
-
-        function populateLists() {
-            var maliyetList = document.getElementById('maliyet-list');
-            var vardiyaList = document.getElementById('vardiya-list');
-            var durumList = document.getElementById('durum-list');
-
-            // Benzersiz Maliyet Merkezlerini al ve boş olanları temizle
-            const maliyetler = [...new Set(maliyetMakineData.map(r => r[0]))]
-                .filter(m => m && m.toString().trim() !== '');
-
-            maliyetList.innerHTML = maliyetler.map(item => `<div class="list-item" onclick="pick('maliyet', '${item}', this)">${item}</div>`).join('');
-            vardiyaList.innerHTML = listeC.map(item => `<div class="list-item" onclick="pick('vardiya', '${item}', this)">${item}</div>`).join('');
-            durumList.innerHTML = listeD.map(item => `<div class="list-item" onclick="pick('durum', '${item}', this)">${item}</div>`).join('');
-        }
-
-        function hideSplashScreen() {
-            const splash = document.getElementById('splash-screen');
-            if(splash) {
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    startSystem();
-                }, 500); // 0.5sn fade-out animasyonu beklemesi
-            } else {
-                startSystem();
-            }
-        }
-
-        function loadInitialData() {
-            // Veri yükleme ve en az 3 saniye bekleme için iki ayrı işlem (Promise) tanımlıyoruz
-            const minimumSplashTime = new Promise(resolve => setTimeout(resolve, 3000));
-            
-            const fetchData = fetch(API_URL, { redirect: 'follow' })
-                .then(res => res.json())
-                .then(resData => {
-                    maliyetMakineData = resData.maliyetMakineData || [];
-                    listeC = resData.listeC || [];
-                    listeD = resData.listeD || [];
-                    populateLists();
-                });
-
-            // Hem 3 saniye dolsun, hem de veriler gelsin (hangisi uzun sürerse onu bekler)
-            Promise.all([fetchData, minimumSplashTime])
-                .then(() => {
-                    hideSplashScreen();
-                })
-                .catch(err => {
-                    // Hata olursa yine de splash süresini bekleyip içeri al
-                    minimumSplashTime.then(() => {
-                        alert("Veriler tam yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
-                        // Fallback
-                        maliyetMakineData = [['TEST BÖLÜMÜ', 'TEST MAKİNE 1']];
-                        listeC = ["1.VARDİYA"];
-                        listeD = ["MEKANİK ARIZA"];
-                        populateLists();
-                        hideSplashScreen();
-                    });
-                });
-        }
-
-        /* --- AYARLAR MENÜSÜ & ÇIKIŞ FONKSİYONLARI --- */
-        function closeApp() {
-            document.getElementById('confirm-overlay').style.display = 'flex';
-        }
-
-        function cancelClose() {
-            document.getElementById('confirm-overlay').style.display = 'none';
-        }
-
-        function confirmClose() {
-            document.getElementById('confirm-overlay').style.display = 'none';
-            window.close(); // PWA, masaüstü veya özel tarayıcılarda sekmeyi/uygulamayı kapatır
-            
-            // Eğer tarayıcı engellerse diye alternatif
-            setTimeout(() => {
-                alert("Eğer sayfa otomatik kapanmadıysa, tarayıcı penceresini veya uygulamayı manuel olarak kapatabilirsiniz.");
-            }, 500);
-        }
-
-        function openSettings() {
-            document.getElementById('settings-overlay').style.display = 'flex';
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-overlay').style.display = 'none';
-        }
-
-        function applySettings() {
-            const theme = document.getElementById('set-theme').value;
-            const font = document.getElementById('set-font').value;
-            const weight = document.getElementById('set-weight').value;
-            const view = document.getElementById('set-view').value;
-            const fs = document.getElementById('set-fs').value;
-            const op = document.getElementById('set-op').value;
-            const zoom = document.getElementById('set-zoom').value;
-
-            document.getElementById('val-fs').innerText = `Kart Yazı Boyutu: ${fs}px`;
-            document.getElementById('val-op').innerText = `Kart Şeffaflığı: ${op}%`;
-
-            const root = document.documentElement;
-
-            const themeColors = {
-                'light': { hex: '#ffffff', text: '#0f172a', sec: '#475569', input: '#f1f5f9', border: '#cbd5e1' },
-                'dark': { hex: '#1e293b', text: '#f8fafc', sec: '#cbd5e1', input: '#0f172a', border: '#334155' },
-                'black': { hex: '#000000', text: '#ffffff', sec: '#a1a1aa', input: '#111111', border: '#27272a' },
-                'Red': { hex: '#FF0000', text: '#ffffff', sec: '#fca5a5', input: '#7f1d1d', border: '#b91c1c' },
-                'Cyan': { hex: '#00FFFF', text: '#0f172a', sec: '#0891b2', input: '#cffafe', border: '#06b6d4' },
-                'Blue': { hex: '#0000FF', text: '#ffffff', sec: '#93c5fd', input: '#1e3a8a', border: '#2563eb' },
-                'DarkBlue': { hex: '#00008B', text: '#ffffff', sec: '#bfdbfe', input: '#0f172a', border: '#1e40af' },
-                'LightBlue': { hex: '#ADD8E6', text: '#0f172a', sec: '#334155', input: '#e0f2fe', border: '#7dd3fc' },
-                'Purple': { hex: '#800080', text: '#ffffff', sec: '#d8b4fe', input: '#3b0764', border: '#7e22ce' },
-                'Yellow': { hex: '#FFFF00', text: '#0f172a', sec: '#713f12', input: '#fef08a', border: '#eab308' },
-                'Lime': { hex: '#00FF00', text: '#0f172a', sec: '#14532d', input: '#bbf7d0', border: '#22c55e' },
-                'Magenta': { hex: '#FF00FF', text: '#ffffff', sec: '#f9a8d4', input: '#831843', border: '#db2777' },
-                'Pink': { hex: '#FFC0CB', text: '#0f172a', sec: '#831843', input: '#fce7f3', border: '#f472b6' },
-                'Silver': { hex: '#C0C0C0', text: '#0f172a', sec: '#334155', input: '#f1f5f9', border: '#94a3b8' },
-                'Gray': { hex: '#808080', text: '#ffffff', sec: '#e2e8f0', input: '#334155', border: '#64748b' },
-                'Orange': { hex: '#FFA500', text: '#0f172a', sec: '#7c2d12', input: '#ffedd5', border: '#f97316' },
-                'Brown': { hex: '#A52A2A', text: '#ffffff', sec: '#fdba74', input: '#431407', border: '#9a3412' },
-                'Maroon': { hex: '#800000', text: '#ffffff', sec: '#fca5a5', input: '#450a0a', border: '#7f1d1d' },
-                'Green': { hex: '#008000', text: '#ffffff', sec: '#86efac', input: '#052e16', border: '#16a34a' },
-                'Olive': { hex: '#808000', text: '#ffffff', sec: '#fef08a', input: '#422006', border: '#a16207' },
-                'Aquamarine': { hex: '#7FFFD4', text: '#0f172a', sec: '#0f766e', input: '#ccfbf1', border: '#14b8a6' }
-            };
-
-            const t = themeColors[theme] || themeColors['light'];
-            
-            root.style.setProperty('--bg-panel', t.hex);
-            root.style.setProperty('--bg-input', t.input);
-            root.style.setProperty('--text-primary', t.text);
-            root.style.setProperty('--text-secondary', t.sec);
-            root.style.setProperty('--border-color', t.border);
-            
-            // Eğer ışıklı temaysa arka plan f8fafc (hafif gri/mavi) kalsın, diğerlerinde tam hex
-            document.body.style.backgroundColor = (theme === 'light') ? '#f8fafc' : t.hex; 
-            document.getElementById('theme-preview').style.background = t.hex;
-
-            // Global Ayarlar
-            root.style.setProperty('--font-family', `'${font}', sans-serif`);
-            document.body.setAttribute('data-thickness', weight);
-            document.body.setAttribute('data-view', view);
-            root.style.setProperty('--card-fs-base', `${fs}px`);
-            root.style.setProperty('--card-opacity', op / 100);
-            
-            // Mobil cihazlarda zoom bazen sorun yaratabilir, sadece desktop/overlay zoom
-            document.body.style.zoom = zoom;
-
-            // Ayarları Kaydet
-            localStorage.setItem('istekHubSettings', JSON.stringify({theme, font, weight, view, fs, op, zoom}));
-        }
-
-        function loadSettings() {
-            try {
-                const saved = localStorage.getItem('istekHubSettings');
-                if(saved) {
-                    const s = JSON.parse(saved);
-                    if(s.theme) document.getElementById('set-theme').value = s.theme;
-                    if(s.font) document.getElementById('set-font').value = s.font;
-                    if(s.weight) document.getElementById('set-weight').value = s.weight;
-                    if(s.view) document.getElementById('set-view').value = s.view;
-                    if(s.fs) document.getElementById('set-fs').value = s.fs;
-                    if(s.op) document.getElementById('set-op').value = s.op;
-                    if(s.zoom) document.getElementById('set-zoom').value = s.zoom;
-                }
-            } catch(e) {}
-            applySettings(); // Ayarları sayfaya uygula
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            loadSettings();
-            updateUI();
-            
-            // Service Worker Registration for PWA Support
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(registration => {
-                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                        })
-                        .catch(err => {
-                            console.log('ServiceWorker registration failed: ', err);
-                        });
-                });
-            }
-
-            loadInitialData(); // Verileri sunucudan çek, listeleri doldur ve sistemi başlat
-        });
-
-        // PWA Kurulum Mantığı (Install Prompt)
-        let deferredPrompt;
-        const installBtn = document.getElementById('install-app-btn');
-        const installContainer = document.getElementById('install-container');
-        
-        // Butonu her halükarda görünür yapıyoruz (kullanıcıya yardımcı olmak için)
-        if (installContainer) {
-            installContainer.style.display = 'block';
-        }
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); // Varsayılan tarayıcı prompt'unu engelle
-            deferredPrompt = e; // Event'i sakla
-        });
-
-        if (installBtn) {
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    // Sistem PWA yüklemeye hazırsa
-                    if (installContainer) installContainer.style.display = 'none'; // Butonu gizle
-                    closeSettings(); // Menüyü kapat
-                    deferredPrompt.prompt(); // Tarayıcının kurulum penceresini göster
-                    
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`Kullanıcı kurulum seçimi: ${outcome}`);
-                    deferredPrompt = null;
-                } else {
-                    // Sistem otomatik yüklemeye izin vermiyorsa (iOS, Gizli Sekme veya zaten yüklüyse)
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                    if (isIOS) {
-                        alert('iPhone/iPad Cihazlarda: Tarayıcının alt kısmındaki "Paylaş" ikonuna (kare içinden yukarı ok) tıklayın ve "Ana Ekrana Ekle" (Add to Home Screen) seçeneğini seçin.');
-                    } else {
-                        alert('Android Cihazlarda: Tarayıcının sağ üst köşesindeki "Üç Nokta" menüsüne tıklayın ve "Ana Ekrana Ekle" veya "Uygulamayı Yükle" seçeneğini seçin. (Eğer daha önce yüklediyseniz tekrar çıkmayabilir).');
-                    }
-                }
-            });
-        }
-
-        window.addEventListener('appinstalled', () => {
-            if (installContainer) installContainer.style.display = 'none';
-            deferredPrompt = null;
-            console.log('Uygulama başarıyla yüklendi.');
-        });
-    </script>
+    <!-- Firebase SDK'ları -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="app.js?v=4.0"></script>
 </body>
-
 </html>
+
+
+
+
+
+
+
