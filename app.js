@@ -1,4 +1,4 @@
-// Service Worker Registration for PWA (Android Install)
+﻿// Service Worker Registration for PWA (Android Install)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(console.error);
@@ -656,16 +656,10 @@ function makeSelectSearchable(selectId) {
     
     const wrapper = document.createElement('div');
     wrapper.className = 'custom-select-wrapper';
-    
-    const search = document.createElement('input');
-    search.type = 'text';
-    search.className = 'custom-input';
-    search.placeholder = '🔍 ' + (select.previousElementSibling?.innerText || 'Arama yapın...');
-    
     const list = document.createElement('div');
     list.className = 'custom-select-list';
     
-    wrapper.appendChild(search);
+    
     wrapper.appendChild(list);
     
     select.parentNode.insertBefore(wrapper, select.nextSibling);
@@ -698,9 +692,9 @@ function makeSelectSearchable(selectId) {
         });
     };
     
-    search.oninput = (e) => render(e.target.value);
     
-    const observer = new MutationObserver(() => render(search.value));
+    
+    const observer = new MutationObserver(() => render());
     observer.observe(select, { childList: true });
     
     render();
@@ -709,3 +703,5 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
+

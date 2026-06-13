@@ -136,12 +136,12 @@ body {
 @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
 .card-header {
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
 }
 .card-header h2 { font-size: 1.1rem; color: #1e293b; font-weight: 800; letter-spacing: 0.5px; }
 .btn-ileri {
-    background: #d1fae5; color: #059669; border: none; padding: 8px 18px;
-    border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+    background: #d1fae5; color: #059669; border: 2px solid #059669; padding: 12px 32px;
+    border-radius: 4px; font-weight: 800; font-size: 1.1rem; min-width: 120px; text-align: center; cursor: pointer; transition: all 0.2s;
 }
 .btn-ileri:hover { background: #a7f3d0; transform: scale(1.05); }
 
@@ -156,10 +156,9 @@ body {
 .custom-textarea { resize: vertical; min-height: 100px; }
 
 .photo-btn {
-    width: 100%; background: transparent; color: var(--text-secondary);
-    border: 2px dashed var(--input-border); border-radius: 10px; padding: 16px;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-size: 1rem; cursor: pointer; transition: all 0.2s;
+    width: 64px; height: 64px; border-radius: 16px; background: rgba(0,0,0,0.05); color: var(--text-secondary);
+    border: 2px dashed var(--input-border); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; margin: 0 auto;
 }
 .photo-btn:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -203,13 +202,13 @@ body {
 .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
 .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
 .stat-card { background: white; border: 1px solid var(--input-border); border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-.stat-card h3 { color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; }
+.stat-card h3 { color: #000000; font-weight: 500; font-size: 0.875rem; font-weight: 500; }
 .stat-card .value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; color: #111827; }
 
 .table-container {   background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
 table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--input-border); }
-th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; }
+th { color: #000000; font-weight: 500; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; }
 .status-badge { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
 .status-acik { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 .status-cozuldu { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -247,11 +246,11 @@ th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; 
 .custom-select-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
 
 .custom-select-item {
-    background: rgba(0, 0, 0, 0.2);
+    background: #ffffff;
     border: 1px solid var(--panel-border);
-    padding: 1rem;
+    padding: 0.6rem 0.8rem;
     border-radius: 12px;
-    color: var(--text-secondary);
+    color: #000000; font-weight: 500;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
@@ -261,8 +260,8 @@ th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; 
     transform: scale(0.98);
 }
 .custom-select-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    background: #f1f5f9;
+    color: #000000;
 }
 .custom-select-item.selected {
     background: var(--accent);
@@ -270,4 +269,9 @@ th { color: var(--text-secondary); font-weight: 600; text-transform: uppercase; 
     border-color: var(--accent);
     font-weight: bold;
 }
+
+
+
+
+#photoCompactText { display: none; }
 
