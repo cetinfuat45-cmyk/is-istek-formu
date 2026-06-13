@@ -1,4 +1,4 @@
-// Service Worker Registration for PWA (Android Install)
+﻿// Service Worker Registration for PWA (Android Install)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(console.error);
@@ -175,7 +175,7 @@ form.addEventListener('submit', async (e) => {
             const mailDoc = await db.collection('ayarlar').doc('adminEmail').get();
             if (mailDoc.exists && mailDoc.data().key && mailDoc.data().faultMailEnabled !== false) {
                 const accessKey = mailDoc.data().key;
-                const dashboardLink = window.location.href.replace('index.html', '') + 'dashboard.html';
+                const dashboardLink = window.location.href.replace('index.html', '') + 'index.html';
                 const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BİLDİRİMİ";
                 const targetEmail = mailDoc.data().targetEmail || "";
                 
@@ -622,4 +622,6 @@ async function autoSyncGoogleSheet() {
 setTimeout(() => {
     autoSyncGoogleSheet();
 }, 1000);
+
+
 
