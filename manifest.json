@@ -1,16 +1,16 @@
-{
-  "name": "Arıza Takip Paneli",
-  "short_name": "Arıza Takip",
+﻿{
+  "name": "Arıza Bildirim Formu",
+  "short_name": "AKG Arıza",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#ffffff",
+  "theme_color": "#e53e3e",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "AKGLOG.png",
       "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
