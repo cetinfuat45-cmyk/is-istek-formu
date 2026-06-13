@@ -52,7 +52,7 @@
             </div>
             <div class="step-item" id="nav-step7" onclick="goToStep(7)">
                 <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-                <div class="step-badge"><div class="step-num">07</div><div class="step-text">GÖNDER</div></div>
+                <div class="step-badge"><div class="step-num">07</div><div class="step-text">ONAY</div></div>
             </div>
         </div>
     </div>
@@ -135,17 +135,30 @@
             </div>
 
             <!-- Step 7 -->
-            <div class="card-step" id="step7">
-                <div class="card-header">
-                    <h2></h2>
-                    <!-- Gizli form submit butonu -->
-                    <button type="submit" id="submitBtn" class="btn-ileri ready-to-submit">Gönder</button>
+                        <div class="card-step" id="step7">
+                <div class="card-header" style="justify-content: center; margin-bottom: 10px;">
+                    <h2 style="font-size: 1.2rem; color: var(--accent); font-weight: 800;">📄 ÖZET VE ONAY</h2>
                 </div>
                 <div class="card-body">
-                    <button type="button" id="openPhotoModalBtn" class="photo-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-                        <span id="photoCompactText">Fotoğraf Ekle (Opsiyonel)</span>
-                    </button>
+                    <div class="summary-box" style="background: rgba(0,0,0,0.03); border: 1px solid var(--panel-border); border-radius: 12px; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-primary); text-align: left;">
+                        <div style="margin-bottom: 8px;"><strong>Ad Soyad:</strong> <span id="sum-name">-</span></div>
+                        <div style="margin-bottom: 8px;"><strong>Bölüm:</strong> <span id="sum-dept">-</span></div>
+                        <div style="margin-bottom: 8px;"><strong>Makine:</strong> <span id="sum-mach">-</span></div>
+                        <div style="margin-bottom: 8px;"><strong>Vardiya:</strong> <span id="sum-shift">-</span></div>
+                        <div style="margin-bottom: 8px;"><strong>İş Türü:</strong> <span id="sum-job">-</span></div>
+                        <div style="margin-bottom: 8px;"><strong>Açıklama:</strong> <br><span id="sum-desc">-</span></div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                        <button type="button" id="openPhotoModalBtn" class="photo-btn" title="Fotoğraf Ekle (Opsiyonel)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-ileri" onclick="goToStep(1)" style="flex: 1; background: #f1f5f9; color: var(--text-secondary); border-color: #cbd5e1; min-width: 0; padding: 12px 10px;">🔙 Düzelt</button>
+                        <button type="submit" id="submitBtn" class="btn-ileri ready-to-submit" style="flex: 2; background: #10b981; color: white; border-color: #10b981; min-width: 0; padding: 12px 10px;">✅ İLET</button>
+                    </div>
                 </div>
             </div>
         </form>
@@ -212,7 +225,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="app.js?v=9.3"></script>
+    <script src="app.js?v=11.1"></script>
     <!-- Admin Login Corner Button -->
     <button type="button" class="btn-settings admin-login-corner" onclick="adminLogin()" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.1); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--panel-border);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
@@ -222,6 +235,9 @@
     </button>
 </body>
 </html>
+
+
+
 
 
 

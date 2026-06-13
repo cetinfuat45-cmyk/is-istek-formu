@@ -394,17 +394,34 @@ window.goToStep = (step) => {
     }
     
     const targetCard = document.getElementById(`step${step}`);
-    const targetNav = document.getElementById(`nav-step${step}`);
+    const targetNav = document.getElementById('nav-step' + step);
     
     if(targetCard && targetNav) {
         targetCard.classList.add('active');
         targetNav.classList.add('active');
         
-        // Eğer mobilde veya dar ekrandaysa menüyü kaydır
         targetNav.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         
+        if (step === 7) {
+            document.getElementById('sum-name').innerText = document.getElementById('userName').value || '-';
+            
+            const cc = document.getElementById('costCenter');
+            document.getElementById('sum-dept').innerText = (cc && cc.selectedIndex >= 0) ? cc.options[cc.selectedIndex].text : '-';
+            
+            const mach = document.getElementById('machine');
+            document.getElementById('sum-mach').innerText = (mach && mach.selectedIndex >= 0) ? mach.options[mach.selectedIndex].text : '-';
+            
+            const sh = document.getElementById('shift');
+            document.getElementById('sum-shift').innerText = (sh && sh.selectedIndex >= 0) ? sh.options[sh.selectedIndex].text : '-';
+            
+            const jt = document.getElementById('jobType');
+            document.getElementById('sum-job').innerText = (jt && jt.selectedIndex >= 0) ? jt.options[jt.selectedIndex].text : '-';
+            
+            document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
+        }
+        
         const firstInput = targetCard.querySelector('input, select, textarea');
-        if(firstInput) setTimeout(() => firstInput.focus(), 300);
+        if(firstInput && !firstInput.dataset.customized) setTimeout(() => firstInput.focus(), 300);
     }
 };
 
@@ -725,6 +742,8 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
+
 
 
 
