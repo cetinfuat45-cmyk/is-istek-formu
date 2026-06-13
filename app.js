@@ -1,4 +1,24 @@
-﻿// Service Worker Registration for PWA (Android Install)
+﻿// --- Haptic & Audio Feedback ---
+window.audioCtx = null;
+window.triggerFeedback = () => {
+    if (navigator.vibrate) navigator.vibrate(40);
+    try {
+        if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (window.audioCtx.state === 'suspended') window.audioCtx.resume();
+        const osc = window.audioCtx.createOscillator();
+        const gainNode = window.audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, window.audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, window.audioCtx.currentTime + 0.05);
+        gainNode.gain.setValueAtTime(0.3, window.audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, window.audioCtx.currentTime + 0.05);
+        osc.connect(gainNode);
+        gainNode.connect(window.audioCtx.destination);
+        osc.start();
+        osc.stop(window.audioCtx.currentTime + 0.05);
+    } catch(e) {}
+};
+// Service Worker Registration for PWA (Android Install)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').catch(console.error);
@@ -389,6 +409,7 @@ window.goToStep = (step) => {
 };
 
 window.nextStep = (currentStepNum) => {
+    window.triggerFeedback();
     if (validateStep(currentStepNum)) goToStep(currentStepNum + 1);
 };
 
@@ -676,6 +697,7 @@ function makeSelectSearchable(selectId) {
                 if(select.value === opt.value) item.classList.add('selected');
                 item.innerText = opt.text;
                 item.onclick = () => {
+                    window.triggerFeedback();
                     select.value = opt.value;
                     select.dispatchEvent(new Event('change'));
                     list.querySelectorAll('.custom-select-item').forEach(el => el.classList.remove('selected'));
@@ -703,5 +725,7 @@ function makeSelectSearchable(selectId) {
 setTimeout(() => {
     ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
 }, 500);
+
+
 
 
