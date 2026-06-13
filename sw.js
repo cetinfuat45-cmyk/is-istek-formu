@@ -1,13 +1,11 @@
-const CACHE_NAME = 'ariza-takip-v2';
+﻿const CACHE_NAME = 'ariza-takip-v3';
 const urlsToCache = [
   './',
   './index.html',
-  './dashboard.html',
-  './admin.html',
+    './admin.html',
   './style.css',
   './app.js',
-  './dashboard.js',
-  './admin.js',
+    './admin.js',
   './icon.svg',
   './manifest.json'
 ];
@@ -45,3 +43,4 @@ self.addEventListener('fetch', event => {
       .catch(() => caches.match(event.request))
   );
 });
+

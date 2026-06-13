@@ -24,6 +24,16 @@ if (!firebase.apps.length) {
 }
 
 const db = firebase.firestore();
+
+// Çevrimdışı (Offline) Desteği
+db.enablePersistence()
+  .catch(function(err) {
+      if (err.code == 'failed-precondition') {
+          console.warn("Çoklu sekme açık, offline mod tek sekmede çalışır.");
+      } else if (err.code == 'unimplemented') {
+          console.warn("Tarayıcı offline modu desteklemiyor.");
+      }
+  });
 const storage = firebase.storage();
 
 // Admin Panelinden Ayarları (Listeleri) Çekip Dropdown'ları Doldur
@@ -383,20 +393,30 @@ window.nextStep = (currentStepNum) => {
 };
 
 const validateStep = (step) => {
-    const container = document.getElementById(`step${step}`);
+    const container = document.getElementById(step${step});
     if (!container) return true;
     
     const inputs = container.querySelectorAll('input[required], select[required], textarea[required]');
     let isValid = true;
     
     inputs.forEach(el => {
+        let targetEl = el;
+        if (el.dataset.customized) {
+            const wrapper = el.nextElementSibling;
+            if (wrapper && wrapper.classList.contains('custom-select-wrapper')) {
+                targetEl = wrapper.querySelector('input');
+            }
+        }
+        
         if (!el.value.trim()) {
-            el.style.borderColor = 'var(--danger)';
-            el.classList.add('shake');
-            setTimeout(() => el.classList.remove('shake'), 500);
+            if(targetEl) {
+                targetEl.style.borderColor = 'var(--danger)';
+                targetEl.classList.add('shake');
+                setTimeout(() => targetEl.classList.remove('shake'), 500);
+            }
             isValid = false;
         } else {
-            el.style.borderColor = ''; 
+            if(targetEl) targetEl.style.borderColor = ''; 
         }
     });
     return isValid;
@@ -625,3 +645,67 @@ setTimeout(() => {
 
 
 
+
+
+
+// --- Custom Select Searchable List ---
+function makeSelectSearchable(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select || select.dataset.customized) return;
+    select.dataset.customized = "true";
+    
+    const wrapper = document.createElement('div');
+    wrapper.className = 'custom-select-wrapper';
+    
+    const search = document.createElement('input');
+    search.type = 'text';
+    search.className = 'custom-input';
+    search.placeholder = '🔍 ' + (select.previousElementSibling?.innerText || 'Arama yapın...');
+    
+    const list = document.createElement('div');
+    list.className = 'custom-select-list';
+    
+    wrapper.appendChild(search);
+    wrapper.appendChild(list);
+    
+    select.parentNode.insertBefore(wrapper, select.nextSibling);
+    select.style.display = 'none';
+    
+    const render = (filter = '') => {
+        list.innerHTML = '';
+        const searchVal = filter.toLowerCase("tr-TR");
+        Array.from(select.options).forEach(opt => {
+            if (opt.value === '') return;
+            if (opt.text.toLowerCase("tr-TR").includes(searchVal)) {
+                const item = document.createElement('div');
+                item.className = 'custom-select-item';
+                if(select.value === opt.value) item.classList.add('selected');
+                item.innerText = opt.text;
+                item.onclick = () => {
+                    select.value = opt.value;
+                    select.dispatchEvent(new Event('change'));
+                    list.querySelectorAll('.custom-select-item').forEach(el => el.classList.remove('selected'));
+                    item.classList.add('selected');
+                    
+                    const stepEl = select.closest('.card-step');
+                    if(stepEl) {
+                        const currentStep = parseInt(stepEl.id.replace('step', ''));
+                        setTimeout(() => window.nextStep(currentStep), 200);
+                    }
+                };
+                list.appendChild(item);
+            }
+        });
+    };
+    
+    search.oninput = (e) => render(e.target.value);
+    
+    const observer = new MutationObserver(() => render(search.value));
+    observer.observe(select, { childList: true });
+    
+    render();
+}
+
+setTimeout(() => {
+    ['costCenter', 'machine', 'shift', 'jobType'].forEach(id => makeSelectSearchable(id));
+}, 500);

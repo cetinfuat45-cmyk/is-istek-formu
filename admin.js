@@ -19,6 +19,12 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 const db = firebase.firestore();
+
+// Çevrimdışı (Offline) Desteği
+db.enablePersistence()
+  .catch(function(err) {
+      console.warn("Offline mod başlatılamadı:", err);
+  });
 const settingsRef = db.collection('ayarlar');
 
 const categories = [];
@@ -327,6 +333,7 @@ window.testEmail = async () => {
         btn.disabled = false;
     }
 };
+
 
 
 
