@@ -10,20 +10,22 @@
     <link rel="icon" type="image/png" href="AKGLOG.png">
     <title>Arıza Bildirim Formu</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=22.0">
+    <link rel="stylesheet" href="style.css?v=50.1">
 </head>
 <body>
     <!-- Top Glassmorphism Menu -->
     <div class="glass-top-menu">
-
         <button onclick="menuAction('board')" class="glass-icon-btn" title="Arıza Panosu">
-            📋
+            <span class="icon-emoji">📋</span>
+            <span class="icon-text">Arıza Bak</span>
         </button>
         <button onclick="menuAction('admin')" class="glass-icon-btn" title="Yönetici Paneli">
-            ⚙️
+            <span class="icon-emoji">⚙️</span>
+            <span class="icon-text">Ayarla</span>
         </button>
         <button onclick="menuAction('sendMessage')" class="glass-icon-btn" title="Bakım Ekibine Mesaj">
-            💬
+            <span class="icon-emoji">💬</span>
+            <span class="icon-text">Mesaj</span>
         </button>
     </div>
 
@@ -235,7 +237,7 @@
             <div id="loadingState">
                 <div style="display: inline-block; width: 48px; height: 48px; border: 4px solid rgba(229, 62, 62, 0.3); border-top-color: #e53e3e; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 1rem;"></div>
                 <h3 style="color: #333; margin-bottom: 0.5rem;">Talebiniz Gönderiliyor...</h3>
-                <p style="color: #666; font-size: 0.9rem;" id="loadingSubText">Lütfen bekleyin</p>
+                <p style="color: #666; font-size: 0.75rem;" id="loadingSubText">Lütfen bekleyin</p>
                 <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
             </div>
             <div id="successState" class="hidden">
@@ -269,7 +271,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="app.js?v=48.0"></script>
+    <script src="app.js?v=50.3"></script>
     <!-- Admin Login Corner Button -->
     <button type="button" class="btn-settings admin-login-corner" onclick="adminLogin()" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.1); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--panel-border);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
@@ -400,3 +402,28 @@
 
 
 
+    <!-- Arıza Panosu Modalı -->
+    <div id="faultBoardModal" class="modal-overlay hidden" style="z-index: 10000; align-items: flex-start; padding-top: 50px;">
+        <div class="modal-content" style="max-width: 90%; width: 1000px; background: #fff; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; color: #333; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.5rem;">📋</span> Açık Arızalar
+                </h2>
+                <button type="button" onclick="document.getElementById('faultBoardModal').classList.add('hidden')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+            </div>
+            
+            <div style="overflow-x: auto; flex: 1; border: 1px solid #eee; border-radius: 8px;">
+                <table id="faultBoardTable" style="width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: left;">
+                    <thead style="background: #f8f9fa; position: sticky; top: 0; z-index: 1;">
+                        <tr id="faultBoardTableHeader">
+                            <!-- Headers dynamically injected -->
+                        </tr>
+                    </thead>
+                    <tbody id="faultBoardTableBody">
+                        <!-- Rows dynamically injected -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="faultBoardLoading" style="text-align: center; padding: 20px; color: #666;">Yükleniyor...</div>
+        </div>
+    </div>

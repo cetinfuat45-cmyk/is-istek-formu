@@ -10,7 +10,7 @@
     <link rel="icon" type="image/svg+xml" href="icon.svg">
     <title>Sistem Ayarları & Admin Paneli</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="stylesheet" href="style.css?v=50.1">
     <style>
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
         .admin-card { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--panel-border); border-radius: 16px; padding: 1.5rem; }
@@ -32,22 +32,20 @@
                     <h1>⚙️ Admin Paneli (Ayarlar)</h1>
                 </div>
                 <div class="footer-link" style="margin-top:0">
-                    <a href="index.html"> Ana Sayfaya Dön</a>
+                    <a href="index.html">⬅ Ana Sayfaya Dön</a>
                 </div>
             </div>
 
-                        <div class="admin-grid">
+            <div class="admin-grid">
                 <!-- Google Sheets Entegrasyonu -->
                 <div class="admin-card" style="grid-column: 1 / -1; border: 2px dashed var(--accent);">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem; margin-bottom: 1rem;">
-                        <h3 style="margin:0;">🔗 Google Sheets (Excel) Entegrasyonu</h3>
+                        <h3 style="margin:0;">📊 Google Sheets (Excel) Entegrasyonu</h3>
                     </div>
                     
                     <p style="color: #ccc; font-size: 0.9rem; margin-bottom: 1rem;">Maliyet Merkezleri ve Makineler listenizi doğrudan Google Sheets tablonuzdan çekebilirsiniz.</p>
-                    <button onclick="fetchGoogleSheet()" id="syncBtn" style="width:100%; background: var(--accent); font-size: 1.1rem; padding: 1rem; margin-bottom: 2rem;">📥 Tablodan Makine ve Bölümleri Çek</button>
+                    <button onclick="fetchGoogleSheet()" id="syncBtn" style="width:100%; background: var(--accent); font-size: 1.1rem; padding: 1rem; margin-bottom: 2rem;">🔄 Tablodan Makine ve Bölümleri Çek</button>
                     <p id="lastSyncTime" style="color: #4ade80; font-size: 0.95rem; text-align: center; font-weight: bold; margin-top: 0.5rem;">Son Güncelleme: Yükleniyor...</p>
-                    
-
                 </div>
 
                 <!-- E-Posta Ayarları -->
@@ -92,6 +90,27 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Arıza Panosu (Board) Ayarları -->
+                <div class="admin-card" style="grid-column: 1 / -1; border: 2px solid var(--accent); background: rgba(16, 185, 129, 0.05);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+                        <h3 style="margin:0;">📋 Arıza Panosu Görünüm Ayarları</h3>
+                        <button onclick="saveBoardSettings()" style="background:#10b981; margin:0; padding: 0.5rem 1rem;">Kaydet</button>
+                    </div>
+                    
+                    <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:1rem;">"Arıza Bak" ekranında listelenecek sütunları seçin:</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;" id="boardSettingsContainer">
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colDate" checked> Tarih / Saat</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colName" checked> Bildiren Kişi</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colDept" checked> Departman</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colMachine" checked> Makine</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colShift"> Vardiya</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colJobType"> İş Tipi</label>
+                        <label style="display:flex; align-items:center; gap:0.5rem; color:white; cursor:pointer;"><input type="checkbox" id="bs-colDesc" checked> Arıza Açıklaması</label>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -116,25 +135,3 @@
     <script src="admin.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

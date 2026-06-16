@@ -337,3 +337,35 @@ window.testEmail = async () => {
 
 
 
+// Arıza Panosu (Board) Ayarları
+settingsRef.doc('boardSettings').onSnapshot(doc => {
+    if(doc.exists) {
+        const data = doc.data();
+        document.getElementById('bs-colDate').checked = data.colDate !== false;
+        document.getElementById('bs-colName').checked = data.colName !== false;
+        document.getElementById('bs-colDept').checked = data.colDept !== false;
+        document.getElementById('bs-colMachine').checked = data.colMachine !== false;
+        document.getElementById('bs-colShift').checked = data.colShift === true;
+        document.getElementById('bs-colJobType').checked = data.colJobType === true;
+        document.getElementById('bs-colDesc').checked = data.colDesc !== false;
+    }
+});
+
+window.saveBoardSettings = async function() {
+    try {
+        const settings = {
+            colDate: document.getElementById('bs-colDate').checked,
+            colName: document.getElementById('bs-colName').checked,
+            colDept: document.getElementById('bs-colDept').checked,
+            colMachine: document.getElementById('bs-colMachine').checked,
+            colShift: document.getElementById('bs-colShift').checked,
+            colJobType: document.getElementById('bs-colJobType').checked,
+            colDesc: document.getElementById('bs-colDesc').checked
+        };
+        await settingsRef.doc('boardSettings').set(settings, { merge: true });
+        alert('Arıza Panosu ayarları kaydedildi!');
+    } catch (err) {
+        console.error('Hata:', err);
+        alert('Ayarlar kaydedilirken bir hata oluştu.');
+    }
+};

@@ -1,4 +1,4 @@
-// --- Haptic & Audio Feedback ---
+﻿// --- Haptic & Audio Feedback ---
 window.audioCtx = null;
 window.triggerFeedback = () => {
     if (navigator.vibrate) navigator.vibrate(40);
@@ -819,16 +819,118 @@ window.menuAction = (action) => {
     if (action === 'home') {
         window.resetStepper();
     } else if (action === 'admin') {
-        const adminModal = document.getElementById('adminModal');
+        // adminModal is actually adminLoginModal in index.html
+        const adminModal = document.getElementById('adminLoginModal');
         if (adminModal) {
             adminModal.classList.remove('hidden');
             setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
         }
     } else if (action === 'board') {
-        alert("Arıza Panosu altyapısı şu an kuruluyor... Çok yakında aktif olacak!");
+        const boardModal = document.getElementById('faultBoardModal');
+        if (boardModal) {
+            boardModal.classList.remove('hidden');
+            loadFaultBoard();
+        }
     } else if (action === 'sendMessage') {
         document.getElementById('messageModal').classList.remove('hidden');
         setTimeout(() => document.getElementById('msgSenderName').focus(), 100);
+    }
+};
+
+window.loadFaultBoard = async () => {
+    const tableHeader = document.getElementById('faultBoardTableHeader');
+    const tableBody = document.getElementById('faultBoardTableBody');
+    const loadingDiv = document.getElementById('faultBoardLoading');
+    
+    tableHeader.innerHTML = '';
+    tableBody.innerHTML = '';
+    loadingDiv.style.display = 'block';
+
+    try {
+        // 1. Ayarları al
+        let settings = {
+            colDate: true, colName: true, colDept: true, 
+            colMachine: true, colShift: false, colJobType: false, colDesc: true
+        };
+        const settingsDoc = await db.collection('ayarlar').doc('boardSettings').get();
+        if (settingsDoc.exists) {
+            settings = { ...settings, ...settingsDoc.data() };
+        }
+
+        // 2. Tablo Başlıklarını Oluştur
+        let headersHTML = '';
+        if (settings.colDate) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Tarih/Saat</th>';
+        if (settings.colName) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Bildiren Kişi</th>';
+        if (settings.colDept) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Departman</th>';
+        if (settings.colMachine) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Makine</th>';
+        if (settings.colShift) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Vardiya</th>';
+        if (settings.colJobType) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">İş Tipi</th>';
+        if (settings.colDesc) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Arıza Açıklaması</th>';
+        tableHeader.innerHTML = headersHTML;
+
+        // 3. Sadece Açık Arızaları Getir
+        // Firebase index hatasını önlemek için orderBy'ı yerel olarak yapacağız
+        const snapshot = await db.collection('arizalar').where('status', '==', 'Açık').get();
+        
+        loadingDiv.style.display = 'none';
+
+        if (snapshot.empty) {
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#666;">Şu an açık arıza bulunmamaktadır. 🎉</td></tr>`;
+            return;
+        }
+
+        // Verileri al ve timestamp'e göre azalan (yeniden eskiye) sırala
+        const docs = [];
+        snapshot.forEach(doc => docs.push(doc.data()));
+        docs.sort((a, b) => {
+            const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+            const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+            return timeB - timeA;
+        });
+
+        // 4. Verileri Tabloya Yaz
+        let rowsHTML = '';
+        docs.forEach(data => {
+            // Tarih verisini hem eski hem yeni formata göre al
+            let dateStr = '-';
+            if (data.createdAt && typeof data.createdAt.toDate === 'function') {
+                dateStr = data.createdAt.toDate().toLocaleString('tr-TR');
+            } else if (data.timestamp) {
+                if (typeof data.timestamp === 'string') {
+                    dateStr = new Date(data.timestamp).toLocaleString('tr-TR');
+                } else if (typeof data.timestamp.toDate === 'function') {
+                    dateStr = data.timestamp.toDate().toLocaleString('tr-TR');
+                }
+            } else if (data.tarih_saat) {
+                dateStr = data.tarih_saat;
+            }
+
+            const name = data.userName || data.bildiren || data.name || '-';
+            const dept = data.costCenter || data.department || '-';
+            const machine = data.machine || data.makine || '-';
+            const shift = data.shift || data.vardiya || '-';
+            const jobType = data.jobType || data.ariza_tipi || '-';
+            const desc = data.description || data.aciklama || '-';
+            
+            rowsHTML += '<tr style="border-bottom: 1px solid #eee;">';
+            if (settings.colDate) rowsHTML += `<td style="padding: 6px;">${dateStr}</td>`;
+            if (settings.colName) rowsHTML += `<td style="padding: 6px;">${name}</td>`;
+            if (settings.colDept) rowsHTML += `<td style="padding: 6px;">${dept}</td>`;
+            if (settings.colMachine) rowsHTML += `<td style="padding: 6px;">${machine}</td>`;
+            if (settings.colShift) rowsHTML += `<td style="padding: 6px;">${shift}</td>`;
+            if (settings.colJobType) rowsHTML += `<td style="padding: 6px;">${jobType}</td>`;
+            if (settings.colDesc) rowsHTML += `<td style="padding: 6px;">${desc}</td>`;
+            rowsHTML += '</tr>';
+        });
+
+        tableBody.innerHTML = rowsHTML;
+
+    } catch (err) {
+        console.error("Pano yüklenirken hata:", err);
+        loadingDiv.innerText = "Veriler yüklenirken bir hata oluştu!";
+        // Hata durumunda index bazlı orderBy hatası olabilir (Firebase index istiyor olabilir).
+        // Index yoksa alert verip console.log'dan linki tıklamalarını hatırlatmalıyız, ancak 
+        // orderBy olmadan basit getirip js'de sıralamak daha güvenli (aylık bakım olduğu için sayı azdır).
     }
 };
 
