@@ -27,6 +27,9 @@
             <span class="icon-emoji">💬</span>
             <span class="icon-text">Mesaj</span>
         </button>
+          <button onclick="window.resetStepper()" class="glass-icon-btn" title="Kapat" style="background: #e53e3e; color: white; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(229, 62, 62, 0.4);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+          </button>
     </div>
 
     <!-- Horizontal Stepper -->
@@ -139,42 +142,29 @@
                     <textarea id="description" class="custom-input custom-textarea" rows="4" required placeholder="Sorunu detaylıca açıklayın..."></textarea>
                 </div>
             </div>
-
-
-</form>
+        </form>
     </div>
+</div>
 
-    <!-- Bottom Power Button -->
-    <div class="bottom-power-wrapper">
-        <button type="button" class="btn-power" onclick="window.resetStepper()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-        </button>
-    </div>
-
-        <!-- FULLSCREEN SUMMARY OVERLAY -->
-    <div id="summaryOverlay" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: var(--bg-color); z-index: 9999; display: flex; flex-direction: column; overflow-y: auto;">
-        <div style="flex: 1; padding: 15px; max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column;">
-            
-
-            
-            <div class="summary-box card-body" style="background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 20px; padding: 15px; box-shadow: 0 10px 30px var(--shadow-color); flex: 1; display: flex; flex-direction: column; gap: 15px;">
-                
-                <div class="timeline-item">
-                    <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                    <div class="t-content">
-                        <div class="t-title">Ad Soyad</div>
-                        <div class="t-val" id="sum-name">-</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
-                    <div class="t-content">
-                        <div class="t-title">Bölüm</div>
-                        <div class="t-val" id="sum-dept">-</div>
-                    </div>
-                </div>
-                <div class="timeline-item">
-                    <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
+<!-- Summary Overlay -->
+<div id="summaryOverlay" class="summary-overlay hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f7f6; z-index: 9999; display: flex; flex-direction: column; overflow-y: auto; padding: 20px;">
+    <div class="timeline-container" style="max-width: 600px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; flex: 1;">
+        <div class="timeline-item">
+            <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+            <div class="t-content">
+                <div class="t-title">Ad Soyad</div>
+                <div class="t-val" id="sum-name">-</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></div>
+            <div class="t-content">
+                <div class="t-title">Bölüm</div>
+                <div class="t-val" id="sum-dept">-</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg></div>
                     <div class="t-content">
                         <div class="t-title">Makine</div>
                         <div class="t-val" id="sum-mach">-</div>
@@ -245,11 +235,10 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
                 <h3 style="color: #333; margin-bottom: 0.5rem;">Kayıt Başarılı!</h3>
-                <p style="color: #666; margin-bottom: 1.5rem;">Ne yapmak istersiniz?</p>
-                <div style="display: flex; flex-direction: column; gap: 0.8rem;">
-                    <button type="button" onclick="window.location.reload()" style="background: #e53e3e; color: white; border-radius: 12px; padding: 1rem; border: none; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">🔍 Ana Sayfaya Dön</button>
-                    <button type="button" onclick="window.startNewForm()" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid #e53e3e; border-radius: 12px; padding: 1rem; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">📝 Yeni Form Doldur</button>
-                    <button type="button" onclick="window.closeSystem()" style="background: rgba(100, 100, 100, 0.1); color: #666; border: 1px solid rgba(100, 100, 100, 0.2); border-radius: 12px; padding: 1rem; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer;">❌ Sistemi Kapat (<span id="closeCountdown">10</span>)</button>
+                          <div style="display: flex; flex-direction: column; gap: 0.8rem;" id="successButtonsContainer">
+                    <button type="button" onclick="window.closeSystem()" style="background: #e53e3e; color: white; border-radius: 12px; padding: 1rem; border: none; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer; order: 1;">⏳ Sistemi Kapat (<span id="closeCountdown">10</span>)</button>
+                    <button type="button" onclick="window.location.reload()" style="background: rgba(100, 100, 100, 0.1); color: #666; border-radius: 12px; padding: 1rem; border: none; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer; order: 2;">🏠 Ana Sayfaya Dön</button>
+                    <button type="button" onclick="window.startNewForm()" style="background: rgba(100, 100, 100, 0.1); color: #666; border: 1px solid rgba(100, 100, 100, 0.2); border-radius: 12px; padding: 1rem; font-weight: 600; font-size: 1rem; display:flex; justify-content:center; align-items:center; gap: 0.5rem; width:100%; cursor:pointer; order: 3;">🔄 Yeni Form Doldur</button>
                 </div>
             </div>
         </div>
@@ -259,7 +248,7 @@
     <div id="adminLoginModal" class="modal-overlay hidden">
         <div class="modal-content" style="max-width: 350px; text-align: center; padding: 2rem; background: #fff;">
             <div style="display: flex; justify-content: flex-end;">
-                <button type="button" class="close-modal" onclick="document.getElementById('adminLoginModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 1rem;">×</button>
+                <button type="button" class="close-modal" onclick="document.getElementById('adminLoginModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer; padding: 0; margin-bottom: 1rem;">✖</button>
             </div>
             <h3 style="color: #333; margin-bottom: 0.5rem; font-weight: 700;">Admin Girişi</h3>
             <input type="password" id="adminPasswordInput" placeholder="Şifrenizi Girin" style="width: 100%; text-align: center; font-size: 1.2rem; letter-spacing: 0.2rem; margin-bottom: 1rem;">
@@ -271,25 +260,22 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="app.js?v=50.3"></script>
-    <!-- Admin Login Corner Button -->
-    <button type="button" class="btn-settings admin-login-corner" onclick="adminLogin()" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.1); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--panel-border);">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-    </button>
-        <!-- Message Modal -->
+    
+
+    
+    <script src="app.js?v=50.11"></script>
+
+    <!-- Message Modal -->
     <div id="messageModal" class="modal hidden modal-overlay">
         <div class="whatsapp-modal-content">
             <!-- Header -->
             <div class="wa-header">
                 <div class="wa-header-left">
                     <button class="wa-back-btn" onclick="document.getElementById('messageModal').classList.add('hidden')">
-                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                     </button>
                     <div class="wa-profile-pic">
-                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
                     </div>
                     <div class="wa-contact-info">
                         <div class="wa-contact-name">Bakım Ekibi</div>
@@ -313,9 +299,9 @@
             <!-- Input Area -->
             <div class="wa-input-area">
                 <div class="wa-input-wrapper">
-                    <button class="wa-emoji-btn"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
+                    <button class="wa-emoji-btn"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></button>
                     <textarea id="msgContent" class="wa-input" placeholder="Mesaj yazın..." rows="1" oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"></textarea>
-                    <button class="wa-attach-btn"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>
+                    <button class="wa-attach-btn"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg></button>
                 </div>
                 <button class="wa-send-btn" onclick="sendOpMessage()">
                     <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
@@ -427,3 +413,39 @@
             <div id="faultBoardLoading" style="text-align: center; padding: 20px; color: #666;">Yükleniyor...</div>
         </div>
     </div>
+
+
+
+
+
+    <!-- Admin Giriş Modalı -->
+    <div id="adminLoginModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 350px; text-align: center; padding: 2rem; background: #fff;">
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="button" class="close-modal" onclick="document.getElementById('adminLoginModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer;">×</button>
+            </div>
+            <h3 style="margin-bottom: 1.5rem; color: #333;">Yönetici Girişi</h3>
+            <div style="margin-bottom: 1.5rem;">
+                <input type="password" id="adminPassword" class="custom-input" placeholder="Şifre" style="text-align: center;">
+            </div>
+            <button type="button" onclick="adminLogin()" style="width: 100%; background: #2b6cb0; color: white; border-radius: 12px; padding: 1rem; font-size: 1rem; border: none; cursor: pointer;">Giriş Yap</button>
+        </div>
+    </div>
+
+    <!-- Mesaj Modalı -->
+    <div id="messageModal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 400px; padding: 2rem; background: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: #333; margin: 0;">Bakım Ekibine Mesaj</h3>
+                <button type="button" class="close-modal" onclick="document.getElementById('messageModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer;">×</button>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <textarea id="messageContent" class="custom-input custom-textarea" rows="4" placeholder="Mesajınızı yazın..." style="width: 100%; box-sizing: border-box;"></textarea>
+            </div>
+            <button type="button" onclick="sendMessage()" style="width: 100%; background: #10b981; color: white; border-radius: 12px; padding: 1rem; font-size: 1rem; border: none; cursor: pointer;">Gönder</button>
+        </div>
+    </div>
+
+    <script src="app.js?v=50.11"></script>
+</body>
+</html>
