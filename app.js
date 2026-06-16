@@ -816,23 +816,20 @@ window.toggleMenu = () => {
 };
 
 window.menuAction = (action) => {
-    window.toggleMenu(); // Close menu first
-    setTimeout(() => {
-        if (action === 'home') {
-            window.resetStepper();
-        } else if (action === 'admin') {
-            const adminModal = document.getElementById('adminModal');
-            if (adminModal) {
-                adminModal.classList.remove('hidden');
-                setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
-            }
-        } else if (action === 'board') {
-            alert("Arıza Panosu altyapısı şu an kuruluyor... Çok yakında aktif olacak!");
-        } else if (action === 'sendMessage') {
-            document.getElementById('messageModal').classList.remove('hidden');
-            setTimeout(() => document.getElementById('msgSenderName').focus(), 100);
+    if (action === 'home') {
+        window.resetStepper();
+    } else if (action === 'admin') {
+        const adminModal = document.getElementById('adminModal');
+        if (adminModal) {
+            adminModal.classList.remove('hidden');
+            setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
         }
-    }, 250); // Wait for menu closing animation
+    } else if (action === 'board') {
+        alert("Arıza Panosu altyapısı şu an kuruluyor... Çok yakında aktif olacak!");
+    } else if (action === 'sendMessage') {
+        document.getElementById('messageModal').classList.remove('hidden');
+        setTimeout(() => document.getElementById('msgSenderName').focus(), 100);
+    }
 };
 
 
@@ -891,6 +888,15 @@ window.sendOpMessage = async () => {
             hedefKullanicilar: opsList,
             oku: [],
             "olusturulma tarihi": firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Bakim Operatorlerinin kullandigi 'messages' tablosuna da aynisini yaziyoruz (Ops Panel uyumu)
+        await db.collection("messages").add({
+            sender: "Sahadan Bildirim",
+            text: msg,
+            targetUsers: opsList, // Ops paneli targetUsers kullaniyor
+            readBy: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         
         // Change single tick to double blue tick

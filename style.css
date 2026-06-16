@@ -1,4 +1,4 @@
-﻿:root {
+:root {
     --bg-color: #f8fafc;
     --panel-bg: #ffffff;
     --text-primary: #111827;
@@ -641,4 +641,45 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
 }
 .wa-send-btn i {
     margin-left: -3px;
+}
+/* Glassmorphism Top Menu */
+.glass-top-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+}
+
+.glass-icon-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.glass-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Adjust stepper wrapper so it doesn't collide with the top menu */
+.stepper-wrapper {
+    margin-top: 80px !important;
 }

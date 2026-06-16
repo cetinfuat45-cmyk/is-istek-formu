@@ -10,45 +10,23 @@
     <link rel="icon" type="image/png" href="AKGLOG.png">
     <title>Arıza Bildirim Formu</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=18.0">
+    <link rel="stylesheet" href="style.css?v=20.0">
 </head>
 <body>
-    <!-- Side Menu -->
-    <div id="menuOverlay" class="menu-overlay hidden" onclick="toggleMenu()"></div>
-    <div id="sideMenu" class="side-menu">
-        <div class="menu-header">
-            <img src="AKGLOG.png" alt="AKG Logo" style="height: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));">
-            <button class="close-menu-btn" onclick="toggleMenu()">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-        </div>
-        <div class="menu-items">
-            <button onclick="menuAction('home')" class="menu-item">
-                <span class="menu-icon">🏠</span> Ana Sayfa
-            </button>
-            <button onclick="menuAction('board')" class="menu-item">
-                <span class="menu-icon">📋</span> Arıza Panosu <span class="badge-new">Yeni</span>
-            </button>
-            <button onclick="menuAction('admin')" class="menu-item">
-                <span class="menu-icon">⚙️</span> Yönetici Paneli
-            </button>
-            <button onclick="menuAction('sendMessage')" class="menu-item">
-                <span class="menu-icon">💬</span> Bakım Ekibine Mesaj
-            </button>
-        </div>
-    </div>
-    <!-- Top Bar -->
-    <div class="top-bar">
-        <div class="top-bar-left"></div>
-                <div class="top-bar-right">
-            <button class="hamburger-btn" onclick="toggleMenu()" aria-label="Menüyü Aç">
-                <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-        </div>
+    <!-- Top Glassmorphism Menu -->
+    <div class="glass-top-menu">
+        <button onclick="menuAction('home')" class="glass-icon-btn" title="Ana Sayfa">
+            🏠
+        </button>
+        <button onclick="menuAction('board')" class="glass-icon-btn" title="Arıza Panosu">
+            📋
+        </button>
+        <button onclick="menuAction('admin')" class="glass-icon-btn" title="Yönetici Paneli">
+            ⚙️
+        </button>
+        <button onclick="menuAction('sendMessage')" class="glass-icon-btn" title="Bakım Ekibine Mesaj">
+            💬
+        </button>
     </div>
 
     <!-- Horizontal Stepper -->
@@ -162,12 +140,7 @@
                 </div>
             </div>
 
-            <!-- Step 7 -->
-                        
-                    <button type="button" onclick="document.getElementById('messageModal').classList.remove('hidden')" style="margin-top: 15px; width: 100%; padding: 12px; background: #25D366; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                Bakım Ekibine Mesaj Gönder
-            </button>
+
 </form>
     </div>
 
@@ -298,7 +271,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="app.js?v=45.0"></script>
+    <script src="app.js?v=47.0"></script>
     <!-- Admin Login Corner Button -->
     <button type="button" class="btn-settings admin-login-corner" onclick="adminLogin()" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000; background: rgba(0,0,0,0.1); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--panel-border);">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
