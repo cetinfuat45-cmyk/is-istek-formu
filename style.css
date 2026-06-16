@@ -369,3 +369,276 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
     border-left-color: transparent;
 }
 
+
+/* Hamburger Menu & Side Menu */
+.hamburger-btn {
+    background: transparent; border: none; color: var(--text-color);
+    cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background 0.2s;
+}
+.hamburger-btn:active { background: rgba(0,0,0,0.05); }
+
+.menu-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); z-index: 999;
+    backdrop-filter: blur(2px); transition: opacity 0.3s;
+}
+.side-menu {
+    position: fixed; top: 0; right: -280px; width: 280px; height: 100%;
+    background: #ffffff; z-index: 1000; box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; flex-direction: column;
+}
+.side-menu.open {
+    transform: translateX(-280px);
+}
+.menu-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px; border-bottom: 1px solid var(--input-border);
+}
+.close-menu-btn {
+    background: #f1f5f9; border: none; color: #64748b; width: 36px; height: 36px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.menu-items {
+    padding: 20px 15px; display: flex; flex-direction: column; gap: 10px;
+    overflow-y: auto;
+}
+.menu-item {
+    background: transparent; border: none; text-align: left;
+    padding: 15px; border-radius: 12px; font-size: 1.05rem; font-weight: 600;
+    color: var(--text-color); cursor: pointer; display: flex; align-items: center;
+    transition: background 0.2s;
+}
+.menu-item:active { background: #f8fafc; }
+.menu-icon { margin-right: 12px; font-size: 1.3rem; }
+.badge-new {
+    background: var(--accent); color: white; font-size: 0.65rem; padding: 3px 8px;
+    border-radius: 12px; margin-left: auto; font-weight: 700;
+}
+
+
+/* WhatsApp Modal Styles */
+.whatsapp-modal-content {
+    background-color: #efeae2;
+    width: 100%;
+    max-width: 400px;
+    height: 85vh;
+    max-height: 600px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83v58.34h-58.34l-.83-.83v-58.34h58.34zm-5.18 5.18h-48.4v48.4h48.4v-48.4z' fill='%23000000' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+    margin: auto;
+}
+
+.wa-header {
+    background-color: #008069;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.wa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wa-back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wa-profile-pic {
+    width: 40px;
+    height: 40px;
+    background-color: #dfe5e7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #008069;
+    font-size: 1.2rem;
+    overflow: hidden;
+}
+
+.wa-contact-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.wa-contact-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.wa-contact-status {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.wa-chat-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wa-date-chip {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #54656f;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 10px;
+    align-self: center;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+}
+
+.wa-message {
+    max-width: 85%;
+    padding: 8px 10px 8px 12px;
+    border-radius: 8px;
+    position: relative;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+.wa-received {
+    background-color: #ffffff;
+    align-self: flex-start;
+    border-top-left-radius: 0;
+}
+
+.wa-received::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid #ffffff;
+    border-left: 10px solid transparent;
+}
+
+.wa-sent {
+    background-color: #d9fdd3;
+    align-self: flex-end;
+    border-top-right-radius: 0;
+}
+
+.wa-sent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid #d9fdd3;
+    border-right: 10px solid transparent;
+}
+
+.wa-message-text {
+    color: #111b21;
+    margin-bottom: 2px;
+}
+
+.wa-message-time {
+    font-size: 0.65rem;
+    color: #667781;
+    text-align: right;
+    float: right;
+    margin-top: 4px;
+    margin-left: 10px;
+}
+
+.wa-input-area {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px;
+    background-color: transparent;
+}
+
+.wa-input-wrapper {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 24px;
+    display: flex;
+    align-items: flex-end;
+    padding: 5px 10px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+.wa-emoji-btn, .wa-attach-btn {
+    background: none;
+    border: none;
+    color: #8696a0;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 8px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wa-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 5px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: none;
+    max-height: 100px;
+    min-height: 24px;
+    outline: none;
+    color: #111b21;
+}
+
+.wa-input::placeholder {
+    color: #8696a0;
+}
+
+.wa-send-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #00a884;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+}
+
+.wa-send-btn:hover {
+    background-color: #008f6f;
+}
+.wa-send-btn i {
+    margin-left: -3px;
+}

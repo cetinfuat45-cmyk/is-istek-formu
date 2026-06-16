@@ -1,4 +1,4 @@
-// --- Haptic & Audio Feedback ---
+﻿// --- Haptic & Audio Feedback ---
 window.audioCtx = null;
 window.triggerFeedback = () => {
     if (navigator.vibrate) navigator.vibrate(40);
@@ -828,7 +828,7 @@ window.menuAction = (action) => {
             }
         } else if (action === 'board') {
             alert("Arıza Panosu altyapısı şu an kuruluyor... Çok yakında aktif olacak!");
-        } else if (action === 'sendMessage') {
+        }         } else if (action === 'sendMessage') {
             document.getElementById('messageModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('msgSenderName').focus(), 100);
         }
@@ -839,7 +839,9 @@ window.menuAction = (action) => {
 
 // --- BAKIM EKIBINE MESAJ GONDER ---
 window.sendOpMessage = async () => {
+    const nameInput = document.getElementById('msgSenderName');
     const msgInput = document.getElementById('msgContent');
+    const name = nameInput.value.trim();
     const msg = msgInput.value.trim();
     
     if (msg.length < 5) {
@@ -847,96 +849,22 @@ window.sendOpMessage = async () => {
         return;
     }
     
-    // Add sent bubble to UI immediately
-    const chatBody = document.getElementById('waChatBody');
-    if (chatBody) {
-        const timeStr = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-        const bubbleHtml = `
-            <div class="wa-message wa-sent">
-                <div class="wa-message-text">${msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <div class="wa-message-time">${timeStr} <svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            </div>
-        `;
-        chatBody.insertAdjacentHTML('beforeend', bubbleHtml);
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
-    
     try {
-        let opsList = [];
-        try {
-            const opsDoc = await db.collection("ayarlar").doc("operators").get();
-            if (opsDoc.exists && opsDoc.data().list) {
-                opsList = opsDoc.data().list;
-                if (!opsList.includes("Admin")) {
-                    opsList.push("Admin");
-                }
-            }
-        } catch(err) {
-            console.log("Ops err", err);
-        }
-
-        const trMonths = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-        const now = new Date();
-        const dateStr = `${now.getDate()} ${trMonths[now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} UTC+3`;
-
-                        await db.collection("mesajlar").add({
-            isim: "Sahadan Bildirim",
-            gonderen: "Sahadan Bildirim",
-            sender: "Sahadan Bildirim", // Eski sistem uyumlulugu icin
+        await db.collection("mesajlar").add({
+            isim: name || "İsimsiz Personel",
+            gonderen: name || "İsimsiz Personel",
+            sender: name || "İsimsiz Personel",
             mesaj: msg,
-            text: msg, // Eski sistem uyumlulugu icin
-            tarih: dateStr,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-            metin: msg,
-            hedefKullanicilar: opsList,
-            oku: [],
-            "olusturulma tarihi": firebase.firestore.FieldValue.serverTimestamp()
+            text: msg,
+            tarih: new Date().toLocaleString('tr-TR'),
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         
-        // Change single tick to double blue tick
-        if (chatBody) {
-            const lastTick = chatBody.querySelector('.wa-sent:last-child .wa-tick');
-            if (lastTick) {
-                lastTick.outerHTML = '<svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="#53bdeb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="18 6 7 17 2 12"></polyline><polyline points="22 10 11 21 7 17"></polyline></svg>';
-            }
-        }
-        
-        // Custom WhatsApp style Toast instead of alert
-        const toast = document.createElement('div');
-        toast.style.position = 'fixed';
-        toast.style.top = '20px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
-        toast.style.color = 'white';
-        toast.style.padding = '10px 20px';
-        toast.style.borderRadius = '20px';
-        toast.style.fontSize = '0.9rem';
-        toast.style.zIndex = '9999';
-        toast.style.transition = 'opacity 0.5s';
-        toast.innerHTML = 'Mesajınız başarıyla iletildi! <svg viewBox="0 0 24 24" width="18" height="18" stroke="#00a884" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-        document.body.appendChild(toast);
-        
-        // Wait 2 seconds, fade out toast, and close modal
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => {
-                toast.remove();
-                document.getElementById('messageModal').classList.add('hidden');
-                msgInput.value = "";
-                msgInput.style.height = '';
-                if (chatBody) {
-                    const sentBubbles = chatBody.querySelectorAll('.wa-sent');
-                    sentBubbles.forEach(b => b.remove());
-                }
-            }, 500);
-        }, 2000);
-        
+        alert("Mesajınız bakım ekibine başarıyla iletildi! 🚀");
+        document.getElementById('messageModal').classList.add('hidden');
+        msgInput.value = "";
     } catch (e) {
         console.error(e);
         alert("Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.");
     }
-};
-
-
-
+;
