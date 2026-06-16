@@ -836,12 +836,21 @@ window.menuAction = (action) => {
 
 // --- BAKIM EKIBINE MESAJ GONDER ---
 window.sendOpMessage = async () => {
+    const sendBtn = document.querySelector('.wa-send-btn');
+    if (sendBtn && sendBtn.disabled) return; // Zaten gönderiliyor
+
     const msgInput = document.getElementById('msgContent');
     const msg = msgInput.value.trim();
     
     if (msg.length < 5) {
         alert("Lütfen en az 5 harflik bir mesaj yazın.");
         return;
+    }
+    
+    // Butonu pasifleştir
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.5';
     }
     
     // Add sent bubble to UI immediately
@@ -915,9 +924,9 @@ window.sendOpMessage = async () => {
         toast.style.transform = 'translateX(-50%)';
         toast.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
         toast.style.color = 'white';
-        toast.style.padding = '10px 20px';
-        toast.style.borderRadius = '20px';
-        toast.style.fontSize = '0.9rem';
+        toast.style.padding = '15px 30px';
+        toast.style.borderRadius = '30px';
+        toast.style.fontSize = '1.2rem';
         toast.style.zIndex = '9999';
         toast.style.transition = 'opacity 0.5s';
         toast.innerHTML = 'Mesajınız başarıyla iletildi! <svg viewBox="0 0 24 24" width="18" height="18" stroke="#00a884" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
@@ -931,6 +940,10 @@ window.sendOpMessage = async () => {
                 document.getElementById('messageModal').classList.add('hidden');
                 msgInput.value = "";
                 msgInput.style.height = '';
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
                 if (chatBody) {
                     const sentBubbles = chatBody.querySelectorAll('.wa-sent');
                     sentBubbles.forEach(b => b.remove());
