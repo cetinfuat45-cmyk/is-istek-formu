@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "Arıza Bildirim Formu",
   "short_name": "AKG Arıza",
   "start_url": "./index.html",
@@ -11,7 +11,7 @@
       "src": "AKGLOG.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

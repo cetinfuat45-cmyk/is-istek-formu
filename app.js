@@ -193,7 +193,7 @@ form.addEventListener('submit', async (e) => {
             jobType: document.getElementById('jobType').value,
             description: document.getElementById('description').value,
             photoUrl: photoUrl,
-            status: 'AÃ§Ä±k',
+            status: 'Açık',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             resolvedData: null
         };
@@ -1091,7 +1091,7 @@ window.loadFaultBoard = async () => {
 
         // 3. Sadece AÃ§Ä±k ArÄ±zalarÄ± Getir
         // Firebase index hatasÄ±nÄ± Ã¶nlemek iÃ§in orderBy'Ä± yerel olarak yapacaÄŸÄ±z
-        const snapshot = await db.collection('arizalar').where('status', '==', 'Açık').get();
+        const snapshot = await db.collection('arizalar').where('status', 'in', ['Açık', 'AÃ§Ä±k']).get();
         
         loadingDiv.style.display = 'none';
 
@@ -1103,11 +1103,26 @@ window.loadFaultBoard = async () => {
         // Verileri al ve timestamp'e gÃ¶re azalan (yeniden eskiye) sÄ±rala
         const docs = [];
         snapshot.forEach(doc => docs.push(doc.data()));
-        docs.sort((a, b) => {
-            const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
-            const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
-            return timeB - timeA;
-        });
+        const getTime = (data) => {
+            if (data.timestamp) {
+                if (typeof data.timestamp.toMillis === 'function') return data.timestamp.toMillis();
+                if (typeof data.timestamp === 'string') return new Date(data.timestamp).getTime();
+            }
+            if (data.createdAt) {
+                if (typeof data.createdAt.toMillis === 'function') return data.createdAt.toMillis();
+                if (typeof data.createdAt === 'string') return new Date(data.createdAt).getTime();
+            }
+            if (data.tarih_saat) {
+                 try {
+                     const parts = data.tarih_saat.split(' ');
+                     const d = parts[0].split('.');
+                     const t = parts[1] ? parts[1].split(':') : ['00','00','00'];
+                     if (d.length === 3) return new Date(d[2], d[1]-1, d[0], t[0], t[1], t[2]||'00').getTime();
+                 } catch(e) {}
+            }
+            return 0;
+        };
+        docs.sort((a, b) => getTime(b) - getTime(a));
 
         // 4. Verileri Tabloya Yaz
         let rowsHTML = '';
