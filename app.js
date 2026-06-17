@@ -1485,14 +1485,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const runAnimation = async () => {
     const titleEl = document.getElementById('splashTitle');
-    await typeWriter(titleEl, titleText, 50);
+    if (titleEl) {
+        await typeWriter(titleEl, titleText, 50);
+    }
     
     for (let i = 1; i <= 3; i++) {
       const item = document.getElementById('splashF' + i);
-      item.classList.add('show');
-      const textEl = item.querySelector('.splash-text');
-      await typeWriter(textEl, features[i-1], 30);
-      await new Promise(r => setTimeout(r, 200));
+      if (item) {
+        item.classList.add('show');
+        const textEl = item.querySelector('.splash-text');
+        if (textEl) await typeWriter(textEl, features[i-1], 30);
+        await new Promise(r => setTimeout(r, 200));
+      }
     }
     
     setTimeout(() => {
