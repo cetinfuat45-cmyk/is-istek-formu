@@ -844,7 +844,7 @@ window.getJobTypeHTML = (jobType) => {
     else if (text.includes('KESTİRİMCİ') || text.includes('KESTIRIMCI')) { bg = '#f3e8ff'; color = '#6b21a8'; }
     else if (text.includes('İYİLEŞTİRME') || text.includes('IYILESTIRME')) { bg = '#dcfce7'; color = '#166534'; }
 
-    return `<span style="background-color: ${bg}; color: ${color}; padding: 4px 10px; border-radius: 0px; font-size: 0.85em; font-weight: 600; display: inline-block; white-space: nowrap; border: 1px solid rgba(0,0,0,0.1);">${jobType}</span>`;
+    return `<span style="background-color: ${bg}; color: ${color}; padding: 2px 6px; border-radius: 0px; font-size: 0.85em; font-weight: 600; display: inline-block; white-space: nowrap;">${jobType}</span>`;
 };
 
 window.getRowBgColor = (jobType) => {
@@ -1080,13 +1080,13 @@ window.loadFaultBoard = async () => {
 
         // 2. Tablo BaÅŸlÄ±klarÄ±nÄ± OluÅŸtur
         let headersHTML = '';
-        if (settings.colDate) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Tarih/Saat</th>';
-        if (settings.colName) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Bildiren Kişi</th>';
-        if (settings.colDept) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Departman</th>';
-        if (settings.colMachine) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Makine</th>';
-        if (settings.colShift) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Vardiya</th>';
-        if (settings.colJobType) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">İş Tipi</th>';
-        if (settings.colDesc) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Arıza Açıklaması</th>';
+        if (settings.colDate) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Tarih</th>';
+        if (settings.colName) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Kişi</th>';
+        if (settings.colDept) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Departman</th>';
+        if (settings.colMachine) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Makine</th>';
+        if (settings.colShift) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Vardiya</th>';
+        if (settings.colJobType) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">İş Tipi</th>';
+        if (settings.colDesc) headersHTML += '<th style="padding: 2px 4px; border-bottom: 2px solid #ddd;">Açıklama</th>';
         tableHeader.innerHTML = headersHTML;
 
         // 3. Sadece AÃ§Ä±k ArÄ±zalarÄ± Getir
@@ -1111,6 +1111,16 @@ window.loadFaultBoard = async () => {
 
         // 4. Verileri Tabloya Yaz
         let rowsHTML = '';
+        let currentGroupDate = '';
+        let colspanCount = 0;
+        if(settings.colDate) colspanCount++;
+        if(settings.colName) colspanCount++;
+        if(settings.colDept) colspanCount++;
+        if(settings.colMachine) colspanCount++;
+        if(settings.colShift) colspanCount++;
+        if(settings.colJobType) colspanCount++;
+        if(settings.colDesc) colspanCount++;
+
         docs.forEach(data => {
             // Tarih verisini hem eski hem yeni formata gÃ¶re al
             let dateStr = '-';
@@ -1126,6 +1136,12 @@ window.loadFaultBoard = async () => {
                 dateStr = data.tarih_saat;
             }
 
+            let justDate = dateStr.split(' ')[0];
+            if (justDate !== currentGroupDate && dateStr !== '-') {
+                currentGroupDate = justDate;
+                rowsHTML += `<tr><td colspan="${colspanCount}" style="background-color:#7FFFD4; color:#111827; font-weight:bold; padding:8px 10px; text-align:left; border-bottom:2px solid #D1D5DB; border-top:4px solid #D1D5DB;">📅 ${currentGroupDate} Tarihli Arızalar</td></tr>`;
+            }
+
             const name = data.userName || data.bildiren || data.name || '-';
             const dept = data.costCenter || data.department || '-';
             const machine = data.machine || data.makine || '-';
@@ -1137,13 +1153,13 @@ window.loadFaultBoard = async () => {
             const rowTextColor = (rowBg === '#FF00FF' || rowBg === '#FF0000') ? '#FFFFFF' : '#333333';
             
             rowsHTML += `<tr style="border-bottom: 1px solid #ccc; background-color: ${rowBg}; color: ${rowTextColor};">`;
-            if (settings.colDate) rowsHTML += `<td style="padding: 6px;">${dateStr}</td>`;
-            if (settings.colName) rowsHTML += `<td style="padding: 6px;">${name}</td>`;
-            if (settings.colDept) rowsHTML += `<td style="padding: 6px;">${dept}</td>`;
-            if (settings.colMachine) rowsHTML += `<td style="padding: 6px;">${machine}</td>`;
-            if (settings.colShift) rowsHTML += `<td style="padding: 6px;">${shift}</td>`;
-            if (settings.colJobType) rowsHTML += `<td style="padding: 6px;">${window.getJobTypeHTML(jobType)}</td>`;
-            if (settings.colDesc) rowsHTML += `<td style="padding: 6px;">${desc}</td>`;
+            if (settings.colDate) rowsHTML += `<td style="padding: 2px 4px;">${dateStr.includes(' ') ? dateStr.split(' ')[1] : dateStr}</td>`; // Sadece saat gosterelim gruplama oldugu icin
+            if (settings.colName) rowsHTML += `<td style="padding: 2px 4px;">${name}</td>`;
+            if (settings.colDept) rowsHTML += `<td style="padding: 2px 4px;">${dept}</td>`;
+            if (settings.colMachine) rowsHTML += `<td style="padding: 2px 4px;">${machine}</td>`;
+            if (settings.colShift) rowsHTML += `<td style="padding: 2px 4px;">${shift}</td>`;
+            if (settings.colJobType) rowsHTML += `<td style="padding: 2px 4px;">${window.getJobTypeHTML(jobType)}</td>`;
+            if (settings.colDesc) rowsHTML += `<td style="padding: 2px 4px;">${desc}</td>`;
             rowsHTML += '</tr>';
         });
 
