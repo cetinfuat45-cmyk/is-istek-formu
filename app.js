@@ -1,4 +1,4 @@
-﻿// --- Haptic & Audio Feedback ---
+// --- Haptic & Audio Feedback ---
 window.audioCtx = null;
 window.triggerFeedback = () => {
     if (navigator.vibrate) navigator.vibrate(40);
@@ -989,7 +989,17 @@ window.menuAction = (action) => {
         if (waModal) waModal.classList.remove('hidden');
         
         const msgInput = document.getElementById('msgContent');
+        const sendBtn = document.querySelector('#whatsappMessageModal .wa-send-btn');
         const chatBody = document.getElementById('waChatBody');
+        
+        if (msgInput) {
+            msgInput.disabled = true;
+            msgInput.placeholder = "Yazıyor...";
+        }
+        if (sendBtn) {
+            sendBtn.disabled = true;
+            sendBtn.style.opacity = '0.5';
+        }
         
         if (chatBody) {
             chatBody.innerHTML = '<div class="wa-date-chip">BugÃ¼n</div>';
@@ -1002,7 +1012,7 @@ window.menuAction = (action) => {
             };
 
             const pushmsg = (txt) => {
-                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">${txt}</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
+                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">${txt}</div></div>`);
                 chatBody.scrollTop = chatBody.scrollHeight;
             };
 
@@ -1030,7 +1040,15 @@ window.menuAction = (action) => {
                             setTimeout(() => {
                                 document.getElementById(tId)?.remove();
                                 pushmsg('Bu konularda bize yazabilirsin.');
-                                if (msgInput) msgInput.focus();
+                                if (msgInput) {
+                                    msgInput.disabled = false;
+                                    msgInput.placeholder = "Mesaj yazın...";
+                                    msgInput.focus();
+                                }
+                                if (sendBtn) {
+                                    sendBtn.disabled = false;
+                                    sendBtn.style.opacity = '1';
+                                }
                             }, 800);
                         }, 800);
                     }, 800);
@@ -1151,11 +1169,16 @@ window.sendOpMessage = async () => {
     const msg = msgInput.value.trim();
     
     if (msg.length < 5) {
-        alert("LÃ¼tfen en az 5 harflik bir mesaj yazÄ±n.");
+        alert("Lütfen en az 5 harflik bir mesaj yazın.");
         return;
     }
     
-    // Butonu pasifleÅŸtir
+    if (msgInput) {
+        msgInput.value = "";
+        msgInput.style.height = '';
+    }
+    
+    // Butonu pasifleştir
     if (sendBtn) {
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.5';
@@ -1342,7 +1365,7 @@ window.sendWhatsappMessage = async () => {
         const bubbleHtml = `
             <div class="wa-message wa-sent">
                 <div class="wa-message-text">${msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
-                <div class="wa-message-time">${timeStr} <svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                <div class="wa-message-time"><svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
             </div>
         `;
         chatBody.insertAdjacentHTML('beforeend', bubbleHtml);
@@ -1404,7 +1427,7 @@ window.sendWhatsappMessage = async () => {
         
         setTimeout(() => {
             document.getElementById(typingId2)?.remove();
-            chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">TeÅŸekkÃ¼rler, mesajÄ±n bakÄ±m birimine iletilmiÅŸtir.</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
+            chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">Teşekkürler, mesajın bakım birimine iletilmiştir.</div></div>`);
             chatBody.scrollTop = chatBody.scrollHeight;
             
             setTimeout(() => {
