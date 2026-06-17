@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     --bg-color: #f8fafc;
     --panel-bg: #ffffff;
     --text-primary: #111827;
@@ -147,7 +147,7 @@ body {
 }
 .btn-ileri:hover { background: #a7f3d0; transform: scale(1.05); }
 
-/* Giriş Alanları */
+/* GiriÅŸ AlanlarÄ± */
 .custom-input {
     width: 100%; background: var(--input-bg); border: 1px solid var(--input-border);
     border-radius: 10px; padding: 14px 16px; color: #111827; font-size: 1rem;
@@ -178,7 +178,7 @@ body {
 }
 .btn-power:hover { transform: scale(1.1); }
 
-/* Yardımcı Sınıflar (Shake animasyonu vs) */
+/* YardÄ±mcÄ± SÄ±nÄ±flar (Shake animasyonu vs) */
 .hidden { display: none !important; }
 @keyframes shake {
   0% { transform: translateX(0); }
@@ -189,7 +189,7 @@ body {
 }
 .shake { animation: shake 0.3s ease-in-out; border-color: var(--danger) !important; }
 
-/* Dashboard ve Modallar için eski CSS kuralları korunarak ekleniyor */
+/* Dashboard ve Modallar iÃ§in eski CSS kurallarÄ± korunarak ekleniyor */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(3px);
@@ -208,14 +208,14 @@ body {
 .stat-card .value { font-size: 2rem; font-weight: 700; margin-top: 0.5rem; color: #111827; }
 
 .table-container {   background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table { width: 100%; border-collapse: collapse; font-size: clamp(0.6rem, 3.5vw, 0.85rem); }
 th, td { padding: 0.8rem 1rem; text-align: left; border-bottom: 1px solid var(--input-border); }
 th { color: #000000; font-weight: 500; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: #f8fafc; }
 .status-badge { padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
 .status-acik { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); }
 .status-cozuldu { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.2); }
 
-/* Admin modal vs eklentileri için */
+/* Admin modal vs eklentileri iÃ§in */
 .close-modal { background: transparent; border: none; font-size: 1.5rem; cursor: pointer; padding: 0; margin: 0; width: auto; color: #333; }
 .close-modal:hover { color: var(--danger); }
 
@@ -456,7 +456,7 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
     background: none;
     border: none;
     color: white;
-    font-size: 1.2rem;
+    font-size: clamp(0.8rem, 4vw, 1.2rem);
     cursor: pointer;
     padding: 5px;
     display: flex;
@@ -473,7 +473,7 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
     align-items: center;
     justify-content: center;
     color: #008069;
-    font-size: 1.2rem;
+    font-size: clamp(0.8rem, 4vw, 1.2rem);
     overflow: hidden;
 }
 
@@ -629,7 +629,7 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: clamp(0.8rem, 4vw, 1.2rem);
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     flex-shrink: 0;
@@ -693,3 +693,23 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
 .stepper-wrapper {
     margin-top: 110px !important;
 }
+
+.glass-top-menu.hidden-up { transform: translateY(-120%); opacity: 0; pointer-events: none; }
+.glass-top-menu { transition: transform 0.4s ease, opacity 0.4s ease; }
+
+.stepper-wrapper { transition: margin-top 0.4s ease; }
+.stepper-wrapper.stepper-up { margin-top: 20px !important; }
+
+/* Splash Screen */
+.splash-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10000; background: rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; transition: opacity 0.8s ease, visibility 0.8s ease; }
+.splash-glass-box { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); border-radius: 20px; padding: 2rem; width: 90%; max-width: 500px; text-align: center; }
+.splash-logo { height: 70px; display: block; margin: 0 auto 1.5rem auto; object-fit: contain; }
+.splash-typewriter { font-size: clamp(0.8rem, 4vw, 1.2rem); font-weight: 800; color: var(--text-primary); min-height: 2.2rem; margin-bottom: 1.5rem; text-align: center; border-right: 2px solid var(--accent); white-space: nowrap; overflow: hidden; animation: blink-caret 0.75s step-end infinite; }
+@keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--accent); } }
+.splash-features { display: flex; flex-direction: column; gap: 1rem; }
+.splash-feature-item { display: flex; align-items: center; gap: 12px; font-size: clamp(0.6rem, 3.5vw, 0.85rem); color: var(--text-secondary); opacity: 0; transition: opacity 0.3s; }
+.splash-feature-item.show { opacity: 1; }
+.splash-icon { font-size: clamp(1.5rem, 8vw, 2.2rem); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.splash-text { border-right: 2px solid var(--accent); white-space: nowrap; overflow: hidden; animation: blink-caret 0.75s step-end infinite; }
+.splash-text.done { border-right: none; }
+.splash-overlay.hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }

@@ -1,4 +1,4 @@
-// --- Haptic & Audio Feedback ---
+﻿// --- Haptic & Audio Feedback ---
 window.audioCtx = null;
 window.triggerFeedback = () => {
     if (navigator.vibrate) navigator.vibrate(40);
@@ -25,7 +25,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Ana sayfaya dönüldüğünde admin yetkisini otomatik olarak sıfırla (Çıkış Yap)
+// Ana sayfaya dÃ¶nÃ¼ldÃ¼ÄŸÃ¼nde admin yetkisini otomatik olarak sÄ±fÄ±rla (Ã‡Ä±kÄ±ÅŸ Yap)
 sessionStorage.removeItem('isAdmin');
 
 // Firebase Configuration
@@ -45,33 +45,33 @@ if (!firebase.apps.length) {
 
 const db = firebase.firestore();
 
-// Çevrimdışı (Offline) Desteği
+// Ã‡evrimdÄ±ÅŸÄ± (Offline) DesteÄŸi
 db.enablePersistence()
   .catch(function(err) {
       if (err.code == 'failed-precondition') {
-          console.warn("Çoklu sekme açık, offline mod tek sekmede çalışır.");
+          console.warn("Ã‡oklu sekme aÃ§Ä±k, offline mod tek sekmede Ã§alÄ±ÅŸÄ±r.");
       } else if (err.code == 'unimplemented') {
-          console.warn("Tarayıcı offline modu desteklemiyor.");
+          console.warn("TarayÄ±cÄ± offline modu desteklemiyor.");
       }
   });
 const storage = firebase.storage();
 
-// Admin Panelinden Ayarları (Listeleri) Çekip Dropdown'ları Doldur
+// Admin Panelinden AyarlarÄ± (Listeleri) Ã‡ekip Dropdown'larÄ± Doldur
 const settingsRef = db.collection('ayarlar');
 const dropdownMap = {
     'departments': 'costCenter',
-    // 'machines': 'machine', -> Makineler artık bölüme göre dinamik gelecek
+    // 'machines': 'machine', -> Makineler artÄ±k bÃ¶lÃ¼me gÃ¶re dinamik gelecek
     'shifts': 'shift',
     'jobTypes': 'jobType'
 };
 
-// Bağımsız listeleri doldur
+// BaÄŸÄ±msÄ±z listeleri doldur
 Object.keys(dropdownMap).forEach(cat => {
     settingsRef.doc(cat).onSnapshot(doc => {
         const selectEl = document.getElementById(dropdownMap[cat]);
         if (selectEl && doc.exists) {
             const list = doc.data().list || [];
-            selectEl.innerHTML = '<option value="">Seçiniz...</option>'; // Always reset first
+            selectEl.innerHTML = '<option value="">SeÃ§iniz...</option>'; // Always reset first
             if (list.length > 0) {
                 list.sort().forEach(item => {
                     const opt = document.createElement('option');
@@ -84,25 +84,25 @@ Object.keys(dropdownMap).forEach(cat => {
     });
 });
 
-// Maliyet Merkezi -> Makine Dinamik İlişkisi
+// Maliyet Merkezi -> Makine Dinamik Ä°liÅŸkisi
 let currentMachineMap = {};
 const costCenterSelect = document.getElementById('costCenter');
 const machineSelect = document.getElementById('machine');
 
-// Eşleştirme haritasını veritabanından dinle
+// EÅŸleÅŸtirme haritasÄ±nÄ± veritabanÄ±ndan dinle
 settingsRef.doc('machineMap').onSnapshot(doc => {
     if (doc.exists) {
         currentMachineMap = doc.data();
     }
 });
 
-// Bölüm seçildiğinde makineleri güncelle
+// BÃ¶lÃ¼m seÃ§ildiÄŸinde makineleri gÃ¼ncelle
 costCenterSelect.addEventListener('change', (e) => {
     const selectedDept = e.target.value;
-    machineSelect.innerHTML = '<option value="">Önce Bölüm Seçiniz...</option>';
+    machineSelect.innerHTML = '<option value="">Ã–nce BÃ¶lÃ¼m SeÃ§iniz...</option>';
     
     if (selectedDept && currentMachineMap[selectedDept]) {
-        machineSelect.innerHTML = '<option value="">Makine Seçiniz...</option>';
+        machineSelect.innerHTML = '<option value="">Makine SeÃ§iniz...</option>';
         const machList = currentMachineMap[selectedDept];
         machList.sort().forEach(mach => {
             const opt = document.createElement('option');
@@ -113,7 +113,7 @@ costCenterSelect.addEventListener('change', (e) => {
     }
 });
 
-// Fotoğraf Sıkıştırma Fonksiyonu (5MB dosyayı 200KB'a düşürür)
+// FotoÄŸraf SÄ±kÄ±ÅŸtÄ±rma Fonksiyonu (5MB dosyayÄ± 200KB'a dÃ¼ÅŸÃ¼rÃ¼r)
 async function compressImage(file, maxWidth = 1024) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -134,7 +134,7 @@ async function compressImage(file, maxWidth = 1024) {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
                 
-                // %80 kalite ile JPEG olarak sıkıştır
+                // %80 kalite ile JPEG olarak sÄ±kÄ±ÅŸtÄ±r
                 canvas.toBlob(blob => {
                     resolve(blob);
                 }, 'image/jpeg', 0.8);
@@ -148,7 +148,7 @@ async function compressImage(file, maxWidth = 1024) {
 const form = document.getElementById('faultForm');
 const submitBtn = document.getElementById('submitBtn');
 
-// Yeni Gönderim Modalı Elementleri
+// Yeni GÃ¶nderim ModalÄ± Elementleri
 const submissionModal = document.getElementById('submissionModal');
 const loadingState = document.getElementById('loadingState');
 const successState = document.getElementById('successState');
@@ -159,31 +159,31 @@ let closeCountdownTimer = null;
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    // Yükleniyor ekranını aç
+    // YÃ¼kleniyor ekranÄ±nÄ± aÃ§
     submissionModal.classList.remove('hidden');
     loadingState.classList.remove('hidden');
     successState.classList.add('hidden');
-    loadingSubText.innerText = "Sistemle bağlantı kuruluyor...";
+    loadingSubText.innerText = "Sistemle baÄŸlantÄ± kuruluyor...";
 
     try {
         let photoUrl = "";
         
-        // Fotoğraf seçildiyse işle (Kamera veya Dosyadan)
+        // FotoÄŸraf seÃ§ildiyse iÅŸle (Kamera veya Dosyadan)
         const cameraFile = document.getElementById('cameraInput') ? document.getElementById('cameraInput').files[0] : null;
         const folderFile = document.getElementById('fileInput') ? document.getElementById('fileInput').files[0] : null;
         const photoFile = cameraFile || folderFile;
         
         if (photoFile) {
-            loadingSubText.innerText = "Fotoğraf Sıkıştırılıyor...";
+            loadingSubText.innerText = "FotoÄŸraf SÄ±kÄ±ÅŸtÄ±rÄ±lÄ±yor...";
             const compressedBlob = await compressImage(photoFile);
             
-            loadingSubText.innerText = "Fotoğraf Yükleniyor...";
+            loadingSubText.innerText = "FotoÄŸraf YÃ¼kleniyor...";
             const storageRef = storage.ref('ariza_fotolari/' + Date.now() + '.jpg');
             await storageRef.put(compressedBlob);
             photoUrl = await storageRef.getDownloadURL();
         }
 
-        loadingSubText.innerText = "Kayıt Oluşturuluyor...";
+        loadingSubText.innerText = "KayÄ±t OluÅŸturuluyor...";
 
         const faultData = {
             userName: document.getElementById('userName').value,
@@ -193,20 +193,20 @@ form.addEventListener('submit', async (e) => {
             jobType: document.getElementById('jobType').value,
             description: document.getElementById('description').value,
             photoUrl: photoUrl,
-            status: 'Açık',
+            status: 'AÃ§Ä±k',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             resolvedData: null
         };
 
                 await db.collection("arizalar").add(faultData);
 
-        // Yeni Arıza Bildirimini Web3Forms veya Webhook (Google Apps Script) ile Mail At
+        // Yeni ArÄ±za Bildirimini Web3Forms veya Webhook (Google Apps Script) ile Mail At
         try {
             const mailDoc = await db.collection('ayarlar').doc('adminEmail').get();
             if (mailDoc.exists && mailDoc.data().key && mailDoc.data().faultMailEnabled !== false) {
                 const accessKey = mailDoc.data().key;
                 const dashboardLink = window.location.href.replace('index.html', '') + 'index.html';
-                const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BİLDİRİMİ";
+                const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BÄ°LDÄ°RÄ°MÄ°";
                 const targetEmail = mailDoc.data().targetEmail || "";
                 
                 if (accessKey.startsWith("http")) {
@@ -218,7 +218,7 @@ form.addEventListener('submit', async (e) => {
                         body: JSON.stringify({
                             type: 'fault',
                             targetEmail: targetEmail,
-                            subject: faultData.machine || "Yeni Arıza",
+                            subject: faultData.machine || "Yeni ArÄ±za",
                             from_name: faultTypeStr,
                             description: faultData.description,
                             userName: faultData.userName,
@@ -227,33 +227,33 @@ form.addEventListener('submit', async (e) => {
                         })
                     }).catch(e=>console.log(e));
                 } else {
-                    // Web3Forms kullanımı
+                    // Web3Forms kullanÄ±mÄ±
                     fetch('https://api.web3forms.com/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify({
                             access_key: accessKey,
-                            subject: faultData.machine || "Yeni Arıza",
+                            subject: faultData.machine || "Yeni ArÄ±za",
                             from_name: faultTypeStr,
                             message: faultData.description,
                             "Bildiren Personel": faultData.userName,
-                            "Çalışılan Vardiya": faultData.shift,
-                            "Sisteme Giriş Linki": dashboardLink
+                            "Ã‡alÄ±ÅŸÄ±lan Vardiya": faultData.shift,
+                            "Sisteme GiriÅŸ Linki": dashboardLink
                         })
                     }).catch(e=>console.log(e));
                 }
             }
         } catch(e) { console.log(e); }
 
-        // Gönderim Başarılı -> Modal'ın 2. Aşamasını Aç
+        // GÃ¶nderim BaÅŸarÄ±lÄ± -> Modal'Ä±n 2. AÅŸamasÄ±nÄ± AÃ§
         loadingState.classList.add('hidden');
         successState.classList.remove('hidden');
         
-        // Formu Arka Planda Sıfırla
+        // Formu Arka Planda SÄ±fÄ±rla
         form.reset();
         window.resetStepper();
         
-        // 10 Saniyelik Otomatik Kapatma Sayacı
+        // 10 Saniyelik Otomatik Kapatma SayacÄ±
         let secondsLeft = 10;
         closeCountdown.innerText = secondsLeft;
         
@@ -269,12 +269,12 @@ form.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error("Hata: ", error);
-        // Hata durumunda sadece modalı kapat (veya konsola yaz)
+        // Hata durumunda sadece modalÄ± kapat (veya konsola yaz)
         submissionModal.classList.add('hidden');
     }
 });
 
-// Modal İçi Butonların Fonksiyonları
+// Modal Ä°Ã§i ButonlarÄ±n FonksiyonlarÄ±
 window.startNewForm = () => {
     clearInterval(closeCountdownTimer);
     submissionModal.classList.add('hidden');
@@ -283,13 +283,13 @@ window.startNewForm = () => {
 
 window.closeSystem = () => {
     clearInterval(closeCountdownTimer);
-    // Genellikle tarayıcılar JS ile açılmayan pencereleri window.close() ile kapatmaya izin vermez.
-    // Bu yüzden pencereyi kapatmayı dener, olmazsa ekranı tamamen siyaha çevirir veya "Kapatabilirsiniz" mesajı verir.
-    document.body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100vh; width:100vw; background:#000; color:#fff; flex-direction:column; font-family:sans-serif;"><h2 style="margin-bottom:1rem;">Sistem Kapatıldı</h2><p style="color:#aaa;">Bu sekmeyi güvenle kapatabilirsiniz.</p></div>';
+    // Genellikle tarayÄ±cÄ±lar JS ile aÃ§Ä±lmayan pencereleri window.close() ile kapatmaya izin vermez.
+    // Bu yÃ¼zden pencereyi kapatmayÄ± dener, olmazsa ekranÄ± tamamen siyaha Ã§evirir veya "Kapatabilirsiniz" mesajÄ± verir.
+    document.body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100vh; width:100vw; background:#000; color:#fff; flex-direction:column; font-family:sans-serif;"><h2 style="margin-bottom:1rem;">Sistem KapatÄ±ldÄ±</h2><p style="color:#aaa;">Bu sekmeyi gÃ¼venle kapatabilirsiniz.</p></div>';
     window.close(); 
 };
 
-// Doldurulan form alanlarının (input, select, textarea) yanıp sönmesi için dinleyici
+// Doldurulan form alanlarÄ±nÄ±n (input, select, textarea) yanÄ±p sÃ¶nmesi iÃ§in dinleyici
 document.addEventListener('DOMContentLoaded', () => {
     const inputs = document.querySelectorAll('input, select, textarea');
     
@@ -304,14 +304,14 @@ document.addEventListener('DOMContentLoaded', () => {
     inputs.forEach(el => {
         el.addEventListener('input', () => checkFilled(el));
         el.addEventListener('change', () => checkFilled(el));
-        // Sayfa yüklendiğinde mevcut doluları da kontrol et (Örn: tarayıcı otomatik doldurduysa)
+        // Sayfa yÃ¼klendiÄŸinde mevcut dolularÄ± da kontrol et (Ã–rn: tarayÄ±cÄ± otomatik doldurduysa)
         checkFilled(el);
     });
 
-    // Açılır Listeler (Select) için Otomatik İlerleme (Auto-Advance)
+    // AÃ§Ä±lÄ±r Listeler (Select) iÃ§in Otomatik Ä°lerleme (Auto-Advance)
     document.querySelectorAll('select').forEach(select => {
         select.addEventListener('change', (e) => {
-            if (!e.target.value) return; // Eğer 'Seçiniz' boş kalırsa işlem yapma
+            if (!e.target.value) return; // EÄŸer 'SeÃ§iniz' boÅŸ kalÄ±rsa iÅŸlem yapma
             
             const stepContainer = e.target.closest('.card-step');
             if (!stepContainer) return;
@@ -321,12 +321,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const currentIndex = stepInputs.indexOf(e.target);
             
             if (currentIndex >= 0 && currentIndex < stepInputs.length - 1) {
-                // Aynı adımda sıradaki giriş alanına geç (Örn: Bölüm seçilince Makine'ye odaklan)
+                // AynÄ± adÄ±mda sÄ±radaki giriÅŸ alanÄ±na geÃ§ (Ã–rn: BÃ¶lÃ¼m seÃ§ilince Makine'ye odaklan)
                 setTimeout(() => {
                     stepInputs[currentIndex + 1].focus();
                 }, 100);
             } else {
-                // Bu adımdaki son liste seçildi, doğrudan bir sonraki adıma (merdivene) atla
+                // Bu adÄ±mdaki son liste seÃ§ildi, doÄŸrudan bir sonraki adÄ±ma (merdivene) atla
                 setTimeout(() => {
                     window.nextStep(stepNum);
                 }, 250);
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fotoğraf Modalı ve Seçim İşlemleri
+    // FotoÄŸraf ModalÄ± ve SeÃ§im Ä°ÅŸlemleri
     const openPhotoModalBtn = document.getElementById('openPhotoModalBtn');
     const photoSelectionModal = document.getElementById('photoSelectionModal');
     const cameraInput = document.getElementById('cameraInput');
@@ -348,16 +348,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const handlePhotoSelection = (e, otherInput) => {
             if (e.target.files && e.target.files.length > 0) {
-                // Diğer input'u temizle (çakışmayı önlemek için)
+                // DiÄŸer input'u temizle (Ã§akÄ±ÅŸmayÄ± Ã¶nlemek iÃ§in)
                 otherInput.value = "";
                 
                 const fileName = e.target.files[0].name;
-                photoCompactText.innerText = "✅ " + fileName;
+                photoCompactText.innerText = "âœ… " + fileName;
                 openPhotoModalBtn.style.background = "rgba(16, 185, 129, 0.1)";
                 openPhotoModalBtn.style.borderColor = "var(--success)";
                 openPhotoModalBtn.style.color = "var(--success)";
                 
-                // Seçim yapıldıktan sonra modalı kapat
+                // SeÃ§im yapÄ±ldÄ±ktan sonra modalÄ± kapat
                 setTimeout(() => {
                     photoSelectionModal.classList.add('hidden');
                 }, 300);
@@ -370,22 +370,35 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-// --- Çok Adımlı Form (Stepper) Mantığı ---
+// --- Ã‡ok AdÄ±mlÄ± Form (Stepper) MantÄ±ÄŸÄ± ---
 
 window.goToStep = (step) => {
     const currentActiveCard = document.querySelector('.card-step.active');
     const currentActiveNav = document.querySelector('.step-item.active');
     
+    // Ãœst menÃ¼yÃ¼ gizle/gÃ¶ster ve adÄ±mlarÄ± yukarÄ± kaydÄ±r
+    const topMenu = document.querySelector('.glass-top-menu');
+    const stepperWrapper = document.querySelector('.stepper-wrapper');
+    if (topMenu) {
+        if (step > 1) {
+            topMenu.classList.add('hidden-up');
+            if (stepperWrapper) stepperWrapper.classList.add('stepper-up');
+        } else {
+            topMenu.classList.remove('hidden-up');
+            if (stepperWrapper) stepperWrapper.classList.remove('stepper-up');
+        }
+    }
+    
     if (currentActiveCard) {
         const currentStepNum = parseInt(currentActiveCard.id.replace('step', ''));
         if (currentStepNum === step) return;
         
-        // Sadece ileri gidiyorsa doğrula
+        // Sadece ileri gidiyorsa doÄŸrula
         if (step > currentStepNum) {
             if (!validateStep(currentStepNum)) return;
-            // Aradaki adımları da doğrula (atlama durumunda)
+            // Aradaki adÄ±mlarÄ± da doÄŸrula (atlama durumunda)
             for(let i = currentStepNum + 1; i < step; i++){
-                if (!validateStep(i)) return; // Önceki adım hatalıysa ileri atlayamaz
+                if (!validateStep(i)) return; // Ã–nceki adÄ±m hatalÄ±ysa ileri atlayamaz
             }
         }
         
@@ -423,7 +436,10 @@ window.nextStep = (currentStepNum) => {
 window.showSummaryOverlay = () => {
     document.getElementById('sum-name').innerText = document.getElementById('userName').value || '-';
     const cc = document.getElementById('costCenter');
-    document.getElementById('sum-dept').innerText = (cc && cc.selectedIndex >= 0) ? cc.options[cc.selectedIndex].text : '-';
+    let ccText = (cc && cc.selectedIndex >= 0) ? cc.options[cc.selectedIndex].text : '-';
+    // Remove prefix for summary display
+    ccText = ccText.replace(/^[0-9]+-[0-9]+-/, '');
+    document.getElementById('sum-dept').innerText = ccText;
     const mach = document.getElementById('machine');
     document.getElementById('sum-mach').innerText = (mach && mach.selectedIndex >= 0) ? mach.options[mach.selectedIndex].text : '-';
     const sh = document.getElementById('shift');
@@ -439,17 +455,93 @@ window.showSummaryOverlay = () => {
         const checkText = jobText.toUpperCase();
         document.getElementById('sum-job').innerHTML = window.getJobTypeHTML(jobText);
         
-        if (/İSG|ISG|GÜVEN|GUVEN|İŞ GÜVENLİĞİ/i.test(jobText)) {
+        if (/İSG|İSG|GÃœVEN|GUVEN|Ä°Å GÃœVENLÄ°ÄÄ°/i.test(jobText)) {
             overlay.classList.add('is-isg');
             overlay.classList.remove('is-normal');
         } else {
             overlay.classList.remove('is-isg');
             overlay.classList.add('is-normal');
         }
+        
+        // Sadece yazÄ± deÄŸerlerinin (t-val) arka planlarÄ±nÄ± iÅŸ tÃ¼rÃ¼ rengine boyama (kÃ¶ÅŸesiz)
+        const rowBg = window.getRowBgColor(jobText);
+        const timelineItems = overlay.querySelectorAll('.timeline-item');
+        
+        if (rowBg !== 'transparent') {
+            const rowTextColor = (rowBg === '#FF00FF' || rowBg === '#FF0000') ? '#FFFFFF' : '#000000';
+            timelineItems.forEach(item => {
+                // Konteyneri temizle
+                item.style.backgroundColor = '';
+                item.style.color = '';
+                item.style.padding = '';
+                item.style.marginBottom = '';
+                
+                const svg = item.querySelector('svg');
+                if (svg) svg.style.color = '';
+                
+                const tTitle = item.querySelector('.t-title');
+                if (tTitle) tTitle.style.color = '';
+                
+                // Sadece metinlerin (deÄŸerlerin) arka planÄ±nÄ± boya
+                const tVal = item.querySelector('.t-val');
+                if (tVal) {
+                    tVal.style.backgroundColor = rowBg;
+                    tVal.style.color = rowTextColor;
+                    tVal.style.borderRadius = '0';
+                    tVal.style.padding = '2px 8px';
+                    tVal.style.display = 'inline-block';
+                    tVal.style.fontWeight = 'bold';
+                }
+            });
+        } else {
+            timelineItems.forEach(item => {
+                item.style.backgroundColor = '';
+                item.style.color = '';
+                item.style.padding = '';
+                item.style.marginBottom = '';
+                
+                const svg = item.querySelector('svg');
+                if (svg) svg.style.color = '';
+                
+                const tTitle = item.querySelector('.t-title');
+                if (tTitle) tTitle.style.color = '';
+                
+                const tVal = item.querySelector('.t-val');
+                if (tVal) {
+                    tVal.style.backgroundColor = '';
+                    tVal.style.color = '';
+                    tVal.style.borderRadius = '';
+                    tVal.style.padding = '';
+                    tVal.style.display = '';
+                    tVal.style.fontWeight = '';
+                }
+            });
+        }
     } else {
         document.getElementById('sum-job').innerText = '-';
         overlay.classList.remove('is-isg');
         overlay.classList.add('is-normal');
+        
+        const timelineItems = overlay.querySelectorAll('.timeline-item');
+        timelineItems.forEach(item => {
+            item.style.backgroundColor = '';
+            item.style.color = '';
+            item.style.padding = '';
+            item.style.marginBottom = '';
+            const svg = item.querySelector('svg');
+            if (svg) svg.style.color = '';
+            const tTitle = item.querySelector('.t-title');
+            if (tTitle) tTitle.style.color = '';
+            const tVal = item.querySelector('.t-val');
+            if (tVal) {
+                tVal.style.backgroundColor = '';
+                tVal.style.color = '';
+                tVal.style.borderRadius = '';
+                tVal.style.padding = '';
+                tVal.style.display = '';
+                tVal.style.fontWeight = '';
+            }
+        });
     }
     document.getElementById('sum-desc').innerText = document.getElementById('description').value || '-';
     
@@ -502,22 +594,28 @@ const validateStep = (step) => {
     return isValid;
 };
 
-// Form submit başarılı olduğunda veya güç butonuna basıldığında ilk adıma döndür
+// Form submit baÅŸarÄ±lÄ± olduÄŸunda veya gÃ¼Ã§ butonuna basÄ±ldÄ±ÄŸÄ±nda ilk adÄ±ma dÃ¶ndÃ¼r
 window.resetStepper = () => {
     const overlay = document.getElementById('summaryOverlay');
     if(overlay) overlay.classList.add('hidden');
     document.querySelectorAll('.card-step').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
     
+    // Ãœst menÃ¼yÃ¼ ve adÄ±mlarÄ± geri getir
+    const topMenu = document.querySelector('.glass-top-menu');
+    const stepperWrapper = document.querySelector('.stepper-wrapper');
+    if (topMenu) topMenu.classList.remove('hidden-up');
+    if (stepperWrapper) stepperWrapper.classList.remove('stepper-up');
+    
     document.getElementById('step1').classList.add('active');
     document.getElementById('nav-step1').classList.add('active');
     
     document.getElementById('nav-step1').scrollIntoView({ behavior: 'smooth', inline: 'center' });
     
-    // Fotoğraf Butonunu ve Seçimlerini Sıfırla
+    // FotoÄŸraf Butonunu ve SeÃ§imlerini SÄ±fÄ±rla
     const openPhotoModalBtn = document.getElementById('openPhotoModalBtn');
     if (openPhotoModalBtn) {
-        document.getElementById('photoCompactText').innerText = "Fotoğraf Ekle (Opsiyonel)";
+        document.getElementById('photoCompactText').innerText = "FotoÄŸraf Ekle (Opsiyonel)";
         openPhotoModalBtn.style.color = "var(--text-secondary)";
         openPhotoModalBtn.style.background = "transparent";
         openPhotoModalBtn.style.borderColor = "var(--input-border)";
@@ -551,7 +649,7 @@ window.submitAdminModalLogin = () => {
     if (passInput.value === "12345") { 
         sessionStorage.setItem("isAdmin", "true");
         
-        // Admin Giriş Yaptığında Mail Gönderimi (Bekletmeden arka planda)
+        // Admin GiriÅŸ YaptÄ±ÄŸÄ±nda Mail GÃ¶nderimi (Bekletmeden arka planda)
         db.collection('ayarlar').doc('adminEmail').get().then(mailDoc => {
             if (mailDoc.exists && mailDoc.data().key && mailDoc.data().loginMailEnabled !== false) {
                 const accessKey = mailDoc.data().key;
@@ -565,8 +663,8 @@ window.submitAdminModalLogin = () => {
                         body: JSON.stringify({
                             type: 'login',
                             targetEmail: targetEmail,
-                            subject: "⚠️ Admin Girişi",
-                            description: `Sisteminize an itibariyle şifre ile başarılı bir Admin girişi yapılmıştır.\nTarih: ${new Date().toLocaleString('tr-TR')}`
+                            subject: "âš ï¸ Admin GiriÅŸi",
+                            description: `Sisteminize an itibariyle ÅŸifre ile baÅŸarÄ±lÄ± bir Admin giriÅŸi yapÄ±lmÄ±ÅŸtÄ±r.\nTarih: ${new Date().toLocaleString('tr-TR')}`
                         })
                     }).catch(e=>console.log(e));
                 } else {
@@ -575,25 +673,25 @@ window.submitAdminModalLogin = () => {
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify({
                             access_key: accessKey,
-                            subject: "⚠️ SİSTEM GÜVENLİĞİ: Ana Sayfadan Admin Paneline Giriş Yapıldı",
-                            from_name: "Bakım Sistemi",
+                            subject: "âš ï¸ SÄ°STEM GÃœVENLÄ°ÄÄ°: Ana Sayfadan Admin Paneline GiriÅŸ YapÄ±ldÄ±",
+                            from_name: "BakÄ±m Sistemi",
                             email: "sistem@bildirim.com",
-                            message: `Sisteminize (Ana Sayfa üzerinden) şifre ile başarılı bir Admin girişi yapılmıştır.\nTarih: ${new Date().toLocaleString('tr-TR')}`
+                            message: `Sisteminize (Ana Sayfa Ã¼zerinden) ÅŸifre ile baÅŸarÄ±lÄ± bir Admin giriÅŸi yapÄ±lmÄ±ÅŸtÄ±r.\nTarih: ${new Date().toLocaleString('tr-TR')}`
                         })
                     }).catch(e=>console.log(e));
                 }
             }
-        }).catch(e => console.log("Mail gönderilemedi."));
+        }).catch(e => console.log("Mail gÃ¶nderilemedi."));
 
         window.location.href = "admin.html";
     } else {
-        alert("Hatalı şifre!");
+        alert("HatalÄ± ÅŸifre!");
         passInput.value = "";
         passInput.focus();
     }
 };
 
-// Gönder Butonu Görünürlük ve Neon Kontrolü
+// GÃ¶nder Butonu GÃ¶rÃ¼nÃ¼rlÃ¼k ve Neon KontrolÃ¼
 const descriptionInput = document.getElementById('description');
 const submitNeonBtn = document.getElementById('submitBtn');
 const navCenterWrap = document.querySelector('.nav-center-wrap');
@@ -610,24 +708,24 @@ if (descriptionInput) {
     });
 }
 
-// --- OTOMATİK GOOGLE SHEETS SENKRONİZASYONU ---
-// Günde 1 kez ilk giren kişi üzerinden listeleri günceller
+// --- OTOMATÄ°K GOOGLE SHEETS SENKRONÄ°ZASYONU ---
+// GÃ¼nde 1 kez ilk giren kiÅŸi Ã¼zerinden listeleri gÃ¼nceller
 async function autoSyncGoogleSheet() {
     try {
-        const todayStr = new Date().toLocaleDateString('tr-TR'); // Örn: 12.06.2026
+        const todayStr = new Date().toLocaleDateString('tr-TR'); // Ã–rn: 12.06.2026
         const syncRef = db.collection('ayarlar').doc('lastSync');
         const doc = await syncRef.get();
         
         if (doc.exists && doc.data().date === todayStr) {
-            return; // Bugün zaten güncellenmiş
+            return; // BugÃ¼n zaten gÃ¼ncellenmiÅŸ
         }
 
-        // Aynı anda birden fazla cihazın güncellemesini önlemek için tarihi hemen yazalım
+        // AynÄ± anda birden fazla cihazÄ±n gÃ¼ncellemesini Ã¶nlemek iÃ§in tarihi hemen yazalÄ±m
         await syncRef.set({ date: todayStr, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
         
-        console.log("Google Sheets otomatik senkronizasyon başlatılıyor...");
+        console.log("Google Sheets otomatik senkronizasyon baÅŸlatÄ±lÄ±yor...");
         
-                // YENİ: JSONP ile Google GViz API üzerinden doğrudan veri çekme (Proxysiz, CORS engeli yok)
+                // YENÄ°: JSONP ile Google GViz API Ã¼zerinden doÄŸrudan veri Ã§ekme (Proxysiz, CORS engeli yok)
         const fetchGVizJSONP = (url) => new Promise((resolve, reject) => {
             const cb = 'gviz_' + Math.round(Math.random() * 1000000);
             window[cb] = (data) => {
@@ -637,7 +735,7 @@ async function autoSyncGoogleSheet() {
             };
             const script = document.createElement('script');
             script.src = url.replace('tqx=out:json', 'tqx=out:json;responseHandler:' + cb);
-            script.onerror = () => reject(new Error('JSONP başarisiz'));
+            script.onerror = () => reject(new Error('JSONP baÅŸarisiz'));
             document.body.appendChild(script);
         });
 
@@ -673,11 +771,11 @@ async function autoSyncGoogleSheet() {
                 let dept = cols[1] && cols[1].v ? String(cols[1].v).trim().replace(/\n/g, ' ') : '';
                 let mach = cols[2] && cols[2].v ? String(cols[2].v).trim().replace(/\n/g, ' ') : '';
                 
-                if (dept && dept !== 'MALİYET MERKEZİ' && !dept.includes("37")) {
+                if (dept && dept !== 'MALÄ°YET MERKEZÄ°' && !dept.includes("37")) {
                     dept = dept.toUpperCase();
                     departments.add(dept);
                     
-                    if (mach && mach !== 'MAKİNE ADI' && !mach.includes("37")) {
+                    if (mach && mach !== 'MAKÄ°NE ADI' && !mach.includes("37")) {
                         mach = mach.toUpperCase();
                         machines.add(mach);
                         
@@ -697,10 +795,10 @@ async function autoSyncGoogleSheet() {
             for (let r of data2.table.rows) {
                 if (r.c) {
                     let jt = r.c[6] && r.c[6].v ? String(r.c[6].v).trim().replace(/\n/g, ' ') : '';
-                    if (jt && jt !== 'İŞ İSTEK TÜRÜ') jobTypes.add(jt.toUpperCase());
+                    if (jt && jt !== 'Ä°Å Ä°STEK TÃœRÃœ') jobTypes.add(jt.toUpperCase());
                     
                     let sh = r.c[7] && r.c[7].v ? String(r.c[7].v).trim().replace(/\n/g, ' ') : '';
-                    if (sh && sh !== 'VARDİYA' && sh !== 'VARDIYA') shifts.add(sh.toUpperCase());
+                    if (sh && sh !== 'VARDÄ°YA' && sh !== 'VARDIYA') shifts.add(sh.toUpperCase());
                 }
             }
         }
@@ -736,27 +834,27 @@ window.getJobTypeHTML = (jobType) => {
     let color = '#4a5568';
     const text = jobType.toUpperCase();
     
-    if (text.includes('MEKANİK') || text.includes('MEKANIK')) { bg = '#00FFFF'; color = '#000000'; }
-    else if (text.includes('ELEKTRİK') || text.includes('ELEKTRIK')) { bg = '#FFFF00'; color = '#000000'; }
+    if (text.includes('MEKANİK') || text.includes('MEKANİK')) { bg = '#00FFFF'; color = '#000000'; }
+    else if (text.includes('ELEKTRİK') || text.includes('ELEKTRİK')) { bg = '#FFFF00'; color = '#000000'; }
     else if (text.includes('PLANLI')) { bg = '#FFA500'; color = '#000000'; }
     else if (text.includes('TEKRAR')) { bg = '#FF00FF'; color = '#FFFFFF'; }
-    else if (text.includes('İSG') || text.includes('ISG') || text.includes('GÜVENLİĞİ')) { bg = '#FF0000'; color = '#FFFFFF'; }
+    else if (text.includes('isg') || text.includes('İSG') || text.includes('GÜVENLİĞİ')) { bg = '#FF0000'; color = '#FFFFFF'; }
     else if (text.includes('ARIZA')) { bg = '#fee2e2'; color = '#991b1b'; } // Varsayılan arıza
     else if (text.includes('PERİYODİK') || text.includes('PERIYODIK')) { bg = '#dbeafe'; color = '#1e40af'; }
     else if (text.includes('KESTİRİMCİ') || text.includes('KESTIRIMCI')) { bg = '#f3e8ff'; color = '#6b21a8'; }
     else if (text.includes('İYİLEŞTİRME') || text.includes('IYILESTIRME')) { bg = '#dcfce7'; color = '#166534'; }
 
-    return `<span style="background-color: ${bg}; color: ${color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600; display: inline-block; white-space: nowrap; border: 1px solid rgba(0,0,0,0.1);">${jobType}</span>`;
+    return `<span style="background-color: ${bg}; color: ${color}; padding: 4px 10px; border-radius: 0px; font-size: 0.85em; font-weight: 600; display: inline-block; white-space: nowrap; border: 1px solid rgba(0,0,0,0.1);">${jobType}</span>`;
 };
 
 window.getRowBgColor = (jobType) => {
     if (!jobType) return 'transparent';
     const text = jobType.toUpperCase();
-    if (text.includes('MEKANİK') || text.includes('MEKANIK')) return '#00FFFF';
-    if (text.includes('ELEKTRİK') || text.includes('ELEKTRIK')) return '#FFFF00';
+    if (text.includes('MEKANİK') || text.includes('MEKANİK')) return '#00FFFF';
+    if (text.includes('ELEKTRİK') || text.includes('ELEKTRİK')) return '#FFFF00';
     if (text.includes('PLANLI')) return '#FFA500';
     if (text.includes('TEKRAR')) return '#FF00FF';
-    if (text.includes('İSG') || text.includes('ISG') || text.includes('GÜVENLİĞİ')) return '#FF0000';
+    if (text.includes('İSG') || text.includes('İSG') || text.includes('GÜVENLİĞİ')) return '#FF0000';
     return 'transparent';
 };
 
@@ -787,10 +885,23 @@ function makeSelectSearchable(selectId) {
                 item.className = 'custom-select-item';
                 if(select.value === opt.value) item.classList.add('selected');
                 
+                let displayText = opt.text;
+                if (selectId === 'costCenter') {
+                    displayText = displayText.replace(/^[0-9]+-[0-9]+-/, '');
+                }
+                
                 if (selectId === 'jobType') {
-                    item.innerHTML = window.getJobTypeHTML(opt.text);
+                    const rowBg = window.getRowBgColor(opt.text);
+                    item.innerText = displayText;
+                    if (rowBg !== 'transparent') {
+                        item.style.backgroundColor = rowBg;
+                        item.style.color = (rowBg === '#FF00FF' || rowBg === '#FF0000') ? '#FFFFFF' : '#000000';
+                        item.style.fontWeight = 'bold';
+                        item.style.borderBottom = '1px solid rgba(0,0,0,0.1)';
+                        item.style.borderRadius = '0';
+                    }
                 } else {
-                    item.innerText = opt.text;
+                    item.innerText = displayText;
                 }
                 
                 item.onclick = () => {
@@ -870,7 +981,7 @@ window.menuAction = (action) => {
             loadFaultBoard();
         }
     } else if (action === 'sendMessage') {
-        // Eski mesaj butonu (artık kullanılmıyor ama uyumluluk için kalabilir)
+        // Eski mesaj butonu (artÄ±k kullanÄ±lmÄ±yor ama uyumluluk iÃ§in kalabilir)
         const msgModal = document.getElementById('messageModal');
         if (msgModal) msgModal.classList.remove('hidden');
     } else if (action === 'whatsappMessage') {
@@ -881,16 +992,16 @@ window.menuAction = (action) => {
         const chatBody = document.getElementById('waChatBody');
         
         if (chatBody) {
-            chatBody.innerHTML = '<div class="wa-date-chip">Bugün</div>';
+            chatBody.innerHTML = '<div class="wa-date-chip">BugÃ¼n</div>';
             
             const showTyping = () => {
                 const tId = 'typing-' + Date.now();
-                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${tId}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">Yazıyor...</div></div>`);
+                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${tId}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">YazÄ±yor...</div></div>`);
                 chatBody.scrollTop = chatBody.scrollHeight;
                 return tId;
             };
 
-            const pushMsg = (txt) => {
+            const pushmsg = (txt) => {
                 chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">${txt}</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
                 chatBody.scrollTop = chatBody.scrollHeight;
             };
@@ -898,27 +1009,27 @@ window.menuAction = (action) => {
             let tId = showTyping();
             setTimeout(() => {
                 document.getElementById(tId)?.remove();
-                pushMsg('Merhaba');
+                pushmsg('Merhaba');
                 
                 tId = showTyping();
                 setTimeout(() => {
                     document.getElementById(tId)?.remove();
-                    pushMsg('Arızaya müdahale edilmedi mi?');
+                    pushmsg('Arızaya müdahale edilmedi mi?');
                     
                     tId = showTyping();
                     setTimeout(() => {
                         document.getElementById(tId)?.remove();
-                        pushMsg('İstediğin olmadı mı?');
+                        pushmsg('İstediğin olmadı mı?');
                         
                         tId = showTyping();
                         setTimeout(() => {
                             document.getElementById(tId)?.remove();
-                            pushMsg('Öneri ve şikayetin mi var?');
+                            pushmsg('Öneri ve şikayetin mi var?');
                             
                             tId = showTyping();
                             setTimeout(() => {
                                 document.getElementById(tId)?.remove();
-                                pushMsg('Bu konularda bize yazabilirsin.');
+                                pushmsg('Bu konularda bize yazabilirsin.');
                                 if (msgInput) msgInput.focus();
                             }, 800);
                         }, 800);
@@ -939,7 +1050,7 @@ window.loadFaultBoard = async () => {
     loadingDiv.style.display = 'block';
 
     try {
-        // 1. Ayarları al
+        // 1. AyarlarÄ± al
         let settings = {
             colDate: true, colName: true, colDept: true, 
             colMachine: true, colShift: false, colJobType: false, colDesc: true
@@ -949,7 +1060,7 @@ window.loadFaultBoard = async () => {
             settings = { ...settings, ...settingsDoc.data() };
         }
 
-        // 2. Tablo Başlıklarını Oluştur
+        // 2. Tablo BaÅŸlÄ±klarÄ±nÄ± OluÅŸtur
         let headersHTML = '';
         if (settings.colDate) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Tarih/Saat</th>';
         if (settings.colName) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Bildiren Kişi</th>';
@@ -960,18 +1071,18 @@ window.loadFaultBoard = async () => {
         if (settings.colDesc) headersHTML += '<th style="padding: 6px; border-bottom: 2px solid #ddd;">Arıza Açıklaması</th>';
         tableHeader.innerHTML = headersHTML;
 
-        // 3. Sadece Açık Arızaları Getir
-        // Firebase index hatasını önlemek için orderBy'ı yerel olarak yapacağız
+        // 3. Sadece AÃ§Ä±k ArÄ±zalarÄ± Getir
+        // Firebase index hatasÄ±nÄ± Ã¶nlemek iÃ§in orderBy'Ä± yerel olarak yapacaÄŸÄ±z
         const snapshot = await db.collection('arizalar').where('status', '==', 'Açık').get();
         
         loadingDiv.style.display = 'none';
 
         if (snapshot.empty) {
-            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#666;">Şu an açık arıza bulunmamaktadır. 🎉</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#666;">Şu an açık arıza bulunmamaktadır. 😉</td></tr>`;
             return;
         }
 
-        // Verileri al ve timestamp'e göre azalan (yeniden eskiye) sırala
+        // Verileri al ve timestamp'e gÃ¶re azalan (yeniden eskiye) sÄ±rala
         const docs = [];
         snapshot.forEach(doc => docs.push(doc.data()));
         docs.sort((a, b) => {
@@ -983,7 +1094,7 @@ window.loadFaultBoard = async () => {
         // 4. Verileri Tabloya Yaz
         let rowsHTML = '';
         docs.forEach(data => {
-            // Tarih verisini hem eski hem yeni formata göre al
+            // Tarih verisini hem eski hem yeni formata gÃ¶re al
             let dateStr = '-';
             if (data.createdAt && typeof data.createdAt.toDate === 'function') {
                 dateStr = data.createdAt.toDate().toLocaleString('tr-TR');
@@ -1021,11 +1132,11 @@ window.loadFaultBoard = async () => {
         tableBody.innerHTML = rowsHTML;
 
     } catch (err) {
-        console.error("Pano yüklenirken hata:", err);
-        loadingDiv.innerText = "Veriler yüklenirken bir hata oluştu!";
-        // Hata durumunda index bazlı orderBy hatası olabilir (Firebase index istiyor olabilir).
-        // Index yoksa alert verip console.log'dan linki tıklamalarını hatırlatmalıyız, ancak 
-        // orderBy olmadan basit getirip js'de sıralamak daha güvenli (aylık bakım olduğu için sayı azdır).
+        console.error("Pano yÃ¼klenirken hata:", err);
+        loadingDiv.innerText = "Veriler yÃ¼klenirken bir hata oluÅŸtu!";
+        // Hata durumunda index bazlÄ± orderBy hatasÄ± olabilir (Firebase index istiyor olabilir).
+        // Index yoksa alert verip console.log'dan linki tÄ±klamalarÄ±nÄ± hatÄ±rlatmalÄ±yÄ±z, ancak 
+        // orderBy olmadan basit getirip js'de sÄ±ralamak daha gÃ¼venli (aylÄ±k bakÄ±m olduÄŸu iÃ§in sayÄ± azdÄ±r).
     }
 };
 
@@ -1034,17 +1145,17 @@ window.loadFaultBoard = async () => {
 // --- BAKIM EKIBINE MESAJ GONDER ---
 window.sendOpMessage = async () => {
     const sendBtn = document.querySelector('.wa-send-btn');
-    if (sendBtn && sendBtn.disabled) return; // Zaten gönderiliyor
+    if (sendBtn && sendBtn.disabled) return; // Zaten gÃ¶nderiliyor
 
     const msgInput = document.getElementById('msgContent');
     const msg = msgInput.value.trim();
     
     if (msg.length < 5) {
-        alert("Lütfen en az 5 harflik bir mesaj yazın.");
+        alert("LÃ¼tfen en az 5 harflik bir mesaj yazÄ±n.");
         return;
     }
     
-    // Butonu pasifleştir
+    // Butonu pasifleÅŸtir
     if (sendBtn) {
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.5';
@@ -1078,7 +1189,7 @@ window.sendOpMessage = async () => {
             console.log("Ops err", err);
         }
 
-        const trMonths = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        const trMonths = ["Ocak", "Åubat", "Mart", "Nisan", "MayÄ±s", "Haziran", "Temmuz", "AÄŸustos", "EylÃ¼l", "Ekim", "KasÄ±m", "AralÄ±k"];
         const now = new Date();
         const dateStr = `${now.getDate()} ${trMonths[now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} UTC+3`;
 
@@ -1126,7 +1237,7 @@ window.sendOpMessage = async () => {
         toast.style.fontSize = '1.2rem';
         toast.style.zIndex = '9999';
         toast.style.transition = 'opacity 0.5s';
-        toast.innerHTML = 'Mesajınız başarıyla iletildi! <svg viewBox="0 0 24 24" width="18" height="18" stroke="#00a884" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+        toast.innerHTML = 'MesajÄ±nÄ±z baÅŸarÄ±yla iletildi! <svg viewBox="0 0 24 24" width="18" height="18" stroke="#00a884" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-left: 5px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
         document.body.appendChild(toast);
         
         // Wait 2 seconds, fade out toast, and close modal
@@ -1150,7 +1261,7 @@ window.sendOpMessage = async () => {
         
     } catch (e) {
         console.error(e);
-        alert("Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.");
+        alert("Mesaj gÃ¶nderilirken hata oluÅŸtu. LÃ¼tfen tekrar deneyin.");
     }
 };
 
@@ -1214,11 +1325,11 @@ window.sendWhatsappMessage = async () => {
     const msg = msgInput.value.trim();
     
     if (msg.length < 5) {
-        alert("Lütfen en az 5 harflik bir mesaj yazın.");
+        alert("LÃ¼tfen en az 5 harflik bir mesaj yazÄ±n.");
         return;
     }
     
-    // Butonu pasifleştir
+    // Butonu pasifleÅŸtir
     if (sendBtn) {
         sendBtn.disabled = true;
         sendBtn.style.opacity = '0.5';
@@ -1252,7 +1363,7 @@ window.sendWhatsappMessage = async () => {
             console.log("Ops err", err);
         }
 
-        const trMonths = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        const trMonths = ["Ocak", "Åubat", "Mart", "Nisan", "MayÄ±s", "Haziran", "Temmuz", "AÄŸustos", "EylÃ¼l", "Ekim", "KasÄ±m", "AralÄ±k"];
         const now = new Date();
         const dateStr = `${now.getDate()} ${trMonths[now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} UTC+3`;
 
@@ -1286,14 +1397,14 @@ window.sendWhatsappMessage = async () => {
             }
         }
         
-        // Yanıt animasyonu ve modal kapama
+        // YanÄ±t animasyonu ve modal kapama
         const typingId2 = 'typing-reply-2';
-        chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${typingId2}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">Yazıyor...</div></div>`);
+        chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${typingId2}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">YazÄ±yor...</div></div>`);
         chatBody.scrollTop = chatBody.scrollHeight;
         
         setTimeout(() => {
             document.getElementById(typingId2)?.remove();
-            chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">Teşekkürler, mesajın bakım birimine iletilmiştir.</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
+            chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">TeÅŸekkÃ¼rler, mesajÄ±n bakÄ±m birimine iletilmiÅŸtir.</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
             chatBody.scrollTop = chatBody.scrollHeight;
             
             setTimeout(() => {
@@ -1308,15 +1419,68 @@ window.sendWhatsappMessage = async () => {
                     const sentBubbles = chatBody.querySelectorAll('.wa-sent');
                     sentBubbles.forEach(b => b.remove());
                 }
-            }, 1000);
+            }, 2000);
         }, 1200);
         
     } catch (e) {
         console.error(e);
-        alert("Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.");
+        alert("Mesaj gÃ¶nderilirken hata oluÅŸtu. LÃ¼tfen tekrar deneyin.");
         if (sendBtn) {
             sendBtn.disabled = false;
             sendBtn.style.opacity = '1';
         }
     }
 };
+
+// Splash Screen Animation
+document.addEventListener('DOMContentLoaded', () => {
+  const splash = document.getElementById('welcomeSplash');
+  if (!splash) return;
+  
+  const titleText = 'AKG Bakım Sistemine Hoş Geldiniz';
+  const features = [
+    '1. Bize iş istek açabilirsiniz.',
+    '2. Arıza durumunu görebilirsiniz.',
+    '3. Mesaj atabilirsiniz.'
+  ];
+
+  const typeWriter = (el, text, speed) => {
+    return new Promise(resolve => {
+      let i = 0;
+      const timer = setInterval(() => {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(timer);
+          el.classList.add('done');
+          resolve();
+        }
+      }, speed);
+    });
+  };
+
+  const runAnimation = async () => {
+    const titleEl = document.getElementById('splashTitle');
+    await typeWriter(titleEl, titleText, 50);
+    
+    for (let i = 1; i <= 3; i++) {
+      const item = document.getElementById('splashF' + i);
+      item.classList.add('show');
+      const textEl = item.querySelector('.splash-text');
+      await typeWriter(textEl, features[i-1], 30);
+      await new Promise(r => setTimeout(r, 200));
+    }
+    
+    setTimeout(() => {
+      splash.classList.add('hidden-splash');
+      setTimeout(() => splash.remove(), 800);
+    }, 1000);
+  };
+
+  runAnimation();
+});
+
+
+
+
