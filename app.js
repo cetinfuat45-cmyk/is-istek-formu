@@ -1,4 +1,4 @@
-﻿// --- Haptic & Audio Feedback ---
+// --- Haptic & Audio Feedback ---
 window.audioCtx = null;
 window.triggerFeedback = () => {
     if (navigator.vibrate) navigator.vibrate(40);
@@ -437,7 +437,9 @@ window.showSummaryOverlay = () => {
         document.getElementById('sum-job').innerText = jobText;
         
         const checkText = jobText.toUpperCase();
-        if (checkText.includes('İSG') || checkText.includes('ISG') || checkText.includes('GÜVEN') || checkText.includes('GUVEN') || checkText.includes('IS GUVENLIGI')) {
+        document.getElementById('sum-job').innerHTML = window.getJobTypeHTML(jobText);
+        
+        if (/İSG|ISG|GÜVEN|GUVEN|İŞ GÜVENLİĞİ/i.test(jobText)) {
             overlay.classList.add('is-isg');
             overlay.classList.remove('is-normal');
         } else {
@@ -728,6 +730,36 @@ setTimeout(() => {
 
 
 
+window.getJobTypeHTML = (jobType) => {
+    if (!jobType || jobType === '-') return '-';
+    let bg = '#e2e8f0';
+    let color = '#4a5568';
+    const text = jobType.toUpperCase();
+    
+    if (text.includes('MEKANİK') || text.includes('MEKANIK')) { bg = '#00FFFF'; color = '#000000'; }
+    else if (text.includes('ELEKTRİK') || text.includes('ELEKTRIK')) { bg = '#FFFF00'; color = '#000000'; }
+    else if (text.includes('PLANLI')) { bg = '#FFA500'; color = '#000000'; }
+    else if (text.includes('TEKRAR')) { bg = '#FF00FF'; color = '#FFFFFF'; }
+    else if (text.includes('İSG') || text.includes('ISG') || text.includes('GÜVENLİĞİ')) { bg = '#FF0000'; color = '#FFFFFF'; }
+    else if (text.includes('ARIZA')) { bg = '#fee2e2'; color = '#991b1b'; } // Varsayılan arıza
+    else if (text.includes('PERİYODİK') || text.includes('PERIYODIK')) { bg = '#dbeafe'; color = '#1e40af'; }
+    else if (text.includes('KESTİRİMCİ') || text.includes('KESTIRIMCI')) { bg = '#f3e8ff'; color = '#6b21a8'; }
+    else if (text.includes('İYİLEŞTİRME') || text.includes('IYILESTIRME')) { bg = '#dcfce7'; color = '#166534'; }
+
+    return `<span style="background-color: ${bg}; color: ${color}; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; font-weight: 600; display: inline-block; white-space: nowrap; border: 1px solid rgba(0,0,0,0.1);">${jobType}</span>`;
+};
+
+window.getRowBgColor = (jobType) => {
+    if (!jobType) return 'transparent';
+    const text = jobType.toUpperCase();
+    if (text.includes('MEKANİK') || text.includes('MEKANIK')) return '#00FFFF';
+    if (text.includes('ELEKTRİK') || text.includes('ELEKTRIK')) return '#FFFF00';
+    if (text.includes('PLANLI')) return '#FFA500';
+    if (text.includes('TEKRAR')) return '#FF00FF';
+    if (text.includes('İSG') || text.includes('ISG') || text.includes('GÜVENLİĞİ')) return '#FF0000';
+    return 'transparent';
+};
+
 // --- Custom Select Searchable List ---
 function makeSelectSearchable(selectId) {
     const select = document.getElementById(selectId);
@@ -754,7 +786,13 @@ function makeSelectSearchable(selectId) {
                 const item = document.createElement('div');
                 item.className = 'custom-select-item';
                 if(select.value === opt.value) item.classList.add('selected');
-                item.innerText = opt.text;
+                
+                if (selectId === 'jobType') {
+                    item.innerHTML = window.getJobTypeHTML(opt.text);
+                } else {
+                    item.innerText = opt.text;
+                }
+                
                 item.onclick = () => {
                     window.triggerFeedback();
                     select.value = opt.value;
@@ -832,8 +870,62 @@ window.menuAction = (action) => {
             loadFaultBoard();
         }
     } else if (action === 'sendMessage') {
-        document.getElementById('messageModal').classList.remove('hidden');
-        setTimeout(() => document.getElementById('msgSenderName').focus(), 100);
+        // Eski mesaj butonu (artık kullanılmıyor ama uyumluluk için kalabilir)
+        const msgModal = document.getElementById('messageModal');
+        if (msgModal) msgModal.classList.remove('hidden');
+    } else if (action === 'whatsappMessage') {
+        const waModal = document.getElementById('whatsappMessageModal');
+        if (waModal) waModal.classList.remove('hidden');
+        
+        const msgInput = document.getElementById('msgContent');
+        const chatBody = document.getElementById('waChatBody');
+        
+        if (chatBody) {
+            chatBody.innerHTML = '<div class="wa-date-chip">Bugün</div>';
+            
+            const showTyping = () => {
+                const tId = 'typing-' + Date.now();
+                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${tId}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">Yazıyor...</div></div>`);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                return tId;
+            };
+
+            const pushMsg = (txt) => {
+                chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">${txt}</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            };
+
+            let tId = showTyping();
+            setTimeout(() => {
+                document.getElementById(tId)?.remove();
+                pushMsg('Merhaba');
+                
+                tId = showTyping();
+                setTimeout(() => {
+                    document.getElementById(tId)?.remove();
+                    pushMsg('Arızaya müdahale edilmedi mi?');
+                    
+                    tId = showTyping();
+                    setTimeout(() => {
+                        document.getElementById(tId)?.remove();
+                        pushMsg('İstediğin olmadı mı?');
+                        
+                        tId = showTyping();
+                        setTimeout(() => {
+                            document.getElementById(tId)?.remove();
+                            pushMsg('Öneri ve şikayetin mi var?');
+                            
+                            tId = showTyping();
+                            setTimeout(() => {
+                                document.getElementById(tId)?.remove();
+                                pushMsg('Bu konularda bize yazabilirsin.');
+                                if (msgInput) msgInput.focus();
+                            }, 800);
+                        }, 800);
+                    }, 800);
+                }, 1200);
+            }, 800);
+        }
     }
 };
 
@@ -912,13 +1004,16 @@ window.loadFaultBoard = async () => {
             const jobType = data.jobType || data.ariza_tipi || '-';
             const desc = data.description || data.aciklama || '-';
             
-            rowsHTML += '<tr style="border-bottom: 1px solid #eee;">';
+            const rowBg = window.getRowBgColor(jobType);
+            const rowTextColor = (rowBg === '#FF00FF' || rowBg === '#FF0000') ? '#FFFFFF' : '#333333';
+            
+            rowsHTML += `<tr style="border-bottom: 1px solid #ccc; background-color: ${rowBg}; color: ${rowTextColor};">`;
             if (settings.colDate) rowsHTML += `<td style="padding: 6px;">${dateStr}</td>`;
             if (settings.colName) rowsHTML += `<td style="padding: 6px;">${name}</td>`;
             if (settings.colDept) rowsHTML += `<td style="padding: 6px;">${dept}</td>`;
             if (settings.colMachine) rowsHTML += `<td style="padding: 6px;">${machine}</td>`;
             if (settings.colShift) rowsHTML += `<td style="padding: 6px;">${shift}</td>`;
-            if (settings.colJobType) rowsHTML += `<td style="padding: 6px;">${jobType}</td>`;
+            if (settings.colJobType) rowsHTML += `<td style="padding: 6px;">${window.getJobTypeHTML(jobType)}</td>`;
             if (settings.colDesc) rowsHTML += `<td style="padding: 6px;">${desc}</td>`;
             rowsHTML += '</tr>';
         });
@@ -1110,3 +1205,118 @@ document.addEventListener('DOMContentLoaded', () => {
             svg.setAttribute('height', '18');
         }
     }
+
+window.sendWhatsappMessage = async () => {
+    const sendBtn = document.querySelector('#whatsappMessageModal .wa-send-btn');
+    if (sendBtn && sendBtn.disabled) return; 
+
+    const msgInput = document.getElementById('msgContent');
+    const msg = msgInput.value.trim();
+    
+    if (msg.length < 5) {
+        alert("Lütfen en az 5 harflik bir mesaj yazın.");
+        return;
+    }
+    
+    // Butonu pasifleştir
+    if (sendBtn) {
+        sendBtn.disabled = true;
+        sendBtn.style.opacity = '0.5';
+    }
+    
+    // Add sent bubble to UI immediately
+    const chatBody = document.getElementById('waChatBody');
+    if (chatBody) {
+        const timeStr = new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        const bubbleHtml = `
+            <div class="wa-message wa-sent">
+                <div class="wa-message-text">${msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>
+                <div class="wa-message-time">${timeStr} <svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+            </div>
+        `;
+        chatBody.insertAdjacentHTML('beforeend', bubbleHtml);
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    try {
+        let opsList = [];
+        try {
+            const opsDoc = await db.collection("ayarlar").doc("operators").get();
+            if (opsDoc.exists && opsDoc.data().list) {
+                opsList = opsDoc.data().list;
+                if (!opsList.includes("Admin")) {
+                    opsList.push("Admin");
+                }
+            }
+        } catch(err) {
+            console.log("Ops err", err);
+        }
+
+        const trMonths = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+        const now = new Date();
+        const dateStr = `${now.getDate()} ${trMonths[now.getMonth()]} ${now.getFullYear()}, ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')} UTC+3`;
+
+        await db.collection("mesajlar").add({
+            isim: "Sahadan Bildirim",
+            gonderen: "Sahadan Bildirim",
+            sender: "Sahadan Bildirim", 
+            mesaj: msg,
+            text: msg, 
+            tarih: dateStr,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+            metin: msg,
+            hedefKullanicilar: opsList,
+            oku: [],
+            "olusturulma tarihi": firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        await db.collection("messages").add({
+            sender: "Sahadan Bildirim",
+            text: msg,
+            targetUsers: opsList, 
+            readBy: [],
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        
+        // Change single tick to double blue tick
+        if (chatBody) {
+            const lastTick = chatBody.querySelector('.wa-sent:last-child .wa-tick');
+            if (lastTick) {
+                lastTick.outerHTML = '<svg class="wa-tick" viewBox="0 0 24 24" width="14" height="14" stroke="#53bdeb" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:-2px;"><polyline points="18 6 7 17 2 12"></polyline><polyline points="22 10 11 21 7 17"></polyline></svg>';
+            }
+        }
+        
+        // Yanıt animasyonu ve modal kapama
+        const typingId2 = 'typing-reply-2';
+        chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received" id="${typingId2}"><div class="wa-message-text" style="color:#aaa; font-style:italic; padding: 2px 5px;">Yazıyor...</div></div>`);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        
+        setTimeout(() => {
+            document.getElementById(typingId2)?.remove();
+            chatBody.insertAdjacentHTML('beforeend', `<div class="wa-message wa-received"><div class="wa-message-text">Teşekkürler, mesajın bakım birimine iletilmiştir.</div><div class="wa-message-time">${new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div></div>`);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            
+            setTimeout(() => {
+                document.getElementById('whatsappMessageModal').classList.add('hidden');
+                msgInput.value = "";
+                msgInput.style.height = '';
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.style.opacity = '1';
+                }
+                if (chatBody) {
+                    const sentBubbles = chatBody.querySelectorAll('.wa-sent');
+                    sentBubbles.forEach(b => b.remove());
+                }
+            }, 1000);
+        }, 1200);
+        
+    } catch (e) {
+        console.error(e);
+        alert("Mesaj gönderilirken hata oluştu. Lütfen tekrar deneyin.");
+        if (sendBtn) {
+            sendBtn.disabled = false;
+            sendBtn.style.opacity = '1';
+        }
+    }
+};
