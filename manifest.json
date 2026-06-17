@@ -1,0 +1,17 @@
+﻿{
+  "name": "Arıza Bildirim Formu",
+  "short_name": "AKG Arıza",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e53e3e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "AKGLOG.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
