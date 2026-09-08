@@ -228,14 +228,14 @@
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: auto; align-items: stretch; height: 56px;">
-                    <button type="button" class="btn-ileri" onclick="closeSummaryOverlay()" style="flex: 1; background: var(--input-bg); color: var(--text-primary); border-color: var(--input-border); min-width: 0; padding: 0; font-size: 0.95rem; height: 100%;">Geri Düzelt</button>
+                    <button type="button" class="btn-ileri" onclick="window.closeSummaryOverlay(event)" style="flex: 1; background: var(--input-bg); color: var(--text-primary); border-color: var(--input-border); min-width: 0; padding: 0; font-size: 0.95rem; height: 100%;">Geri Düzelt</button>
                     
                     <button type="button" id="openPhotoModalBtn" class="photo-btn" title="Fotoğraf Ekle" style="width: 56px; height: 56px; border-radius: 12px; margin: 0; flex-shrink: 0; padding: 0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
                         <span id="photoCompactText" style="display:none;"></span>
                     </button>
                     
-                    <button type="button" id="submitBtnOverlay" class="btn-ileri ready-to-submit" style="flex: 1.5; background: #10b981; color: white; border-color: #10b981; min-width: 0; padding: 0; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); height: 100%;">✅ İLET</button>
+                    <button type="button" id="submitBtnOverlay" onclick="window.submitFaultForm(event)" class="btn-ileri ready-to-submit" style="flex: 1.5; background: #10b981; color: white; border-color: #10b981; min-width: 0; padding: 0; font-size: 1.05rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); height: 100%;">✅ İLET</button>
                 </div>
 
             </div>
@@ -449,25 +449,6 @@
         </div>
     </div>
 
-
-
-
-
-    <!-- Admin Giriş Modalı -->
-    <div id="adminLoginModal" class="modal-overlay hidden">
-        <div class="modal-content" style="max-width: 350px; text-align: center; padding: 2rem; background: #fff;">
-            <div style="display: flex; justify-content: flex-end;">
-                <button type="button" class="close-modal" onclick="document.getElementById('adminLoginModal').classList.add('hidden')" style="color: #333; font-size: 1.5rem; background: none; border: none; cursor: pointer;">×</button>
-            </div>
-            <h3 style="margin-bottom: 1.5rem; color: #333;">Yönetici Girişi</h3>
-            <div style="margin-bottom: 1.5rem;">
-                <input type="password" id="adminPassword" class="custom-input" placeholder="�??ifre" style="text-align: center;">
-            </div>
-            <button type="button" onclick="adminLogin()" style="width: 100%; background: #2b6cb0; color: white; border-radius: 12px; padding: 1rem; font-size: 1rem; border: none; cursor: pointer;">Giriş Yap</button>
-        </div>
-    </div>
-
-    <script src="app.js??v=50.11"></script>
 </body>
 </html>
 

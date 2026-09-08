@@ -148,7 +148,7 @@ async function compressImage(file, maxWidth = 1024) {
 const form = document.getElementById('faultForm');
 const submitBtn = document.getElementById('submitBtn');
 
-// Yeni GÃ¶nderim ModalÄ± Elementleri
+// Yeni Gönderim Modalı Elementleri
 const submissionModal = document.getElementById('submissionModal');
 const loadingState = document.getElementById('loadingState');
 const successState = document.getElementById('successState');
@@ -156,34 +156,48 @@ const loadingSubText = document.getElementById('loadingSubText');
 const closeCountdown = document.getElementById('closeCountdown');
 let closeCountdownTimer = null;
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // YÃ¼kleniyor ekranÄ±nÄ± aÃ§
-    submissionModal.classList.remove('hidden');
-    loadingState.classList.remove('hidden');
-    successState.classList.add('hidden');
-    loadingSubText.innerText = "Sistemle baÄŸlantÄ± kuruluyor...";
+window.submitFaultForm = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    window.triggerFeedback();
+
+    // 1. Tüm adımları doğrula
+    for (let step = 1; step <= 6; step++) {
+        if (!validateStep(step)) {
+            window.closeSummaryOverlay();
+            window.goToStep(step);
+            return;
+        }
+    }
+
+    // Özet ekranını kapat
+    const overlay = document.getElementById('summaryOverlay');
+    if (overlay) overlay.classList.add('hidden');
+
+    // Yükleniyor ekranını aç
+    if (submissionModal) submissionModal.classList.remove('hidden');
+    if (loadingState) loadingState.classList.remove('hidden');
+    if (successState) successState.classList.add('hidden');
+    if (loadingSubText) loadingSubText.innerText = "Sistemle bağlantı kuruluyor...";
 
     try {
         let photoUrl = "";
         
-        // FotoÄŸraf seÃ§ildiyse iÅŸle (Kamera veya Dosyadan)
+        // Fotoğraf seçildiyse işle (Kamera veya Dosyadan)
         const cameraFile = document.getElementById('cameraInput') ? document.getElementById('cameraInput').files[0] : null;
         const folderFile = document.getElementById('fileInput') ? document.getElementById('fileInput').files[0] : null;
         const photoFile = cameraFile || folderFile;
         
         if (photoFile) {
-            loadingSubText.innerText = "FotoÄŸraf SÄ±kÄ±ÅŸtÄ±rÄ±lÄ±yor...";
+            if (loadingSubText) loadingSubText.innerText = "Fotoğraf Sıkıştırılıyor...";
             const compressedBlob = await compressImage(photoFile);
             
-            loadingSubText.innerText = "FotoÄŸraf YÃ¼kleniyor...";
+            if (loadingSubText) loadingSubText.innerText = "Fotoğraf Yükleniyor...";
             const storageRef = storage.ref('ariza_fotolari/' + Date.now() + '.jpg');
             await storageRef.put(compressedBlob);
             photoUrl = await storageRef.getDownloadURL();
         }
 
-        loadingSubText.innerText = "KayÄ±t OluÅŸturuluyor...";
+        if (loadingSubText) loadingSubText.innerText = "Kayıt Oluşturuluyor...";
 
         const faultData = {
             userName: document.getElementById('userName').value,
@@ -198,19 +212,18 @@ form.addEventListener('submit', async (e) => {
             resolvedData: null
         };
 
-                await db.collection("arizalar").add(faultData);
+        await db.collection("arizalar").add(faultData);
 
-        // Yeni ArÄ±za Bildirimini Web3Forms veya Webhook (Google Apps Script) ile Mail At
+        // Yeni Arıza Bildirimini Web3Forms veya Webhook (Google Apps Script) ile Mail At
         try {
             const mailDoc = await db.collection('ayarlar').doc('adminEmail').get();
             if (mailDoc.exists && mailDoc.data().key && mailDoc.data().faultMailEnabled !== false) {
                 const accessKey = mailDoc.data().key;
                 const dashboardLink = window.location.href.replace('index.html', '') + 'index.html';
-                const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BÄ°LDÄ°RÄ°MÄ°";
+                const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BİLDİRİMİ";
                 const targetEmail = mailDoc.data().targetEmail || "";
                 
                 if (accessKey.startsWith("http")) {
-                    // Google Apps Script (Kendi Mail Sunucusu)
                     fetch(accessKey, {
                         method: 'POST',
                         mode: 'no-cors',
@@ -218,7 +231,7 @@ form.addEventListener('submit', async (e) => {
                         body: JSON.stringify({
                             type: 'fault',
                             targetEmail: targetEmail,
-                            subject: faultData.machine || "Yeni ArÄ±za",
+                            subject: faultData.machine || "Yeni Arıza",
                             from_name: faultTypeStr,
                             description: faultData.description,
                             userName: faultData.userName,
@@ -227,40 +240,39 @@ form.addEventListener('submit', async (e) => {
                         })
                     }).catch(e=>console.log(e));
                 } else {
-                    // Web3Forms kullanÄ±mÄ±
                     fetch('https://api.web3forms.com/submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                         body: JSON.stringify({
                             access_key: accessKey,
-                            subject: faultData.machine || "Yeni ArÄ±za",
+                            subject: faultData.machine || "Yeni Arıza",
                             from_name: faultTypeStr,
                             message: faultData.description,
                             "Bildiren Personel": faultData.userName,
-                            "Ã‡alÄ±ÅŸÄ±lan Vardiya": faultData.shift,
-                            "Sisteme GiriÅŸ Linki": dashboardLink
+                            "Çalışılan Vardiya": faultData.shift,
+                            "Sisteme Giriş Linki": dashboardLink
                         })
                     }).catch(e=>console.log(e));
                 }
             }
         } catch(e) { console.log(e); }
 
-        // GÃ¶nderim BaÅŸarÄ±lÄ± -> Modal'Ä±n 2. AÅŸamasÄ±nÄ± AÃ§
-        loadingState.classList.add('hidden');
-        successState.classList.remove('hidden');
+        // Gönderim Başarılı -> Modal'ın 2. Aşamasını Aç
+        if (loadingState) loadingState.classList.add('hidden');
+        if (successState) successState.classList.remove('hidden');
         
-        // Formu Arka Planda SÄ±fÄ±rla
-        form.reset();
+        // Formu Arka Planda Sıfırla
+        if (form) form.reset();
         window.resetStepper();
         
-        // 10 Saniyelik Otomatik Kapatma SayacÄ±
+        // 10 Saniyelik Otomatik Kapatma Sayacı
         let secondsLeft = 10;
-        closeCountdown.innerText = secondsLeft;
+        if (closeCountdown) closeCountdown.innerText = secondsLeft;
         
         clearInterval(closeCountdownTimer);
         closeCountdownTimer = setInterval(() => {
             secondsLeft--;
-            closeCountdown.innerText = secondsLeft;
+            if (closeCountdown) closeCountdown.innerText = secondsLeft;
             if (secondsLeft <= 0) {
                 clearInterval(closeCountdownTimer);
                 window.closeSystem();
@@ -269,10 +281,17 @@ form.addEventListener('submit', async (e) => {
 
     } catch (error) {
         console.error("Hata: ", error);
-        // Hata durumunda sadece modalÄ± kapat (veya konsola yaz)
-        submissionModal.classList.add('hidden');
+        alert("Gönderim sırasında bir hata oluştu: " + error.message);
+        if (submissionModal) submissionModal.classList.add('hidden');
     }
-});
+};
+
+if (form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        window.submitFaultForm(e);
+    });
+}
 
 // Modal Ä°Ã§i ButonlarÄ±n FonksiyonlarÄ±
 window.startNewForm = () => {
@@ -548,18 +567,19 @@ window.showSummaryOverlay = () => {
     document.getElementById('summaryOverlay').classList.remove('hidden');
 };
 
-window.closeSummaryOverlay = () => {
+window.closeSummaryOverlay = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     window.triggerFeedback();
-    document.getElementById('summaryOverlay').classList.add('hidden');
+    const overlay = document.getElementById('summaryOverlay');
+    if (overlay) overlay.classList.add('hidden');
 };
 
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('submitBtnOverlay');
     if(btn) {
-        btn.addEventListener('click', () => {
-            window.triggerFeedback();
-            // Programmatically submit the form
-            document.getElementById('faultForm').requestSubmit();
+        btn.addEventListener('click', (e) => {
+            if (e && e.preventDefault) e.preventDefault();
+            window.submitFaultForm(e);
         });
     }
 });
