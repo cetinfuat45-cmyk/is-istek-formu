@@ -214,50 +214,7 @@ window.submitFaultForm = async (e) => {
 
         await db.collection("arizalar").add(faultData);
 
-        // Yeni Arıza Bildirimini Web3Forms veya Webhook (Google Apps Script) ile Mail At
-        try {
-            const mailDoc = await db.collection('ayarlar').doc('adminEmail').get();
-            if (mailDoc.exists && mailDoc.data().key && mailDoc.data().faultMailEnabled !== false) {
-                const accessKey = mailDoc.data().key;
-                const dashboardLink = window.location.href.replace('index.html', '') + 'index.html';
-                const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BİLDİRİMİ";
-                const targetEmail = mailDoc.data().targetEmail || "";
-                
-                if (accessKey.startsWith("http")) {
-                    fetch(accessKey, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({
-                            type: 'fault',
-                            targetEmail: targetEmail,
-                            subject: faultData.machine || "Yeni Arıza",
-                            from_name: faultTypeStr,
-                            description: faultData.description,
-                            userName: faultData.userName,
-                            shift: faultData.shift,
-                            link: dashboardLink
-                        })
-                    }).catch(e=>console.log(e));
-                } else {
-                    fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                        body: JSON.stringify({
-                            access_key: accessKey,
-                            subject: faultData.machine || "Yeni Arıza",
-                            from_name: faultTypeStr,
-                            message: faultData.description,
-                            "Bildiren Personel": faultData.userName,
-                            "Çalışılan Vardiya": faultData.shift,
-                            "Sisteme Giriş Linki": dashboardLink
-                        })
-                    }).catch(e=>console.log(e));
-                }
-            }
-        } catch(e) { console.log(e); }
-
-        // Gönderim Başarılı -> Modal'ın 2. Aşamasını Aç
+        // Gönderim Başarılı -> Modal'ın 2. Aşamasını ANINDA Aç (Bekletme Yapmadan)
         if (loadingState) loadingState.classList.add('hidden');
         if (successState) successState.classList.remove('hidden');
         
@@ -278,6 +235,51 @@ window.submitFaultForm = async (e) => {
                 window.closeSystem();
             }
         }, 1000);
+
+        // Yeni Arıza Bildirimini Arka Planda (Kullanıcıyı Bekletmeden) Mail At
+        (async () => {
+            try {
+                const mailDoc = await db.collection('ayarlar').doc('adminEmail').get();
+                if (mailDoc.exists && mailDoc.data().key && mailDoc.data().faultMailEnabled !== false) {
+                    const accessKey = mailDoc.data().key;
+                    const dashboardLink = window.location.href.replace('index.html', '') + 'index.html';
+                    const faultTypeStr = faultData.jobType ? faultData.jobType.toUpperCase() : "ARIZA BİLDİRİMİ";
+                    const targetEmail = mailDoc.data().targetEmail || "";
+                    
+                    if (accessKey.startsWith("http")) {
+                        fetch(accessKey, {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({
+                                type: 'fault',
+                                targetEmail: targetEmail,
+                                subject: faultData.machine || "Yeni Arıza",
+                                from_name: faultTypeStr,
+                                description: faultData.description,
+                                userName: faultData.userName,
+                                shift: faultData.shift,
+                                link: dashboardLink
+                            })
+                        }).catch(e=>console.log(e));
+                    } else {
+                        fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: JSON.stringify({
+                                access_key: accessKey,
+                                subject: faultData.machine || "Yeni Arıza",
+                                from_name: faultTypeStr,
+                                message: faultData.description,
+                                "Bildiren Personel": faultData.userName,
+                                "Çalışılan Vardiya": faultData.shift,
+                                "Sisteme Giriş Linki": dashboardLink
+                            })
+                        }).catch(e=>console.log(e));
+                    }
+                }
+            } catch(e) { console.log("Mail gönderim arka plan hatası:", e); }
+        })();
 
     } catch (error) {
         console.error("Hata: ", error);
