@@ -801,3 +801,58 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
     .glass-top-menu .icon-text { font-size: 13px !important; }
     .stepper-wrapper { margin-top: max(104px, env(safe-area-inset-top) + 94px) !important; }
 }
+
+
+/* V5: WhatsApp metin ve mesaj balonu düzeni */
+.wa-contact-name {
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.2px;
+    line-height: 1.2;
+}
+.wa-contact-status {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    opacity: 0.95;
+}
+.wa-chat-body {
+    gap: 14px !important;
+    padding: 20px 18px !important;
+}
+.wa-message {
+    border-radius: 16px !important;
+    padding: 11px 14px !important;
+    max-width: 88%;
+}
+.wa-received { border-top-left-radius: 5px !important; }
+.wa-sent { border-top-right-radius: 5px !important; }
+.wa-message-text {
+    font-size: 16px !important;
+    font-weight: 550 !important;
+    line-height: 1.5 !important;
+    letter-spacing: 0.05px;
+    color: #1f2937 !important;
+}
+.wa-message-time {
+    font-size: 11px !important;
+    font-weight: 600;
+}
+.wa-date-chip {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2px;
+}
+.wa-input {
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    line-height: 1.4;
+}
+.wa-input::placeholder {
+    color: #7c8b95 !important;
+    opacity: 1;
+}
+@media (max-width: 520px) {
+    .wa-contact-name { font-size: 17px !important; }
+    .wa-message-text { font-size: 15.5px !important; }
+    .wa-chat-body { padding: 16px 14px !important; }
+}

@@ -44,3 +44,11 @@ Proje tamamen Frontend mimarisi (HTML, CSS, JS) üzerine kuruludur. Herhangi bir
 - Üst menü modern cam kart tasarımına geçirildi.
 - Mobil dokunma alanları ve yazı okunabilirliği artırıldı.
 - Üst menü ile adım göstergesi arasındaki boşluk düzenlendi.
+
+
+#### V5 Değişiklikleri
+- WhatsApp mesaj yazıları büyütüldü ve okunabilirliği artırıldı.
+- Mesaj balonları daha modern ve dengeli biçime getirildi.
+- Başlık, çevrimiçi durumu, tarih etiketi ve mesaj kutusu yazıları düzenlendi.
+- Karşılama mesajları kurumsal ve açıklayıcı biçimde yenilendi.
+- Önbellek sürümü V5 olarak yenilendi.

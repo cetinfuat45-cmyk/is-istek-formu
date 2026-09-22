@@ -1060,27 +1060,27 @@ window.menuAction = (action) => {
             let tId = showTyping();
             setTimeout(() => {
                 document.getElementById(tId)?.remove();
-                pushmsg('Merhaba');
+                pushmsg('Merhaba, bakım ekibine hoş geldiniz.');
                 
                 tId = showTyping();
                 setTimeout(() => {
                     document.getElementById(tId)?.remove();
-                    pushmsg('Arızaya müdahale edilmedi mi?');
+                    pushmsg('Açık iş isteğiniz veya arızanız hakkında bilgi almak için yazabilirsiniz.');
                     
                     tId = showTyping();
                     setTimeout(() => {
                         document.getElementById(tId)?.remove();
-                        pushmsg('İstediğin olmadı mı?');
+                        pushmsg('Öneri, talep ve şikayetlerinizi doğrudan bakım ekibine iletebilirsiniz.');
                         
                         tId = showTyping();
                         setTimeout(() => {
                             document.getElementById(tId)?.remove();
-                            pushmsg('Öneri ve şikayetin mi var?');
+                            pushmsg('Mesajınız ilgili bakım sorumlusuna yönlendirilecektir.');
                             
                             tId = showTyping();
                             setTimeout(() => {
                                 document.getElementById(tId)?.remove();
-                                pushmsg('Bu konularda bize yazabilirsin.');
+                                pushmsg('Lütfen mesajınızı aşağıdaki alana yazınız.');
                                 if (msgInput) {
                                     msgInput.disabled = false;
                                     msgInput.placeholder = "Mesaj yazın...";
