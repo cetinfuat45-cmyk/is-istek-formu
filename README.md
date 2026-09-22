@@ -52,3 +52,13 @@ Proje tamamen Frontend mimarisi (HTML, CSS, JS) üzerine kuruludur. Herhangi bir
 - Başlık, çevrimiçi durumu, tarih etiketi ve mesaj kutusu yazıları düzenlendi.
 - Karşılama mesajları kurumsal ve açıklayıcı biçimde yenilendi.
 - Önbellek sürümü V5 olarak yenilendi.
+
+
+#### V6 Değişiklikleri
+- Android gönderim ekranının uzun süre beklemesini önlemek için kayıt ve fotoğraf yükleme akışları ayrıldı.
+- İş isteği önce benzersiz belge kimliğiyle kaydediliyor.
+- Fotoğraf sıkıştırma ve yükleme işlemi kayıt sonrasında arka planda devam ediyor.
+- 6,5 saniyeyi aşan bağlantılarda kullanıcıya gönderim sırası mesajı gösteriliyor.
+- Aynı belge kimliği kullanılarak yavaş bağlantıda çift kayıt riski azaltıldı.
+- Android spinner animasyonu sadeleştirildi.
+- Önbellek sürümü V6 olarak yenilendi.

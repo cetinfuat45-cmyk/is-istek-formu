@@ -191,24 +191,13 @@ window.submitFaultForm = async (e) => {
     if (loadingSubText) loadingSubText.innerText = "Sistemle bağlantı kuruluyor...";
 
     try {
-        let photoUrl = "";
-        
-        // Fotoğraf seçildiyse işle (Kamera veya Dosyadan)
+        // V6 Android optimizasyonu: once kaydi benzersiz belge kimligiyle olustur.
+        // Fotograf yukleme, kaydin ekranda basarili gorunmesini bekletmez.
         const cameraFile = document.getElementById('cameraInput') ? document.getElementById('cameraInput').files[0] : null;
         const folderFile = document.getElementById('fileInput') ? document.getElementById('fileInput').files[0] : null;
         const photoFile = cameraFile || folderFile;
-        
-        if (photoFile) {
-            if (loadingSubText) loadingSubText.innerText = "Fotoğraf Sıkıştırılıyor...";
-            const compressedBlob = await compressImage(photoFile);
-            
-            if (loadingSubText) loadingSubText.innerText = "Fotoğraf Yükleniyor...";
-            const storageRef = storage.ref('ariza_fotolari/' + Date.now() + '.jpg');
-            await storageRef.put(compressedBlob);
-            photoUrl = await storageRef.getDownloadURL();
-        }
 
-        if (loadingSubText) loadingSubText.innerText = "Kayıt Oluşturuluyor...";
+        if (loadingSubText) loadingSubText.innerText = "Talebiniz kaydediliyor...";
 
         const faultData = {
             userName: document.getElementById('userName').value,
@@ -217,13 +206,50 @@ window.submitFaultForm = async (e) => {
             shift: document.getElementById('shift').value,
             jobType: document.getElementById('jobType').value,
             description: document.getElementById('description').value,
-            photoUrl: photoUrl,
+            photoUrl: "",
+            photoUploadStatus: photoFile ? 'Bekliyor' : 'Yok',
             status: 'Açık',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             resolvedData: null
         };
 
-        await db.collection("arizalar").add(faultData);
+        const faultRef = db.collection("arizalar").doc();
+        const writePromise = faultRef.set(faultData);
+        const writeResult = await Promise.race([
+            writePromise.then(() => 'saved'),
+            new Promise(resolve => setTimeout(() => resolve('queued'), 6500))
+        ]);
+
+        if (writeResult === 'queued' && loadingSubText) {
+            loadingSubText.innerText = "Bağlantı yavaş. Talebiniz gönderim sırasına alındı.";
+        }
+
+        // Yazma islemi zaman asimina ugrasa bile ayni belge kimligi kullanilir;
+        // yeniden kayit/ikiz is istegi olusmaz.
+        writePromise.catch(error => {
+            console.error("Arka plan kayıt hatası:", error);
+        });
+
+        if (photoFile) {
+            (async () => {
+                try {
+                    await writePromise;
+                    const compressedBlob = await compressImage(photoFile, 960);
+                    const storageRef = storage.ref('ariza_fotolari/' + faultRef.id + '.jpg');
+                    await storageRef.put(compressedBlob);
+                    const photoUrl = await storageRef.getDownloadURL();
+                    await faultRef.update({
+                        photoUrl,
+                        photoUploadStatus: 'Tamamlandı'
+                    });
+                } catch (photoError) {
+                    console.error("Arka plan fotoğraf yükleme hatası:", photoError);
+                    try {
+                        await faultRef.set({ photoUploadStatus: 'Hata' }, { merge: true });
+                    } catch (_) {}
+                }
+            })();
+        }
 
         // Gönderim Başarılı -> Modal'ın 2. Aşamasını ANINDA Aç (Bekletme Yapmadan)
         if (loadingState) loadingState.classList.add('hidden');
