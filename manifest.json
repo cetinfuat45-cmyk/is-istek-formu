@@ -1,6 +1,6 @@
 {
-  "name": "Arıza Bildirim Formu",
-  "short_name": "AKG Arıza",
+  "name": "AKG Bakım İş İstek V3",
+  "short_name": "AKG İş İstek V3",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",

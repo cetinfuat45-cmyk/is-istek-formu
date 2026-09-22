@@ -30,3 +30,17 @@ Proje tamamen Frontend mimarisi (HTML, CSS, JS) üzerine kuruludur. Herhangi bir
 - Vanilla JavaScript
 - Google Firebase (Firestore Database)
 - Google Sheets API (Toplu Veri Çekme İşlemleri)
+
+
+### V4.1.8 Düzeltmesi
+- İş isteğinin iki kez oluşmasına neden olan çift gönderim tetikleyicisi kaldırıldı.
+- Gönderim sırasında ikinci tıklamayı engelleyen işlem kilidi eklendi.
+- Hata oluşursa gönderim kilidinin güvenli şekilde açılması sağlandı.
+- Service Worker önbellek sürümü yenilendi.
+
+
+#### V3 Değişiklikleri
+- Arıza Bak ve WhatsApp ikonları büyütüldü.
+- Üst menü modern cam kart tasarımına geçirildi.
+- Mobil dokunma alanları ve yazı okunabilirliği artırıldı.
+- Üst menü ile adım göstergesi arasındaki boşluk düzenlendi.

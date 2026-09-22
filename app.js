@@ -155,9 +155,14 @@ const successState = document.getElementById('successState');
 const loadingSubText = document.getElementById('loadingSubText');
 const closeCountdown = document.getElementById('closeCountdown');
 let closeCountdownTimer = null;
+let isFaultSubmitting = false;
 
 window.submitFaultForm = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
+    if (isFaultSubmitting) {
+        console.warn("Is istegi zaten gonderiliyor; yinelenen gonderim engellendi.");
+        return;
+    }
     window.triggerFeedback();
 
     // 1. Tüm adımları doğrula
@@ -168,6 +173,12 @@ window.submitFaultForm = async (e) => {
             return;
         }
     }
+
+    // Dogrulama tamamlandi. Ikinci gonderimi engelle.
+    isFaultSubmitting = true;
+    if (submitBtn) submitBtn.disabled = true;
+    const overlaySubmitBtn = document.getElementById('submitBtnOverlay');
+    if (overlaySubmitBtn) overlaySubmitBtn.disabled = true;
 
     // Özet ekranını kapat
     const overlay = document.getElementById('summaryOverlay');
@@ -285,6 +296,10 @@ window.submitFaultForm = async (e) => {
         console.error("Hata: ", error);
         alert("Gönderim sırasında bir hata oluştu: " + error.message);
         if (submissionModal) submissionModal.classList.add('hidden');
+        isFaultSubmitting = false;
+        if (submitBtn) submitBtn.disabled = false;
+        const overlaySubmitBtn = document.getElementById('submitBtnOverlay');
+        if (overlaySubmitBtn) overlaySubmitBtn.disabled = false;
     }
 };
 
@@ -297,6 +312,10 @@ if (form) {
 
 // Modal Ä°Ã§i ButonlarÄ±n FonksiyonlarÄ±
 window.startNewForm = () => {
+    isFaultSubmitting = false;
+    if (submitBtn) submitBtn.disabled = false;
+    const overlaySubmitBtn = document.getElementById('submitBtnOverlay');
+    if (overlaySubmitBtn) overlaySubmitBtn.disabled = false;
     clearInterval(closeCountdownTimer);
     submissionModal.classList.add('hidden');
     window.resetStepper();
@@ -1344,54 +1363,18 @@ window.sendOpMessage = async () => {
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Bypass HTML caching
-    const adminBtn = document.querySelector('.admin-login-corner');
-    if (adminBtn) adminBtn.remove();
-    
-    const closeSysBtn = document.querySelector('button[onclick="window.closeSystem()"]');
-    if (closeSysBtn && closeSysBtn.parentElement) {
-        closeSysBtn.style.background = '#e53e3e';
-        closeSysBtn.style.color = 'white';
-        closeSysBtn.parentElement.prepend(closeSysBtn);
+    // V3: Onbellekten gelebilecek eski menu dugmelerini temizle.
+    document.querySelectorAll('.admin-login-corner, .bottom-power-wrapper, .btn-power').forEach(el => el.remove());
+    const topMenu = document.querySelector('.glass-top-menu');
+    if (topMenu) {
+        topMenu.querySelectorAll('button[title="Yönetici Paneli"], button[title="Kapat"]').forEach(el => el.remove());
     }
-});
     const faultBoardClose = document.querySelector('#faultBoardModal button');
     if (faultBoardClose) {
         faultBoardClose.style.color = '#e53e3e';
         faultBoardClose.style.fontWeight = 'bold';
-        if (!faultBoardClose.innerHTML.includes('Kapat')) {
-            faultBoardClose.innerHTML = '&times; Kapat';
-        }
     }
-    // Force remove the bottom power button if cached HTML is loading
-    const bottomPower = document.querySelector('.bottom-power-wrapper');
-    if (bottomPower) bottomPower.remove();
-    const btnPower = document.querySelector('.btn-power');
-    if (btnPower) btnPower.remove();
-    const topMenu = document.querySelector('.glass-top-menu');
-    if (topMenu) {
-        const hasKapat = topMenu.querySelector('button[title="Kapat"]') !== null;
-        if (!hasKapat) {
-            const topMenuBtn = document.createElement('button');
-            topMenuBtn.className = 'glass-icon-btn';
-            topMenuBtn.title = 'Kapat';
-            topMenuBtn.style.background = '#e53e3e'; topMenuBtn.style.color = 'white'; topMenuBtn.style.borderRadius = '50%'; topMenuBtn.style.width = '40px'; topMenuBtn.style.height = '40px'; topMenuBtn.style.display = 'flex'; topMenuBtn.style.flexDirection = 'column'; topMenuBtn.style.justifyContent = 'center'; topMenuBtn.style.alignItems = 'center'; topMenuBtn.style.boxShadow = '0 4px 10px rgba(229, 62, 62, 0.4)';
-            topMenuBtn.onclick = () => window.resetStepper();
-            topMenuBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>';
-            topMenu.appendChild(topMenuBtn);
-        }
-    }
-    // Force Kapat text removal
-    const kapatBtn = topMenu ? topMenu.querySelector('button[title="Kapat"]') : null;
-    if (kapatBtn) {
-        const textSpan = kapatBtn.querySelector('.icon-text');
-        if (textSpan) textSpan.remove();
-        const svg = kapatBtn.querySelector('svg');
-        if (svg) {
-            svg.setAttribute('width', '18');
-            svg.setAttribute('height', '18');
-        }
-    }
+});
 
 window.sendWhatsappMessage = async () => {
     const sendBtn = document.querySelector('#whatsappMessageModal .wa-send-btn');

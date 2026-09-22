@@ -1,11 +1,14 @@
-﻿const CACHE_NAME = 'ariza-takip-v3';
+﻿const CACHE_NAME = 'akg-bakim-is-istek-v3';
 const urlsToCache = [
   './',
   './index.html',
     './admin.html',
+    './dashboard.html',
   './style.css',
   './app.js',
     './admin.js',
+    './dashboard.js',
+    './AKGLOG.png',
   './icon.svg',
   './manifest.json'
 ];

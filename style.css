@@ -752,3 +752,52 @@ th { color: #000000; font-weight: 500; font-weight: 600; text-transform: upperca
 .splash-text { border-right: 2px solid var(--accent); white-space: nowrap; overflow: hidden; animation: blink-caret 0.75s step-end infinite; }
 .splash-text.done { border-right: none; }
 .splash-overlay.hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
+
+
+/* V3: Buyuk ve modern ust menu */
+.glass-top-menu {
+    justify-content: center !important;
+    gap: clamp(28px, 16vw, 180px) !important;
+    padding: 12px 18px !important;
+    min-height: 92px;
+    background: rgba(248, 250, 252, 0.82) !important;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.26) !important;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+}
+.glass-top-menu .glass-icon-btn {
+    min-width: 132px;
+    min-height: 68px;
+    padding: 10px 18px !important;
+    border: 1px solid rgba(148, 163, 184, 0.24) !important;
+    border-radius: 18px !important;
+    background: rgba(255, 255, 255, 0.82) !important;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+.glass-top-menu .glass-icon-btn:hover {
+    transform: translateY(-3px) scale(1.03) !important;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.14) !important;
+}
+.glass-top-menu .glass-icon-btn:active { transform: scale(0.97) !important; }
+.glass-top-menu .glass-icon-btn svg {
+    width: 42px !important;
+    height: 42px !important;
+    margin-bottom: 2px !important;
+    filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.16));
+}
+.glass-top-menu .icon-text {
+    font-size: 14px !important;
+    line-height: 1.15;
+    font-weight: 800 !important;
+    letter-spacing: 0.1px;
+}
+.stepper-wrapper { margin-top: max(112px, env(safe-area-inset-top) + 100px) !important; }
+.stepper-wrapper.stepper-up { margin-top: max(20px, env(safe-area-inset-top) + 15px) !important; }
+@media (max-width: 520px) {
+    .glass-top-menu { gap: 18px !important; min-height: 86px; padding: 10px 12px !important; }
+    .glass-top-menu .glass-icon-btn { min-width: 118px; min-height: 64px; padding: 8px 14px !important; }
+    .glass-top-menu .glass-icon-btn svg { width: 38px !important; height: 38px !important; }
+    .glass-top-menu .icon-text { font-size: 13px !important; }
+    .stepper-wrapper { margin-top: max(104px, env(safe-area-inset-top) + 94px) !important; }
+}
